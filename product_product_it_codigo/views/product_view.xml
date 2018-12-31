@@ -1,0 +1,161 @@
+<odoo>
+  <data>
+
+    <record id="product_template_tree_view" model="ir.ui.view">
+        <field name="name">product.template.product.tree</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="categ_id" position="replace">
+                <field name="categ_id_ant_ant"/>
+                <field name="categ_id_ant"/>
+                <field name="categ_id" string="Categoria 3"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_template_search_view" model="ir.ui.view">
+        <field name="name">product.template.search</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <field name="pricelist_id" position="after">
+                                        <filter string="Categoria 1" name="categ_id_ant_ant" icon="terp-partner" context="{'group_by':'categ_id_ant_ant'}"/>
+                                        <filter string="Categoria 2" name="categ_id_ant" icon="terp-partner" context="{'group_by':'categ_id_ant'}"/>
+                                        <filter string="Categoria 3" name="categ_id" icon="terp-partner" context="{'group_by':'categ_id'}"/>
+            </field>
+        </field>
+    </record>
+
+        <record id="producto_atribute_form" model="ir.ui.view">
+            <field name="name">product.atributo.form</field>
+            <field name="model">product.atributo</field>
+            <field name="arch" type="xml">
+                <form string="Archivo" version="7.0">
+                    <group>
+                        <group> 
+                                <field name="name" required="1"/>                           
+                        </group>
+                        <group>                            
+                        </group>
+                    </group>
+                    <field name="detalle_ids">
+                        <tree editable="bottom">
+                            <field name="name" required="1"/>
+                            <field name="code" readonly="1"/>
+                            <field name="special" />
+                        </tree>
+                    </field>
+                </form>
+            </field>
+        </record>
+
+
+
+        <record id="product_template_form_view" model="ir.ui.view">
+            <field name="name">product.template.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+
+                <field name="categ_id" position="before">
+                    <field name="codigo_inicial" readonly="0" required="1" />                    
+                </field>
+
+                <xpath expr="//notebook" position="inside">
+                  <page string="Atributo">
+                    <field name="atributo_ids">
+                        <tree editable="bottom">
+                            <field name="atributo_id" required="1"/>
+                            <field name="valor_id" domain="[('atributo_id','=',atributo_id)]" required="1"/>
+                        </tree>
+                    </field>
+                  </page>
+                </xpath>
+
+
+            </field>
+        </record>
+
+    <record id="product_category_form_view_form" model="ir.ui.view">
+            <field name="name">product.category.form</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product_product_it.product_category_form_view_form"/>
+            <field name="arch" type="xml">
+
+               <field name="codigo_categoria" position="replace">
+                    <field name="codigo_categoria" readonly="1"/>
+                    <field name="able_code" />
+                </field>
+
+            </field>
+    </record> 
+
+    <record id="view_tree_product_atributo_id" model="ir.ui.view">
+        <field name="name">view_tree_product_atributo_id</field>
+        <field name="model">product.atributo</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" string="Atributo"/>
+                <field name="detalle_ids" string="Valores"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_product_atributo_id" model="ir.actions.act_window">
+        <field name="name">Atributo</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.atributo</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem name="Atributo" id="product_menu_atributo"
+    parent="sales_team.menu_sale_config"
+    action="product_product_atributo_id" sequence="2" 
+    groups="product_product_it_codigo.producto_almacenista" />
+
+
+
+
+    <record id="view_tree_product_codigo_nativo" model="ir.ui.view">
+        <field name="name">view_tree_product_codigo_nativo</field>
+        <field name="model">product.codigo.nativo</field>
+        <field name="arch" type="xml">
+            <tree string="Código Nativo">
+                <field name="name"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_form_product_codigo_nativo" model="ir.ui.view">
+        <field name="name">view_form_product_codigo_nativo</field>
+        <field name="model">product.codigo.nativo</field>
+        <field name="arch" type="xml">
+            <form string="Código nativo">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_codigo_nativo_action" model="ir.actions.act_window">
+        <field name="name">Código Nativo</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.codigo.nativo</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem name="Código Nativo" id="product_codigo_nativo_menu"
+    parent="sales_team.menu_sale_config"
+    action="product_codigo_nativo_action" sequence="3" 
+    groups="product_product_it_codigo.producto_almacenista" />
+
+  </data>
+</odoo>

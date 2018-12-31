@@ -1,0 +1,11 @@
+2018-09-17 Update: Se cambio al producto con un campo nuevo para calcular el codigo inicial del producto
+
+2018-09-13 Update: Se creo grupo "Productos Atributos" para permitir crear atributos en usuarios no Administradores
+
+2018-09-13 Update: Se aumento un campo bool a categorias de Productos, para no agregar codigo
+
+2018-08-25 Mayor Fix : Se aumento la busqueda por variante de productos, en caso la instancia tenga productos antes de instalar esta actualizacion, correr este proceso en consultajp:
+
+					to = request.env['product.product'].search([])
+					for i in to:
+						i.write({})
