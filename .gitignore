@@ -1,0 +1,7 @@
+*.rar
+/.idea/*
+.idea/*
+*.pyc
+/.vscode/*
+.vscode/*
+*.vscode

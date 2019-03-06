@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="report_transport_document" inherit_id="stock.report_picking">
+            <xpath expr="//div[@class='col-xs-5 col-xs-offset-1']/div[@name='partner_header']" position="after">
+            	<div>
+            		<span><strong>Transportista:</strong></span>
+            		<p>
+            		    <span t-field="o.transporter_name"/>
+            		</p>
+            	</div>
+
+            	<div>
+            		<span><strong>Guia de Remision:</strong></span>
+            		<p>
+            		    <span t-field="o.numberg"/>
+            		</p>
+            	</div>
+
+
+        	</xpath>
+    	</template>
+
+	</data>
+
+</odoo>

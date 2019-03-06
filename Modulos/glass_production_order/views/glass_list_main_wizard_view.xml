@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_glass_list_image_form" model="ir.ui.view">
+        <field name="name">glass.list.image.form.view</field>
+        <field name="model">glass.list.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Croquis">     
+                <field name="croquis" widget="image"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_glass_list_main_wizard_form" model="ir.ui.view">
+        <field name="name">glass.list.main.wizard.form.view</field>
+        <field name="model">glass.list.main.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seguimiento de Producción">     
+                <header>
+                    <button string ="Mostrar" name="makelist" type="object"/>
+                    <button string ="Registrar Rotura" name="callbreakcrystal" type="object" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento"/>
+                </header>
+
+                <sheet>            
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="lote_id"/>
+                            <field name="table_number"/>
+                        </group>
+                        <group>
+                            <field name="date_ini"/>
+                            <field name="date_end"/>
+                            <field name="filter_field"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Cristales">
+                            <field name="line_ids" readonly="1">
+                                <tree string="Seguimiento de Producción" decoration-danger="decorator == 'break'" decoration-warning="decorator == 'without_lot'">
+                                    <field name="decorator" invisible="1"/>
+                                    <button name="show_stages" type="object" string="Seguimiento" icon="fa-table" attrs="{'invisible': [('decorator','=','without_lot')]}"/>
+                                    <button name="break_crystal" type="object" string="Romper Cristal" icon="fa-asterisk" attrs="{'invisible': [('decorator','=','without_lot')]}" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento"/>
+                                    <button name="show_croquis" type="object" string="Ver Croquis" icon="fa-instagram" attrs="{'invisible': [('decorator','=','without_lot')]}"/>
+                                    <field name="order_id"/>
+                                    <field name="display_name_lot"/>
+                                    <field name="presentation"/>
+                                    <field name="crysta_number" count="aaaa"/>
+                                    <field name="base1"/>
+                                    <field name="base2"/>
+                                    <field name="altura1"/>
+                                    <field name="altura2"/>
+                                    <field name="descudre"/>
+                                    <field name="nro_pagina"/>
+                                    <field name="optimizado"/>
+                                    <field name="requisicion"/>
+                                    <field name="corte"/>
+                                    <field name="pulido"/>
+                                    <field name="entalle"/>
+                                    <field name="lavado"/>
+                                    <field name="horno"/>
+                                    <field name="templado"/>
+                                    <field name="insulado"/>
+                                    <field name="comprado"/>
+                                    <field name="ingresado"/>
+                                    <field name="entregado"/>
+                                    <field name="display_name_partner"/>
+                                    <field name="estado"/>
+                                    <field name="glass_break"/>
+                                    <!--<field name="repos"/>-->
+                                    <!-- <field name="order_line"/> -->
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Totales">
+                        <group>
+                            <field name="tot_optimizado"/>
+                            <field name="tot_requisicion"/>
+                            <field name="tot_corte"/>
+                            <field name="tot_pulido"/>
+                            <field name="tot_entalle"/>
+                            <field name="tot_horno"/>
+                        </group>
+                        <group>
+                            <field name="tot_lavado"/>
+                            <field name="tot_templado"/>
+                            <field name="tot_insulado"/>
+                            <field name="tot_comprado"/>
+                            <field name="tot_ingresado"/>
+                            <field name="tot_entregado"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    
+    </record>
+
+    <record id="view_glass_list_main_wizard_tree" model="ir.ui.view">
+        <field name="name">glass.list.main.wizard.tree.view</field>
+        <field name="model">glass.list.main.wizard</field>
+        <field name="arch" type="xml">
+            <tree string="Seguimiento de Producción">
+                <field name="order_id"/>
+                <field name="lote_id"/>     
+                <field name="date_ini"/>
+                <field name="date_end"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="glass_list_main_wizard_action1" model="ir.actions.act_window">
+        <field name="name">Seguimiento de Producción</field>
+        <field name="res_model">glass.list.main.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+    </record>
+     <menuitem id="glass_list_main_wizard_menu1" parent="glass_order_control_menu" action="glass_list_main_wizard_action1" sequence="9" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento,glass_production_order.group_glass_production_user"/>
+
+    <record id="view_glass_list_wizard_form" model="ir.ui.view">
+        <field name="name">glass.list.wizard.form.view</field>
+        <field name="model">glass.list.wizard</field>
+        <field name="arch" type="xml">
+            <tree string="Seguimiento de Producción">
+                <field name="order_id"/>
+                <field name="crysta_number"/>
+                <field name="base1"/>
+                <field name="base2"/>
+                <field name="altura1"/>
+                <field name="altura2"/>
+                <field name="descudre"/>
+                <field name="nro_pagina"/>
+                <field name="optimizado"/>
+                <field name="corte"/>
+                <field name="pulido"/>
+                <field name="entalle"/>
+                <field name="lavado"/>
+                <field name="templado"/>
+                <field name="insulado"/>
+                <field name="comprado"/>
+                <field name="entregado"/>
+                <field name="partner_id"/>
+                <field name="estado"/>
+                <field name="glass_break"/>
+                <!--<field name="repos"/>-->
+                <field name="order_line"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+
+
+
+
+
+    <record id="view_glass_respos_wizard_form" model="ir.ui.view">
+        <field name="name">glass.respos.wizard.form.view</field>
+        <field name="model">glass.respos.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cristales Rotos">
+                <group>
+                    <group>
+                        <field name="motive" required="1"/>
+                        <field name="stage" required="1"/>
+
+                    </group>
+                    <group>
+                        <field name="date_fisical"/>
+                        <field name="date_record"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="makerepo" type="object" string="Reporta rotura"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_glass_stage_record_tree1" model="ir.ui.view">
+        <field name="name">glass.stage.record.tree1.view</field>
+        <field name="model">glass.stage.record</field>
+        <field name="arch" type="xml">
+            <tree string="Seguimiento">
+                <field name="user_id"/>
+                <field name="date"/>
+                <field name="time"/>
+                <field name="stage"/>
+                <field name="lot_line_id"/>
+                <field name="date_fisical"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <act_window name="Reposición – Roto"
+        res_model="glass.respos.wizard"
+        src_model="glass.list.wizard"
+        multi="True"
+        key2="client_action_multi"
+        view_id="glass_production_order.view_glass_respos_wizard_form"
+        view_mode="form" 
+        target="new" 
+        view_type="form"
+        id="action_wizard_repo"
+    />
+
+
+</odoo>

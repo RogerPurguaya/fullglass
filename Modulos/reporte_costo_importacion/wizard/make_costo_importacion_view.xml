@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_make_costo_importacion" model="ir.ui.view">
+            <field name="name">make.costo.importacion.form</field>
+            <field name="model">make.costo.importacion</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Reporte Costo de Importacion">
+                    <group>
+                        <field name="orders"/>
+                    </group>
+                    <footer>
+                        <button name="do_csvtoexcel" string="Exportar a Excel" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                 </form>
+             </field>
+        </record>
+
+
+        <record id="make_costo_importacion" model="ir.actions.act_window">
+            <field name="name">Reporte Costo de Importacion</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">make.costo.importacion</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_make_costo_importacion"/>
+            <field name="target">new</field>
+        </record>
+
+
+        <menuitem name="Costo de Importacion" id="reporte_costo_importacion_view"
+                 parent="purchase.menu_procurement_management" action="make_costo_importacion"
+                 sequence="10" />
+
+    </data>
+</odoo>

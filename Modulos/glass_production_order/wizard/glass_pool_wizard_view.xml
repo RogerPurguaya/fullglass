@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_glass_pool_wizard_form" model="ir.ui.view">
+        <field name="name">glass.pool.wizard.form.view</field>
+        <field name="model">glass.pool.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Pool de pedidos">  
+                <div>
+                        <h2>Lote: <field name="nextlotnumber" readonly="1"/></h2>
+                    </div>               
+                <group>
+                    
+                    <field name="user_id" required="1" readonly="1"/>
+                    <field name="qty_lines"/>
+                    <field name="area_lines"/>
+                </group>
+                <field name="prod_resu_id" windget="one2many_list">
+                    <tree editable="top" create="false" >
+                        <field name="selected"/>
+                        <field name="default_code" readonly="1"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="uom_id" readonly="1"/>
+                        <field name="qty" digits="(14,0)" readonly="1"/>
+                        <field name="area" readonly="1"/>
+                        <field name="area_rest" readonly="1"/>
+                        <field name="cant_rest" readonly="1"/>
+                    </tree>
+                </field>
+                <field name="line_order_ids" domain="[('is_used','=',False)]" context="{'form_view_ref':'glass_production_order.view_glass_order_line_image'}">
+                    <tree>
+                        <field name="order_id"/>
+                        <field name="reference_order"/>
+                        <field name="partner_id"/>
+                        <field name="date_production"/>
+                        <field name="product_id" invisible="1"/>
+                        <field name="crystal_number"/>
+                        <field name="state"/>
+                        <field name="base1"/>
+                        <field name="base2"/>
+                        <field name="altura1"/>
+                        <field name="altura2"/>
+                        <field name="descuadre"/>
+                        <field name="area" sum=""/>
+                        <field name="page_number"/>
+                    </tree>
+                </field>
+
+                <footer>
+                    <button string ="Emitir Lote" name="addlot" type="object"/>
+                    <button string ="Generar requerimiento" name="make_requisition" type="object"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+
+            </form>
+        </field>
+    
+    </record>
+    <record id="glass_pool_wizard_action" model="ir.actions.act_window">
+        <field name="name">Pool de producción</field>
+        <field name="res_model">glass.pool.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+     <menuitem id="glass_pool_wizard_menu" parent="glass_order_m_menu" action="glass_pool_wizard_action" sequence="3" groups="glass_production_order.group_glass_user"/>
+</odoo>

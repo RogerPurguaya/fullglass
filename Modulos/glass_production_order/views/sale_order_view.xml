@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_calculadora_proforma_line_tree2" model="ir.ui.view">
+        <field name="name">view.calculadora.proforma.line.tree2</field>
+        <field name="model">sale.calculadora.proforma.line</field>
+        <field name="inherit_id" ref="sale_calculadora_it.view_calculadora_proforma_line_tree2"/>
+        <field name="arch" type="xml">
+
+            <field name="area" position="after">
+                <field name="production_id" readonly="1"/>
+            </field>
+            <field name="cantidad" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </field>
+            <field name="nro_cristal" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </field>
+            <field name="base1" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </field>
+            <field name="base2" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </field>
+            <field name="altura1" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="altura2" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="descuadre" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="page_number" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="pulido1" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="entalle" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="lavado" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+             <field name="plantilla" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="embalado" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="insulado" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="arenado" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="perimetro" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+            <field name="area" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+                </field>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_calculadora_presupuesto_linea2_wizard_form">
+        <field name="name">calculadora.presupuesto.linea2.wizard.form</field>
+        <field name="model">sale.calculadora.proforma</field>
+        <field name="inherit_id" ref="sale_calculadora_it.view_calculadora_presupuesto_linea2_wizard_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='id_line']/tree/field[@name='area']" position="after">
+                <field name="production_id" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='cantidad']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='nro_cristal']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='base1']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='base2']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='altura1']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='altura2']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='descuadre']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='page_number']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='entalle']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='plantilla']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='perimetro']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='id_line']/tree/field[@name='area']" position="attributes">
+                <attribute name="attrs">{'readonly':[('production_id','!=', False)]}</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="stock_move_tree1" model="ir.ui.view">
+        <field name="name">Stock Moves</field>
+        <field name="model">stock.move</field>
+      <field name="inherit_id" ref="stock.stock_move_tree"/>
+      <field name="groups_id" eval="[(6, 0, [ref('glass_production_order.group_glass_user')])]" />
+      <field name="arch" type="xml">
+            <xpath expr='//field[@name="product_uom"]' position="attributes">
+                <attribute name="domain">['|',('is_retazo','=',True),('plancha','=',True)]</attribute>
+            </xpath>
+      </field>
+    </record>
+
+
+    <record id="view_order_form_markup_model" model="ir.ui.view">
+      <field name="name">sale.order.form.markup</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="loadproductionwizard" string="Generar O.P." type="object" states="sale" class="btn-primary"/>
+            </xpath>
+            <xpath expr="//button[@name='action_view_invoice']" position="before">
+                <button type="object"
+                    name="show_po_list"
+                    class="oe_stat_button"
+                    icon="fa-truck"
+                    groups="base.group_user">
+                    <field name="op_count" widget="statinfo" string="Ord. Prod."/>
+                </button>
+            </xpath> 
+            <field name="origin" position="after">
+                <field name="op_control" readonly="1"/>
+            </field>
+            <field name="payment_term_id" position='after'>
+                <field name="reference_order"/>
+            </field>
+            <xpath expr="//form/sheet/notebook" position="inside">
+                <page name="ops" string ="Órdenes de producción">
+                    <field name="op_ids">
+                        <tree>
+                            <field name="name"/>
+                            <field name="sketch" widget="pdf_viewer"/>
+                            <button name="show_pdf" string="Ver/Editar Croquis" type="object"/>
+                            <button name="save_pdf" string="Confirmar Croquis" confirm="Se grabará de manera permanete el croquis seleccionado ¿Desea continuar?" type="object"/>
+                            <button string="Imprimir Reporte" name="ordenprod_buttom" type="object" class="oe_highlight"/>
+                        </tree>
+                    </field>
+                </page>
+                <page name="files" string="Archivos Croquis">
+                    <field name="files_ids"  >
+                        <tree editable ="button">
+                            <field name="pdf_file" widget="binary" attrs="{'readonly':[('op_id','!=',False)]}" filename="file_name"  required="1"/>
+                            <field name="file_name" readonly="0" required="1"/>
+                            
+                            <field name="op_id" readonly="1" invisible="1"/>
+                            <button name="save_pdf" string="Confirmar Croquis" confirm="Se grabará de manera permanente el croquis seleccionado ¿Desea continuar?" type="object" invisible="1"/>
+                            <field name="is_used" invisible="1"/>
+                            <field name="is_editable" invisible="1"/>   
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+            
+            <xpath expr="//group/field[@name='confirmation_date']" position="replace">
+            </xpath>
+            
+            <xpath expr="//group[@name='sale_pay']" position="after">
+                <group name="other fields" string="Información extra">
+                    <field name="confirmation_date"/>
+                </group>
+            </xpath>
+
+      </field>
+    </record>
+
+    <record id="view_order_tree_markup_model" model="ir.ui.view">
+      <field name="name">sale.order.tree.markup</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_tree"/>
+      <field name="arch" type="xml">
+            <field name="state" position="before">
+                <field name="op_control"/>
+            </field>
+      </field>
+    </record>
+
+    <record id="view_order_search_markup_model" model="ir.ui.view">
+      <field name="name">sale.order.search.markup</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.sale_order_view_search_inherit_sale"/>
+      <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <filter string="Control OP" domain="[]" context="{'group_by':'op_control'}"/>
+            </xpath>
+      </field>
+    </record>
+
+
+
+    
+
+
+</odoo>

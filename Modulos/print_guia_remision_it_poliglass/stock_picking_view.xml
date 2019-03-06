@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+
+
+    <record id="view_picking_form" model="ir.ui.view">
+        <field name="name">stock.picking.form</field>
+        <field name="model">stock.picking</field>
+        <field name="priority" eval="1"/>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='button_scrap']" position="after">
+                <button name="print_guia_remision" string="Imprimir Guia Remision" type="object" attrs="{'invisible':['|',('campo_temp','=',False),('state','!=','done')]}"/>
+            </xpath>
+        </field>
+    </record>
+
+
+        <record id="vpicktree" model="ir.ui.view">
+        <field name="name">stock.picking.tree</field>
+        <field name="inherit_id" ref="print_guia_remision_it.vpicktree"/>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <field name="numberg" position="before">
+                
+                
+            </field>
+        </field>
+    </record>
+
+
+    <record id="view_picking_internal_search" model="ir.ui.view">
+        <field name="name">stock.picking.internal.search</field>
+        <field name="inherit_id" ref="print_guia_remision_it.view_picking_internal_search"/>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <field name="numberg" position="before">
+               
+            </field>
+            
+            
+        </field>
+    </record>
+
+</odoo>

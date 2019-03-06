@@ -1,0 +1,38 @@
+<odoo>
+  <data>
+        <record model="ir.ui.view" id="saleorder_makeorder_view">
+            <field name="name">sale.order.make.order.form</field>
+            <field name="model">sale.order.make.order</field>
+            <field name="arch" type="xml">
+                <form string="Crear Orden de Producción">
+                    <group>
+                        <group>
+                            <field name="selected_file" required="1" 
+                                />
+                            <field name="file_crokis" invisible="1"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="comercial_area" invisible="0" required = "1"/>
+                            
+                        </group>
+                        <group>
+                            <field name="destinity_order"/>
+                            <field name="send2partner"/>
+                            <field name="in_obra"/>
+                            <field name="obra_text"/>
+                        </group>
+                    </group>
+                    
+                    <field name="sale_id" invisible="1"/>
+                    <field name="is_used" invisible="1"/>
+                    <field name="is_editable" invisible="1"/>
+                    
+                    <footer>
+                        <button string="Crear Orden de Producción" class="btn-primary" name="create_production" type="object"/>
+                        <button string="Cerrar" class="btn-primary" special="cancel" />
+                    </footer>
+                </form>
+
+            </field>
+        </record>
+  </data>
+</odoo>

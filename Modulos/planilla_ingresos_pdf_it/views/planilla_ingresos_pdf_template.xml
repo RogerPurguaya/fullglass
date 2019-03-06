@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_caja_doc">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="doc[0][0].company_id"/>
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company"/>
+        </t>
+        <div class="header" style="font-size:13px; font-family: 'Bookman Old Style'; padding-top:10px;">
+            <div class="row">
+                <div class="col-xs-6 pull-left"> 
+                    <span t-field="company.name"/></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 pull-left"> 
+                    <span t-field="company.street"/></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 pull-left">Telefono: 
+                    <span t-field="company.phone"/> Fax: <span t-field="company.fax"/></div>
+                <div class="col-xs-6 pull-right text-right">Pagina: 
+                    <span class="page"/> de <span class="topage"/></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 pull-left"> 
+                    <span t-field="company.website"/> <span t-field="company.email"/></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 pull-left">RUC: 
+                    <span t-field="company.partner_id.nro_documento"/></div>
+                <div class="col-xs-6 text-center">Planilla de Ingresos - Egresos </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 pull-left"><span t-esc="docs.get_actual_user()"/></div>
+                <div class="col-xs-6 text-center"><span t-field="docs.date_i"/> al <span t-field="docs.date_f"/></div>
+            </div>
+
+        </div>
+        <div class="page" style="font-size:12px; font-family: 'Bookman Old Style';">
+            <h3> Ingresos</h3>
+            <table class="table table-condensed">
+                    <thead >
+                        <tr>
+                            <th class="text-center">
+                                <strong>Documento</strong>
+                            </th>
+                            <th class="text-center">
+                                <strong>Doc.Identidad</strong>
+                            </th>
+                            <th class="text-center">
+                                <strong>Cliente</strong>
+                            </th>
+                            <th class="text-center">
+                                <strong>Recibo</strong>
+                            </th>
+                            <th class="text-center">
+                                <strong>Soles</strong>
+                            </th>
+                            <th class="text-center">
+                                <strong>Dolares</strong>
+                            </th>
+                            <th class="text-center">
+                                <strong>Observaciones</strong>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="doc" t-as="metodos">
+                            <td class="text-left">
+                                <t t-if="len(metodos)>0">
+                                    <span t-field="metodos[0].payment_id.means_payment_id.name"/>
+                                </t>
+                            </td>
+                            <tr class="border-black">
+                            </tr>
+                            <tr t-as="line" t-foreach="metodos">
+                                <t t-if="line.credit == 0">
+                                        <td class="text-center" width="100px">
+                                            <span t-esc="docs.get_tipo(line.ref,true)"/><span t-field="line.ref"/>
+                                        </td>
+                                        <td class="text-center" width="100px">
+                                            <span t-field="line.partner_id.nro_documento"/>
+                                        </td>
+                                        <td class="text-center" width="400px">
+                                            <span t-field="line.partner_id.name"/>
+                                        </td>
+                                        <td class="text-center" width="70px">
+                                            <span t-field="line.nro_comprobante"/>
+                                        </td>
+                                        <t t-if="line.payment_id.currency_id.name == 'PEN'" >
+                                            <td class="text-right" width="50px">
+                                                <span t-esc="'{:,}'.format(line.debit)" />
+                                            </td>
+                                            <td class="text-center" width="50px">
+                                                     
+                                            </td>
+                                        </t>
+                                        <t t-if="line.payment_id.currency_id.name == 'USD'">
+                                            <td class="text-center" width="50px">
+                                                   
+                                            </td>
+                                            <td class="text-right" width="50px">
+                                                <span t-esc="'{:,}'.format(line.debit)"/>     
+                                            </td>
+                                        </t>
+                                        <td class="text-center" width="70px">
+                                            <span t-esc="docs.get_vendedor(line.ref,true)"/>
+                                        </td>
+                                    </t>
+                            </tr>
+                            <td> </td><td> </td><td> </td><td class="text-right">Total </td><td class="text-right"><span t-esc="'{:,}'.format(docs.sum_soles(metodos,true))"/></td> <td class="text-right"><span t-esc="'{:,}'.format(docs.sum_dolares(metodos,true))"/></td><td> </td>
+                        </tr>
+                        <tr class="border-black">
+                            <td> </td><td> </td><td> </td><td class="text-right">Total General </td><td class="text-right"><span t-esc="'{:,}'.format(docs.sum_gen_soles(doc,true))"/></td> <td class="text-right"><span t-esc="'{:,}'.format(docs.sum_gen_dolares(doc,true))"/></td><td> </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3> Egresos</h3>
+                <table class="table table-condensed">
+                        <thead >
+                            <tr>
+                                <th class="text-center">
+                                    <strong>Documento</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>Doc.Identidad</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>Cliente</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>Recibo</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>Soles</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>Dolares</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>Observaciones</strong>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="doc" t-as="metodos">
+                                <td class="text-left">
+                                    <t t-if="len(metodos)>0">
+                                        <span t-field="metodos[0].payment_id.means_payment_id.name"/>
+                                    </t>
+                                </td>
+                                <tr class="border-black">
+                                </tr>
+                                <tr t-as="line" t-foreach="metodos">
+                                    <t t-if="line.debit == 0">
+                                        <td class="text-center" width="100px">
+                                            <span t-esc="docs.get_tipo(line.ref,false)"/><span t-field="line.ref"/>
+                                        </td>
+                                        <td class="text-center" width="100px">
+                                            <span t-field="line.partner_id.nro_documento"/>
+                                        </td>
+                                        <td class="text-center" width="400px">
+                                            <span t-field="line.partner_id.name"/>
+                                        </td>
+                                        <td class="text-center" width="70px">
+                                            <span t-field="line.nro_comprobante"/>
+                                        </td>
+                                        <t t-if="line.payment_id.currency_id.name == 'PEN'" >
+                                            <td class="text-right" width="50px">
+                                                <span t-esc="'{:,}'.format(line.credit)" />
+                                            </td>
+                                            <td class="text-center" width="50px">
+                                                     
+                                            </td>
+                                        </t>
+                                        <t t-if="line.payment_id.currency_id.name == 'USD'">
+                                            <td class="text-center" width="50px">
+                                                   
+                                            </td>
+                                            <td class="text-right" width="50px">
+                                                <span t-esc="'{:,}'.format(line.credit)"/>     
+                                            </td>
+                                        </t>
+                                        <td class="text-center" width="70px">
+                                            <span t-esc="docs.get_vendedor(line.ref,false)"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                                <td> </td><td> </td><td> </td><td class="text-right">Total </td><td class="text-right"><span t-esc="'{:,}'.format(docs.sum_soles(metodos,false))"/></td> <td class="text-right"><span t-esc="'{:,}'.format(docs.sum_dolares(metodos,false))"/></td><td> </td>
+                            </tr>
+                            <tr class="border-black">
+                                <td> </td><td> </td><td> </td><td class="text-right">Total General </td><td class="text-right"><span t-esc="'{:,}'.format(docs.sum_gen_soles(doc,false))"/></td> <td class="text-right"><span t-esc="'{:,}'.format(docs.sum_gen_dolares(doc,false))"/></td><td> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                 
+                            </th>
+                            <th class="text-center">
+                                 
+                            </th>
+                            <th class="text-center">
+                                 
+                            </th>
+                            <th class="text-center">
+                                 
+                            </th>
+                            <th class="text-center">
+                                 Soles
+                            </th>
+                            <th class="text-center">
+                                 Dolares
+                            </th>
+                            <th class="text-center">
+                                 
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr >
+                            <td><strong> Resumen Cobranza </strong></td>
+                        </tr>
+                        <tr >
+                            <td><strong>Ingresos</strong></td>
+                        </tr>
+                        <tr  t-foreach="doc" t-as="tipo">
+                            <t t-if="len(tipo)>0">
+                                <td width="120px"> <span t-field="tipo[0].payment_id.means_payment_id.name"/> </td>
+                            </t>
+                            <t t-else="">
+                                <td width="100px"></td>
+                            </t>
+                            <td width="100px"></td>
+                            <td width="300px"></td>
+                            <td width="70px"></td>
+                            <td class="text-center" width="50px"> <span t-esc="'{:,}'.format(docs.sum_soles(tipo,true))"/></td>
+                            <td class="text-center" width="50px"> <span t-esc="'{:,}'.format(docs.sum_dolares(tipo,true))"/></td>
+                            <td width="70px"></td>
+                        </tr>
+                        <tr >
+                            <td><strong>Egresos</strong></td>
+                        </tr>
+                        <tr  t-foreach="doc" t-as="tipo">
+                            <t t-if="len(tipo)>0">
+                            <td> <span t-field="tipo[0].payment_id.means_payment_id.name"/> </td>
+                            </t>
+                            <td ></td>
+                            <td ></td>
+                            <td ></td>
+                            <td class="text-center"> <span t-esc="'{:,}'.format(docs.sum_soles(tipo,false))"/></td>
+                            <td class="text-center"> <span t-esc="'{:,}'.format(docs.sum_dolares(tipo,false))"/></td>
+                            <td ></td>
+                        </tr>
+                        <tr>
+                            <td ></td>
+                            <td ></td>
+                            <td ></td>
+                            <td class="text-right"><strong> Saldo General </strong></td>
+                            <td class="text-center"><span t-esc="'{:,}'.format(docs.sum_gen_soles(doc,true) - docs.sum_gen_soles(doc,false))"/></td>
+                            <td class="text-center"><span t-esc="'{:,}'.format(docs.sum_gen_dolares(doc,true) - docs.sum_gen_dolares(doc,false))"/></td>
+                            <td ></td>
+                        </tr>
+                        <t t-set="cob" t-value="docs.get_cobradores(doc)"/>
+                        <tr class="border-black">
+                            <td><strong> Resumen Cobradores </strong></td>
+                            <td>   </td>
+                            <td>   </td>
+                            <td ></td>
+                            <td ></td>
+                            <td ></td>
+                            <td ></td>
+                        </tr>
+                        <tr>
+                            <tr  t-foreach="cob" t-as="cobrador">
+                                <td> <span t-esc="cobrador[0][0]"/> </td>
+                                <td ></td>
+                                <td ></td>
+                                <td ></td>
+                                <td class="text-center"> <span t-esc="'{:,}'.format(cobrador[1][0])"/></td>
+                                <td class="text-center"> <span t-esc="'{:,}'.format(cobrador[1][1])"/></td>
+                                <td ></td>
+                            </tr>
+                        </tr>
+                    </tbody>
+                </table>
+        </div>
+    </template>
+    <template id="report_caja">
+        <t t-call="report.html_container">
+            <t t-set="doc" t-value="docs.get_document()"/>
+            <t t-call="planilla_ingresos_pdf_it.report_caja_doc" />
+        </t>
+    </template>
+</odoo>

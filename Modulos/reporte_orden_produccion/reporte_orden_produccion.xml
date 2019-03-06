@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="view_glass_order_form_inherit" model="ir.ui.view">
+        <field name="name">glass.order.form.view</field>
+        <field name="model">glass.order</field>
+        <field name="inherit_id" ref="glass_production_order.view_glass_order_form"/>
+
+        <field name="arch" type="xml">
+                <button name = 'endedop' position="after">
+                <button string="Imprimir Reporte" name="ordenprod_buttom" type="object"     class="oe_highlight"/>
+                </button>    
+        </field>
+        </record>
+
+
+
+    </data>
+</openerp>

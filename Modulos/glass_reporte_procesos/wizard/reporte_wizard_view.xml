@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="reporte_wizard_form"> 
+			<field name="name">reporte.wizard.form</field>
+			<field name="model">reporte.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Generar Reporte" version="8.0">
+					<group>	
+
+						<group col='2'>
+							<group col='2' colspan='1'>	
+								<field name="start_date"  />
+							</group>
+							<group col='2' colspan='1'>
+								<field name="end_date" />
+							</group>
+						</group>
+
+						<group col='2'>	
+							<group col='2' colspan='1'>
+								<field name="stage" />
+							</group>							
+						</group>	
+
+						<footer>
+							<button string="Generar Excel" name="do_rebuild" type="object" class="oe_highlight"/>
+							
+							<button string="Cancelar" class="oe_link" special="cancel"/>
+						</footer>
+				</group>	
+				</form>
+			</field>
+		</record>
+
+
+		<record id="reporte_wizard_action" model="ir.actions.act_window">
+			<field name="name">Generar Reporte</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">reporte.wizard</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form,tree</field>
+			<field name="target">new</field>
+		</record>
+
+
+
+		<menuitem id="glass_report_menu" parent="glass_production_order.glass_production_menu" name="Reporte" sequence="4" groups="glass_production_order.group_glass_user"/>
+
+	
+		<menuitem id="glass_report_de_control_menu" parent="glass_report_menu" action="reporte_wizard_action" name="Reporte de Procesos" sequence="1" groups="glass_production_order.group_glass_user"/>
+
+
+
+<!-- 		<menuitem name="Rep. FULLGLASS" id="reporte_full_glass" sequence="1" />
+
+		<menuitem name="Reporte " id="reporte_excel" sequence="2" parent="reporte_full_glass" />
+		<menuitem name="Reporte " id="reporte_excel_sub" sequence="2" parent="reporte_excel" />
+		<menuitem name="Wizard FULLGLASS" id="analisis_cuenta_wizard_menu" parent="reporte_excel_sub" action="reporte_wizard_action"  sequence="3" />
+ -->
+	</data>
+</openerp>

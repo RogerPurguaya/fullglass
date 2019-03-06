@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_glass_lot_form" model="ir.ui.view">
+        <field name="name">glass.lot.form.view</field>
+        <field name="model">glass.lot</field>
+        <field name="arch" type="xml">
+            <form string="Lotes de producción">
+                <header>
+                    <button string="Emisión de Lote" name="validate_lot" type="object" states="draft"/>
+                    <button string="Cancelar" name="cancel_lot" type="object" states='done'/>
+
+                    <button string="Optimizar" name="optimize_lot" type="object" states='draft,done' groups="glass_production_order.production_optimization"/>
+
+                    
+                    <field name="state" widget="statusbar" nolabel="1"/>
+                </header>
+                <sheet>
+                    
+                    <h1>Lote: <field name="name" nolabel="1" readonly="1" default="Nuevo"/> </h1>
+
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="product_id" invisible="0" readonly="1" string="Producto Seleccionado"/>
+                            <field name="user_id"/>
+
+                        </group>
+                        <group>
+                            <field name="total_pza"/>
+                            <field name="total_area"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="optimafile" widget='binary' filename='file_name'/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="lot_lines" string="Detalle">
+                            <field name="line_ids" readonly="1" options="{'no_open':True}">
+                                <tree string="pool">
+                                    <button name="retire_lot_line" type="object" string="Retirar" icon="fa-times" confirm="Está seguro de retirar esta línea del lote?"/>
+                                    <field name="order_prod_id"/>
+                                    <field name="order_date_prod"/>
+                                    <!-- <field name="product_id"/> -->
+                                    <field name="nro_cristal"/>
+                                    <field name="base1"/>
+                                    <field name="base2"/>
+                                    <field name="altura1"/>
+                                    <field name="altura2"/>
+                                    <field name="descuadre"/>
+                                    <field name="page_number"/>
+                                    <field name="optimizado"/>
+                                    <field name="requisicion"/>
+                                    <field name="corte"/>
+                                    <field name="pulido"/>
+                                    <field name="entalle"/>
+                                    <field name="lavado"/>
+                                    <field name="horno"/>
+                                    <field name="templado"/>
+                                    <field name="insulado"/>
+                                    <field name="laminado"/>
+                                    <field name="comprado"/>
+                                    <field name="ingresado"/>
+                                    <field name="entregado"/>
+                                    <field name="area" sum="Area"/>
+                                    <field name="merma" sum="Merma"/>
+                                    <field name="search_code"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_left" name="sale_total">
+                                
+                            </group>
+                        </page>
+                    </notebook>
+                   
+                    
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+
+        </field>
+    </record>
+
+
+    <record id="view_glass_lot_tree" model="ir.ui.view">
+        <field name="name">glass.lot.tree.view</field>
+        <field name="model">glass.lot</field>
+        <field name="arch" type="xml">
+            <tree string="Lote de producción">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="product_id"/>
+                <field name="total_pza"/>
+                <field name="user_id"/>
+                <field name="total_area"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="glass_lot_view" model="ir.ui.view">
+        <field name="name">Lote de producción - Búsqueda</field>
+        <field name="model">glass.lot</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Lotes de Producción">
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Producto" domain="[]" context="{'group_by':'product_id'}"/>
+                    <filter string="Fecha" domain="[]" context="{'group_by':'date'}"/>
+                    <filter string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="glass_lot_action" model="ir.actions.act_window">
+        <field name="name">Lotes de Producción</field>
+        <field name="res_model">glass.lot</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+ 
+    <menuitem id="glass_lot_menu" parent="glass_order_m_menu" action="glass_lot_action" sequence="1" groups="glass_production_order.group_glass_user"/>
+
+</odoo>

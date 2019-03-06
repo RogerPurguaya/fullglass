@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_make_factura_adelantada" model="ir.ui.view">
+            <field name="name">make.factura.adelantada.form</field>
+            <field name="model">make.factura.adelantada</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Reporte Factura Adelantada">
+                    <group>
+                        <field name="fec_ini"/>
+                    </group>
+                    <group>
+                        <field name="fec_fin"/>
+                    </group>
+                    <footer>
+                        <button name="do_csvtoexcel" string="Exportar a Excel" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                 </form>
+             </field>
+        </record>
+
+
+        <record id="make_factura_adelantada" model="ir.actions.act_window">
+            <field name="name">Reporte Factura Adelantada</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">make.factura.adelantada</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_make_factura_adelantada"/>
+            <field name="target">new</field>
+        </record>
+
+
+        <menuitem name="Factura Adelantada" id="reporte_factura_adelantada_view"
+                 parent="account.menu_finance_reports" action="make_factura_adelantada"
+                 sequence="10" />
+
+    </data>
+</odoo>

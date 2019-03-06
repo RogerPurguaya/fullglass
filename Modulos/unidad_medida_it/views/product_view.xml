@@ -1,0 +1,25 @@
+<odoo>
+  <data>
+
+    <record id="product_uom_form_view" model="ir.ui.view">
+            <field name="name">product.uom.form</field>
+            <field name="model">product.uom</field>
+            <field name="inherit_id" ref="product.product_uom_form_view"/>
+            <field name="arch" type="xml">
+
+               <field name="einvoice_06" position="after">
+                    <field name="plancha" />
+                    <group string="Planchas" attrs="{'invisible':[('plancha','=',False)]}" name="plancha">
+                        <field name="ancho" />
+                        <field name="alto" />
+                    </group> 
+               </field>
+
+
+            </field>
+    </record>   
+
+
+
+  </data>
+</odoo>

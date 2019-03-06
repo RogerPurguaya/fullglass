@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <!-- glass.order inherit form view -->
+    <record id="view_glass_order_form_inherit" model="ir.ui.view">
+        <field name="name">glass.order.inherit.view.form</field>
+        <field name="model">glass.order</field>
+        <field name="inherit_id" ref="glass_production_order.view_glass_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='remove_order']" position="after">
+                <button string="Reprogramar OP" name="get_form_postpone" type="object" states="process,confirmed"/>
+            </xpath>
+        </field>
+    </record>
+</data>
+</odoo>

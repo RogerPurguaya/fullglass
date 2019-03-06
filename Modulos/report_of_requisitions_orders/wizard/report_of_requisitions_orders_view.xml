@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="report_pending_wizard_form"> 
+			<field name="name">report.requisition.orders.wizard.form</field>
+			<field name="model">report.requisition.orders.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Reporte Ordenes de Requisicion" version="8.0">
+						<group>
+							<field name="start_date" required ="1"/>
+							<field name="end_date" required ="1"/>
+							<field name="search_param" string="Buscar por " required="1"/>
+						</group>
+						<footer>
+							<button string="Exportar a Excel" name="do_rebuild" type="object" class="oe_highlight"/>
+							O
+							<button string="Cancelar" class="oe_link" special="cancel"/>
+						</footer>
+				</form>
+			</field>
+		</record>
+
+
+		<record id="report_of_requisitions_orders_action" model="ir.actions.act_window">
+			<field name="name">Reporte Ordenes de Requisicion</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.requisition.orders.wizard</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+		<menuitem id="report_of_requisitions_orders_menu" parent="glass_reporte_procesos.glass_report_menu" action="report_of_requisitions_orders_action" name="Reporte Ordenes de Requisicion" sequence="2" groups="glass_production_order.group_glass_user"/>
+
+
+	</data>
+</openerp>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record model="ir.ui.view" id="view_account_payment_inherit1">
+		<field name="name">account.payment.inherit1</field>
+		<field name="model">account.payment</field>
+		<field name="inherit_id" ref="account.view_account_payment_invoice_form"/>
+		<field name="arch" type="xml">
+			<field name="payment_date" position="after">
+				<field name="fecha_caja"/>
+			</field>
+		</field>
+	</record>
+	<record model="ir.ui.view" id="view_account_payment_inherit2">
+		<field name="name">account.payment.inherit2</field>
+		<field name="model">account.move</field>
+		<field name="inherit_id" ref="account.view_move_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='line_ids']/tree/field[@name='date_maturity']" position="after">
+				<field name="fecha_account_move_line"/>
+			</xpath>
+		</field>
+	</record>
+	<record model="ir.ui.view" id="view_account_payment_inherit3">
+		<field name="name">account.payment.inherit3</field>
+		<field name="model">account.payment</field>
+		<field name="inherit_id" ref="account.view_account_payment_form"/>
+		<field name="arch" type="xml">
+			<field name="payment_date" position="after">
+				<field name="fecha_caja"/>
+			</field>
+		</field>
+	</record>
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_invoice_creditnote_approval,invoice_creditnote_approval.invoice.creditnote.approval,model_invoice_creditnote_approval,account.group_account_user,1,1,1,1
+
+access_invoice_creditnote_approval_conf,invoice_creditnote_approval.invoice.creditnote.approval.conf,model_invoice_creditnote_approval_conf,account.group_account_user,1,1,1,1

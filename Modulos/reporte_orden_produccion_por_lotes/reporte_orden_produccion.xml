@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+    <record id="print_op_report_action_view" model="ir.actions.server">
+        <field name="name">Imprimir reporte de OP</field>
+        <field name="model_id" ref='glass_production_order.model_glass_order'/>
+        <field name="state">code</field>
+        <field name="code">action=env['glass.order'].browse(context['active_ids']).print_report_op()</field>
+    </record>
+
+    <record model="ir.values" id="close_sale_order_extended">
+        <field name="name">Imprimir reporte de OP</field>
+        <field name="key">action</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d'%print_op_report_action_view" />
+        <field name="model">glass.order</field>
+    </record>
+    </data>
+</openerp>

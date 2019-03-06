@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="reporte_seguimiento_produccion_wizard_form"> 
+			<field name="name">reporte.seguimiento.produccion.wizard.form</field>
+			<field name="model">reporte.seguimiento.produccion.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Seguimiento de Produccio" version="8.0">
+						<group>
+														
+								<field name="de_inicio"  />
+								<field name="de_final"  />
+								<field name="productos"  />
+								<field name="clientes"  />
+								<field name="op"  />
+								<field name="vendedor"  />
+
+																				
+						</group>
+						<footer>
+							<button string="Mostrar" name="do_rebuild" type="object" class="oe_highlight"/>
+							or
+							<button string="Cancel" class="oe_link" special="cancel"/>
+						</footer>
+				</form>
+			</field>
+		</record>
+
+
+		<record id="reporte_seguimiento_produccion_wizard_action" model="ir.actions.act_window">
+			<field name="name">Seguimiento de Produccion</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">reporte.seguimiento.produccion.wizard</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+	
+		<menuitem name="Reporte seguimiento de produccion" id="reporte_seguimiento_produccion_wizard_menu" 
+				parent="glass_production_order.glass_order_control_menu"
+		 		action="reporte_seguimiento_produccion_wizard_action" 
+		 		sequence="3" />
+
+
+	</data>
+</openerp>

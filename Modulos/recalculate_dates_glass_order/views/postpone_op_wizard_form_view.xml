@@ -1,0 +1,21 @@
+<odoo>
+<data>
+    <!-- postpone.op.wizard form view -->
+    <record id="postpone_op_wizard_view_form" model="ir.ui.view">
+        <field name="name">postpone.op.wizard.view.form</field>
+        <field name="model">postpone.op.wizard</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <field name="date_production" required="1"/>
+                    </group>
+                    <footer>
+                        <button name="set_values_dates_op" type="object" string="Reprogramar" class='oe_highlight'/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</data>
+</odoo>

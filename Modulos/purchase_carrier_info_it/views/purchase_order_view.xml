@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record id="view_purchase_order_view_inherit_form" model="ir.ui.view">
+            <field name="name">car_driver_purchase_inherit_form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_carrier.view_purchase_order_view_inherit_form"/>
+            <field name="arch" type="xml">
+                <field name="transporter_id" position="after">
+                    <field name="transporter_street" readonly = "1"/>
+                    <field name="transporter_phone" readonly = "1"/>
+                    <field name="transporter_email" readonly = "1"/>
+                </field>
+            </field>
+        </record>
+
+       
+    </data>
+</odoo>

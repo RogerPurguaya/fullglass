@@ -1,0 +1,42 @@
+<odoo>
+    <data>
+        <record id="view_purchase_order_view_inherit_form" model="ir.ui.view">
+            <field name="name">car_driver_purchase_inherit_form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <field name="company_id" position="after">
+                    <field name="transporter_id"/>
+                </field>
+                <field name="currency_id" position="after">
+                    <field name="importations"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_stock_picking_view_inherit_form" model="ir.ui.view">
+            <field name="name">car_driver_albaran_inherit_form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <field name="origin" position="after">
+                    <field name="transporter_id"/>
+                </field>
+            </field>
+        </record>
+
+        <template id="report_quotation_inherit_demo" inherit_id="purchase.report_purchaseorder_document">
+            <xpath expr="//div[@t-if='o.date_order']" position="after">
+                <div t-if="o.transporter_id" class="col-xs-3">
+                    <strong>Transportista:</strong>
+                    <p t-field="o.transporter_id"/>
+                    <div>
+                        <strong>Ruc:</strong>
+                        <p t-field="o.transporter_id.nro_documento"/>
+                    </div>
+
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

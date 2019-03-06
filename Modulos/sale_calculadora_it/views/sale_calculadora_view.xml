@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="assets_backend" name="custom_css" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+             <link rel="stylesheet" href="/sale_calculadora_it/static/src/css/modalg.css"/>
+        </xpath>
+    </template>
+
+
+    <record id="view_order_form_order_contact" model="ir.ui.view">
+        <field name="name">sale.order.form - Orering Contact</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_order_contact.view_order_form_order_contact"/>
+        <field name="arch" type="xml">
+            <field name="partner_order_id" position="after">
+                <field name="before_invoice"/>
+            </field>
+            
+        </field>
+    </record>
+
+    <record id="view_order_form_markup_model" model="ir.ui.view">
+      <field name="name">sale.order.form.markup</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+          
+          <xpath expr='//field[@name="order_line"]/form/group/group/div/field[@name="product_uom_qty"]' position="after">
+            <div>
+                <field name="id_type" class="oe_inline" readonly="1">
+                    <tree string="Lineas de Proforma" editable = "bottom" >
+                        <field name="total_perimetro"/>
+                        <field name="total_area"/>
+                    </tree>
+                </field>
+            </div>
+          </xpath>
+
+          <xpath expr='//field[@name="order_line"]/form/field[@name="state"]' position="after">
+            <sheet>
+            <div class="oe_title">
+            </div>
+                <notebook>
+                    <page string="Proforma">
+                        <field name="id_type_line"/>
+                    </page>
+                </notebook>
+            </sheet>
+          </xpath>
+
+          <xpath expr='//field[@name="order_line"]/tree/field[@name="product_uom_qty"]' position="after">
+            <button name="showcalc" type="object" string="Calculadora" groups="sales_team.group_sale_salesman" class="oe_edit_only oe_link" />
+          </xpath>
+      </field>
+    </record>
+
+    <!--<record id="view_calculadora_proforma_line_tree" model="ir.ui.view">
+        <field name="name">view.calculadora.proforma.line.tree</field>
+        <field name="model">sale.calculadora.proforma.line</field>
+        <field name="arch" type="xml">
+            <form string="Notebook">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="cantidad"/>
+                            <field name="nro_cristal"/>
+                            <field name="base1"/>
+                            <field name="base2"/>
+                            <field name="altura1"/>
+                            <field name="altura2"/>
+                            <field name="descuadre"/>
+                            <field name="perimetro"/>
+                            <field name="area"/>
+                            <field name="peso"/>
+                            <field name="min_vend"/>
+                        </group>
+                        <group >
+                            <field name="pulido"/>
+                            <field name="entalle"/>
+                            <field name="biselado"/>
+                            <field name="lavado"/>
+                            <field name="perforaciones"/>
+                            <field name="plantilla"/>
+                            <field name="embalado"/>
+                            <field name="insulado"/>
+                            <field name="arenado"/>
+                            <field name="image" widget="image" height="100"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>-->
+
+     <record id="view_calculadora_proforma_line_tree2" model="ir.ui.view">
+        <field name="name">view.calculadora.proforma.line.tree2</field>
+        <field name="model">sale.calculadora.proforma.line</field>
+        <field name="arch" type="xml">
+            <tree editable="button" create="true" edit="true">
+                <button type="object" name="showimage" class="oe_edit_only oe_link" string="Imagen"/>
+                 <field name="cantidad" string="Cdt" required='1'/>
+                <field name="nro_cristal" string=" Nro.    " required='1'/>
+                <field name="base1" required='1'/>
+                <field name="base2" required='1'/>
+                <field name="altura1" required='1'/>
+                <field name="altura2" required='1'/>
+                <field name="descuadre" string="Descd."/>
+                <field name="page_number"/>
+                <field name="pulido1" string="            Pulido            "/>
+                <field name="entalle" string="Ent."/>
+                <field name="lavado" string="Desc."/>
+                 <field name="plantilla" string="Ptlla"/>
+                <field name="embalado" string="Embld."/>
+                <field name="insulado" string="Insul."/>
+                <field name="arenado" string="Aren."/>
+                <field name="perimetro" readonly="1"/>
+                <field name="area" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+     <record model="ir.ui.view" id="view_calculadora_presupuesto_linea_wizard_form">
+            <field name="name">calculadora.presupuesto.linea.wizard.form</field>
+            <field name="model">sale.calculadora.proforma</field>
+            <field name="arch" type="xml">
+                <form >
+                    
+                    <group string="Calculadora" >
+                        
+                        <div class="oe_inline" style="width=100%">
+                            <field name="id_line" nolabel="1" attrs="{'readonly':[('iseditable','=',False)]}" context="{'id_main':id}" invisible="0"/>
+                        </div>                                    
+                    </group>
+                    <group>
+                        <group >
+                            <field name="qty_invoiced" readonly="1"/>
+                            <field name="qty_invoiced_rest"  readonly="1"/>
+                            <field name="show_product" readonly="1" />
+                        </group>
+                        <group class="oe_subtotal_footer oe_left" name="sale_total">
+                            <field name="total_perimetro"/>
+                            <field name="total_area"/>
+                            <field name="total_area_cobrada"/>
+                            <field name="total_items" readonly="1"/>
+                            <field name="type_line" invisible="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <field name="iseditable" invisible="1"/>
+                        <button name="savecal" type="object" string="Guardar" class="btn-primary"/>
+                    </footer>
+                </form>
+            </field>
+    </record>
+     <record model="ir.ui.view" id="view_image_wizard_form">
+            <field name="name">calculadora.image.wizard.form</field>
+            <field name="model">sale.calculadora.proforma.line</field>
+            <field name="arch" type="xml">
+                <form create="false" edit="false" versio="7.0">
+                    <sheet >
+                        <div style="border-style:solid;width:500px;height:450px;float:left;">
+                            <field name="image" widget="image" height="300" width="400" />
+                        </div>
+
+                    </sheet>
+                    <footer>
+                        <button name="reshowcalc" string="Regresar" type="object"/>
+                    </footer>
+                </form>
+            </field>
+    </record>
+
+
+
+
+
+
+
+
+        <record model="ir.ui.view" id="view_calculadora_presupuesto_linea2_wizard_form">
+            <field name="name">calculadora.presupuesto.linea2.wizard.form</field>
+            <field name="model">sale.calculadora.proforma</field>
+            <field name="arch" type="xml">
+                <form >
+
+                <group string="Calculadora" >
+                        <div class="oe_inline" style="width=100%">
+                            <field name="id_line" nolabel="1" context="{'default_type_prod':type_line,'default_descuadre':'1,2,3,4'}">
+                                <tree editable="button" create="true" edit="true">
+                                    <button type="object" name="showimage" class="oe_edit_only oe_link" string="Imagen"/>
+                                     <field name="cantidad" string="Cdt"/>
+                                    <field name="nro_cristal" string=" Nro.    "/>
+                                    <field name="base1"/>
+                                    <field name="base2"/>
+                                    <field name="altura1"/>
+                                    <field name="altura2"/>
+                                    <field name="descuadre" string="Nro. Lados"/>
+                                    <field name="page_number"/>
+                                    <field name="entalle" string="Ent."/>
+                                    <field name="plantilla" string="Ptlla"/>
+                                    <field name="perimetro"/>
+                                    <field name="area"/>
+                                </tree>
+                            </field>
+                        </div>                                    
+                    </group>
+
+                    
+                    <group class="oe_subtotal_footer oe_left" name="sale_total">
+                        <field name="total_perimetro"/>
+                        <field name="total_area"/>
+                        <field name="total_area_cobrada"/>
+                        <field name="total_items" readonly="1"/>
+                        <field name="type_line" invisible="1"/>
+                    </group>
+
+                </form>
+            </field>
+        </record>
+    <template id="report_invoice_document_inherit_sale_calc" inherit_id="sale.report_invoice_document_inherit_sale">
+        <xpath expr="//div[@groups='sale.group_delivery_invoice_address']" position="replace">
+            <div class="col-xs-5 col-xs-offset-7" groups="sale.group_delivery_invoice_address">
+                <strong t-if="o.partner_shipping_id == o.partner_id">Dirección de facturación y de envío:</strong>
+                <strong t-if="o.partner_shipping_id != o.partner_id">Dirección de facturación:</strong>
+                <div t-field="o.partner_id.name"/>
+                <div >
+                    <span>
+                        <span t-field="o.partner_shipping_id.type_document_partner_it.name"/> <span t-field="o.partner_shipping_id.nro_documento"/> 
+                    </span>
+                </div>
+                <div t-field="o.partner_id"
+                    t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+
+                    
+                <div t-if="o.partner_shipping_id != o.partner_id" class="mt8">
+                    <strong>Dirección de envío:</strong>
+                    <div t-field="o.partner_shipping_id"
+                        t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                    <span><span t-field="o.partner_shipping_id.type_document_partner_it.name"/> <span t-field="o.partner_shipping_id.nro_documento"/> </span>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,97 @@
+<odoo>
+<data>
+
+    <record id="glass_production_in_tracking_form_view" model="ir.ui.view">
+        <field name="name">glass.production.in.tracking.form</field>
+        <field name="model">glass.list.main.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seguimiento de Producción">     
+                <header>
+                    <button string ="Mostrar" name="makelist" type="object"/>
+                    <button string ="Registrar Rotura" name="callbreakcrystal" type="object"/>
+                </header>
+
+                <sheet>            
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="lote_id"/>
+                            <field name="table_number"/>
+                        </group>
+                        <group>
+                            <field name="date_ini"/>
+                            <field name="date_end"/>
+                            <field name="filter_field"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Cristales">
+                            <field name="line_ids" readonly="1">
+                                <tree string="Seguimiento de Producción">
+                                    <button name="show_stages" type="object" string="Seguimiento" icon="fa-table"/>
+                                    <!-- <button name="break_crystal" type="object" string="Cristal Roto" icon="fa-asterisk"/> -->
+                                    <button name="show_croquis" type="object" string="Ver Croquis" icon="fa-instagram"/>
+                                    <field name="order_id"/>
+                                    <field name="display_name_lot"/>
+                                    <field name="presentation"/>
+                                    <field name="crysta_number" count="aaaa"/>
+                                    <field name="base1"/>
+                                    <field name="base2"/>
+                                    <field name="altura1"/>
+                                    <field name="altura2"/>
+                                    <field name="descudre"/>
+                                    <field name="requisicion"/>
+                                    <field name="horno"/>
+                                    <field name="templado"/>
+                                    <field name="comprado"/>
+                                    <field name="ingresado"/>
+                                    <field name="entregado"/>
+                                    <field name="display_name_partner"/>
+                                    <field name="estado"/>
+                                    <field name="glass_break"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Totales">
+                        <group>
+                            <field name="tot_requisicion" readonly="1"/>
+                            <field name="tot_horno" readonly="1"/>
+                            <field name="tot_templado" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="tot_comprado" readonly="1"/>
+                            <field name="tot_ingresado" readonly="1"/>
+                            <field name="tot_entregado" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="glass_production_in_tracking_tree_view" model="ir.ui.view">
+        <field name="name">glass.production.in.tracking.tree.view</field>
+        <field name="model">glass.list.main.wizard</field>
+        <field name="arch" type="xml">
+            <tree string="Seguimiento de Producción">
+                <field name="order_id"/>
+                <field name="lote_id"/>     
+                <field name="date_ini"/>
+                <field name="date_end"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="glasss_production_in_tracking" model="ir.actions.act_window">
+        <field name="name">Seguimiento de Producción</field>
+        <field name="res_model">glass.list.main.wizard</field>
+        <field name="view_ids" eval="[(5,0,0),(0, 0, {'view_mode': 'tree', 'view_id': ref('glass_production_in_tracking_tree_view')}),(0, 0, {'view_mode': 'form', 'view_id': ref('glass_production_in_tracking_form_view')})]"/>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+     <menuitem id="glass_prodcution_in_tracking_menu" parent="stock.menu_stock_inventory_control" action="glasss_production_in_tracking" sequence="9" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento"/>
+</data>
+</odoo>

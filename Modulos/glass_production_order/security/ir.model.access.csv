@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_glass_order,glass.order,model_glass_order,glass_production_order.group_glass_user,1,1,1,1
+access_glass_order_line,glass.lot.line,model_glass_order_line,glass_production_order.group_glass_user,1,1,1,1
+access_glass_lot,glass.lot,model_glass_lot,glass_production_order.group_glass_user,1,1,1,1
+access_glass_lot_line,glass.lot.line,model_glass_lot_line,glass_production_order.group_glass_user,1,1,1,1
+access_glass_config,glass.order.config,model_glass_order_config,glass_production_order.group_glass_user,1,1,1,1
+access_glass_production_user_stage,glass.production.user.stage,model_glass_production_user_stage,glass_production_order.group_glass_user,1,1,1,1
+access_glass_stage_record,glass.stage.record,model_glass_stage_record,glass_production_order.group_glass_user,1,1,1,1
+
+access_glass_pdf_file,glass.pdf.file,model_glass_pdf_file,,1,1,1,1
+
+access_glass_product_order,glass.order,model_glass_order,glass_production_order.group_glass_production_user,1,0,0,0

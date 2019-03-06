@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="view_glass_requisition_form" model="ir.ui.view">
+		<field name="name">glass.requisition.form.view</field>
+		<field name="model">glass.requisition</field>
+		<field name="arch" type="xml">
+			<form string="Orden de requisición">
+				<header>
+					<button name="confirm" string="Confirmar" states='draft' type="object"/>
+					<button name="process" string="Procesar" states='confirm' type="object" class="btn-primary"/>
+					<button name="cancel" string="Cancelar" states='process,confirm' type="object"/>
+					<button name="reopen" string="Re-abrir" states='cancel' type="object"/>
+					<field name="state" widget="statusbar" nolabel="1" />
+				</header>
+				<sheet>
+					<div class="oe_button_box" name="button_box">
+						<button type="object"
+							name="action_view_delivery_glass"
+							class="oe_stat_button"
+							icon="fa-truck"
+							attrs="{'invisible':[('picking_count','=',0)]}">
+							<field name="picking_count" widget="statinfo" string="Entregas" help="Entregas generadas"/>
+						</button>
+					</div>
+					<group>
+						<field name="name" readonly="1"/>
+						<field name="table_number" required="1"/>
+						<field name="date_order" required="1"/>
+						<field name="required_area" readonly="1"/>
+						<field name="required_mp" readonly="1"/>
+					</group>
+					<group>
+						<field name="product_id" invisible="0" readonly="1"/>
+						<field name="lot_id" invisible="1"/>
+						<field name="picking_type_mp" invisible="1"/>
+						<field name="picking_type_rt" invisible="1"/>
+						<field name="picking_type_drt" invisible="1"/>
+						<field name="picking_type_pr" invisible="1"/>
+						<field name="traslate_motive_mp" invisible="1"/>
+						<field name="traslate_motive_rt" invisible="1"/>
+						<field name="traslate_motive_drt" invisible="1"/>
+						<field name="traslate_motive_pr" invisible="1"/>
+					</group>
+					<notebook>
+						<page string="Lotes de Producción">
+							<field name="lot_ids" attrs="{'readonly':[('state','not in',['confirm'])]}" context="{'lot_id':lot_id}" domain="[('state','=','done')]">
+
+								<tree name="lotestree" editable="button">
+									<field name="lot_id" />
+									<field name="date" readonly="1"/>
+									<field name="user_id" readonly="1"/>
+									<field name="m2" readonly="1" sum=""/>
+									<field name="crystal_count" readonly="1" sum=""/>
+								</tree>
+							</field>
+
+							<field name="production_order_ids" readonly="1"/>
+						</page>
+						<page string="Materia Prima">
+							<button class="btn btn-primary" name="create_glass_picking" string="Generar Almacen" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							<field name="picking_mp_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_mp,'default_einvoice_12':traslate_motive_mp,'default_origin':name}"  attrs="{'readonly':1}">
+								
+								<tree >
+									<field name="name"/>
+									<field name="fecha_kardex"/>
+									<field name="einvoice_12"/>
+									<field name="picking_type_id"/>
+									<field name="origin"/>
+									<field name="state"/>
+								</tree>
+							</field>
+							<group class="oe_subtotal_footer oe_left" name="tpmp">
+								<field name="total_picking_mp"/>
+
+							</group>
+							
+		
+						</page>
+						<page string="Materia Prima - Retazos">
+							<button class="btn btn-primary" name="create_glass_picking_rt" string="Generar Almacen" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							<field name="picking_rt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_rt,'default_einvoice_12':traslate_motive_rt,'default_origin':name}"  attrs="{'readonly':1}">
+								<tree >
+									<field name="name"/>
+									<field name="fecha_kardex"/>
+									<field name="einvoice_12"/>
+									<field name="picking_type_id"/>
+									<field name="origin"/>
+									<field name="state"/>
+								</tree>
+							</field>
+							<group class="oe_subtotal_footer oe_left" name="tprt">
+								<field name="total_picking_rt"/>
+							</group>
+						</page>
+
+						<page string="Devolución Retazos">
+							<button class="btn btn-primary" name="create_glass_picking_drt" string="Generar Almacen" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							<button name="call_units" string="Crear Unidad de Retazo" type="object" class="btn-success oe_edit_only"/> 
+							<field name="picking_drt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_drt,'default_einvoice_12':traslate_motive_drt,'default_origin':name}"  attrs="{'readonly':1}">
+								<tree >
+									<field name="name"/>
+									<field name="fecha_kardex"/>
+									<field name="einvoice_12"/>
+									<field name="picking_type_id"/>
+									<field name="origin"/>
+									<field name="state"/>
+								</tree>
+							</field>
+							<group class="oe_subtotal_footer oe_left" name="tpdrt">
+								<field name="total_picking_drt"/>
+							</group>
+							
+						</page>
+						<!--<page string="Productos Terminados">
+							<field name="picking_pt_ids">
+								<tree >
+									<field name="name"/>
+									<field name="fecha_kardex"/>
+									<field name="einvoice_12"/>
+									<field name="picking_type_id"/>
+									<field name="origin"/>
+									<field name="state"/>
+								</tree>
+							</field>
+						</page>-->
+					</notebook>
+				</sheet>
+			</form>
+		</field>
+	</record>
+	<record id="view_picking_form_custom" model="ir.ui.view">
+		<field name="name">glass.stock.picking.form</field>
+		<field name="model">stock.picking</field>
+		<field name="inherit_id" ref="stock.view_picking_form" />
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='origin']" position="after">
+				<field name="identificador_glass" invisible="1"/>
+				<field name="identifier" invisible="1"/>
+			</xpath>
+		</field>
+	</record>
+	<record id="view_glass_requisition_tree" model="ir.ui.view">
+		<field name="name">glass.requisition.tree.view</field>
+		<field name="model">glass.requisition</field>
+		<field name="arch" type="xml">
+			<tree string="Orden de Requisición">
+				<field name="name"/>
+				<field name="table_number"/>
+				<field name="date_order"/>
+				<field name="required_area"/>
+				<field name="required_mp"/>
+			</tree>
+		</field>
+	</record>
+
+
+	<record id="glass_requisition_search_view" model="ir.ui.view">
+		<field name="name">Orden de Requisición - Búsqueda</field>
+		<field name="model">glass.requisition</field>
+		<field name="arch" type="xml">
+			<search string="Buscar Órdenes de Producción">
+				<field name="name"/>
+				<field name="table_number"/>
+				<field name="date_order"/>
+				
+			</search>
+		</field>
+	</record>
+
+	<record id="glass_requisition_action" model="ir.actions.act_window">
+		<field name="name">Orden de Requisición</field>
+		<field name="res_model">glass.requisition</field>
+		<field name="view_type">form</field>
+		<field name="view_mode">tree,form</field>
+	</record>
+ 
+	<menuitem id="glass_inventory_menu" parent="glass_production_menu" name="Inventario" sequence="0" groups="glass_production_order.group_glass_user"/>
+	<menuitem id="glass_requisition_menu" parent="glass_inventory_menu" action="glass_requisition_action" sequence="0" groups="glass_production_order.group_glass_user"/>
+
+</odoo>

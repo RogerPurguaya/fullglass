@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_glass_in_production_wizard_form" model="ir.ui.view">
+        <field name="name">glass.in.production.wizard.form.view</field>
+        <field name="model">glass.in.production.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Ingreso de la Producción">                 
+                <group>
+                    <group>
+                        <field name="stock_type_id"/>
+                        <field name="date_in"/>
+                        <field name="order_id" domain="[('state','=','process')]"/>
+                    </group>
+                    <group>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Ordenes de Producción" name ="ops">
+                        <field name="order_ids" readonly="0">
+                            <tree  editable="botton">
+                                <field name="selected"/>
+                                <field name="order_id" readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="date_production" readonly="1"/>
+                                <field name="total_pzs" readonly="1"/>
+                                <field name="total_area" readonly="1"/>
+                            </tree>
+                        </field>
+                        <field name="line_ids"  readonly="1"  widget="many2many">
+                            <!-- <tree editable='bottom'>
+                                <field name="order_id" readonly="0"/>
+                                <field name="product_id" readonly="0"/>
+                                <field name="crystal_number" readonly="0"/>
+                                <field name="base1" readonly="0"/>
+                                <field name="base2" readonly="0"/>
+                                <field name="altura1" readonly="0"/>
+                                <field name="altura2" readonly="0"/>
+                            </tree> -->
+                        </field>
+                    </page>
+                </notebook>
+                <footer>
+                    <button string ="Generar Ingreso" name="makeingreso" type="object"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    
+    </record>
+    <record id="glass_in_production_wizard_action" model="ir.actions.act_window">
+        <field name="name">Ingreso de la Producción</field>
+        <field name="res_model">glass.in.production.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+     <menuitem id="glass_in_production_wizard_menu" parent="glass_inventory_menu" action="glass_in_production_wizard_action" sequence="9" groups="glass_production_order.group_glass_user"/>
+
+</odoo>

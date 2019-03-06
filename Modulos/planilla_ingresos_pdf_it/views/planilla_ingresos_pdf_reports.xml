@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+            string="Imprimir Caja"
+            id="planilla_ingresos_pdf_it.reporte"
+            model="wizard.print.caja"
+            report_type="qweb-pdf"
+            file="planilla_ingresos_pdf_it.report_caja"
+            name="planilla_ingresos_pdf_it.report_caja"
+        />
+	<record id="view_action_caja_printer_p" model="ir.ui.view">
+        <field name="name">Imprimir Caja</field>
+        <field name="model">wizard.print.caja</field>
+        <field name="arch" type="xml">
+            <form string="Choose your date">
+                <group>
+                    <field name="diario_id" widget="many2many_tags" options="{'no_create': True}"/>
+                    <field name="date_i"/>
+                    <field name="date_f"/>
+                </group>
+                <footer>
+                    <button name="print_caja_report" string="Imprimir" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-default" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_caja_printer_p" model="ir.actions.act_window">
+        <field name="name">Imprimir Ordenes de Entrega Hechas</field>
+        <field name="res_model">wizard.print.caja</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_action_caja_printer_p"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id='print_caja_product' name='Liquidacion de Caja' sequence="100" parent="account.menu_finance_reports" action="action_caja_printer_p"/>
+</odoo>

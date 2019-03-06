@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_category_sale_form" model="ir.ui.view">
+        <field name="name">product.category.sale.form.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="account.view_category_property_form"/>
+        <field name="arch" type="xml">
+            <group name="account_property" position="before">
+                <group>
+                    <group string ="Ventas">
+                        <field name="min_sale"/>
+                        <field name="uom_min_sale"/>
+                    </group>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

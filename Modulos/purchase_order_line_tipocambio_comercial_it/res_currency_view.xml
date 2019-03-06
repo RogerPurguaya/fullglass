@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+
+        <record id="view_tipo_cambio_comercial_tree" model="ir.ui.view">
+            <field name="name">Tipo Cambio Comercial</field>
+            <field name="model">tipo.cambio.comercial</field>
+            <field name="arch" type="xml">
+                <tree string="Tipo Cambio Comercial" editable="bottom">
+                    <field name="name"/>
+                    <field name="tipo_venta" string="Tipo de Cambio comercial"/>
+                </tree>
+            </field>
+        </record>        
+
+ 
+        <record model="ir.actions.act_window" id="tipo_cambio_comercial_action">
+            <field name="name">Tipo Cambio Comercial</field>
+            <field name="res_model">tipo.cambio.comercial</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+	    <menuitem name="Tipo Cambio Comercial" id="tipo_cambio_comercial_menu" parent="res_currency_rate_it.menu_main_usd_unique" action="tipo_cambio_comercial_action" sequence="17"/>    
+
+
+
+        <record id="view_order_form" model="ir.ui.view">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+
+                <field name="pricelist_id" position="after">
+                        <label string="" states="draft"/>
+                        <button name="cambiar_lista_precio" states="draft"
+                            string="(Actualizar)" class="oe_link"
+                            type="object" help="Recalcular Precio Producto"/>
+                </field>
+
+            </field>
+        </record>
+
+
+
+    </data>
+</openerp>

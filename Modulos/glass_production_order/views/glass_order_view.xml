@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_glass_croquis_form" model="ir.ui.view">
+        <field name="name">glass.croquis.form.view</field>
+        <field name="model">glass.order</field>
+        <field name="priority" eval="15"/>
+        <field name="arch" type="xml">
+            <form string="Croquis">                 
+                <group>
+                    <group>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="sale_order_id" string = "Pedido de venta" readonly="1"/>
+                        <field name="name"/>
+                        <field name="editable_croquis" invisible="1"/>
+                    </group>
+                    <group>
+                    </group>
+
+                </group>
+                <notebook>
+                    <page name="croquis" string ="Croquis">
+                            <field name="sketch" widget="pdf_viewer" />
+                    </page>
+                </notebook>
+                <footer>
+                    <button string ="Guardar" name="savecroquis" type="object" attrs="{'invisible':[('editable_croquis','=',False)]}"/>
+
+                    
+
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="view_glass_order_form" model="ir.ui.view">
+        <field name="name">glass.order.form.view</field>
+        <field name="model">glass.order</field>
+        <field name="priority" eval="1"/>
+        <field name="arch" type="xml">
+            <form string="Orden de producción" groups="glass_production_order.group_glass_production_user">
+                <header>
+                    <!--<button string="Revizar" name="validate_order" type="object"/>-->
+                    <button string="Finalizar orden" name="endedop" type="object" groups="glass_production_order.group_glass_finish_op" confirm="Está seguro de finalizar esta orden de producción?"/>
+                    
+                    <button string="Retirar orden" name="remove_order" type="object" states="confirmed,process,delivered" groups="glass_production_order.module_production_glass"/>
+                    <field name="state" widget="statusbar" nolabel="1" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoice"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                            <field name="invoice_count" widget="statinfo" string="Invoices"/>
+                        </button>
+                    </div>
+                    <h1>Orden de Producción <field name="name" nolabel="1" readonly="1" default="Nuevo"/> </h1>
+                    <group>
+                        <group>
+                            <field name="sale_order_id"/>
+                            <field name="date_sale_order" readonly="1"/>
+                            <field name="partner_id"/>
+                            <field name="delivery_street"/>
+                            <field name="delivery_province"/>
+                            <field name="delivery_department"/>
+                            <field name="comercial_area"/>
+                            <field name="obra" />
+                            <field name="reference_order"/>
+                        </group>
+                        <group>
+                            <field name="date_order"/>
+                            <field name="date_production"/>
+                            <field name="date_send"/>
+                            <field name="date_delivery"/>
+                            <field name="warehouse_id"/>
+                            <field name="seller_id"/>
+                            <field name="validated"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="sale_lines" string="Productos">
+                            <field name="sale_lines" readonly="1">
+                                <tree string="Lineas de venta">
+                                    <button name="showcalc" type="object" string="Calculadora" groups="sales_team.group_sale_salesman" class="oe_edit_only oe_link" />
+                                    <field name="product_id" invisible="1"/>
+                                    <field name="order_id"/>
+                                    <field name="name"/>
+                                    <field name="product_uom_qty" string="Cantidad"/>
+                                    <field name="product_uom" string="Unidad de Medida" groups="product.group_uom"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="detail" string ="Detalle">
+                            <button name="remove_order" string="Retirar orden" type="object" attrs="{'invisible':[('state','!=','draft')]}" />
+                            <field name = "line_ids" readonly="1">
+                                <tree decoration-danger="glass_break == True">
+                                    <field name="product_id"/>
+                                    <field name="calc_line_id" invisible="1"/>
+                                    <field name="crystal_number"/>
+                                    <field name="base1"/>
+                                    <field name="base2"/>
+                                    <field name="altura1"/>
+                                    <field name="altura2"/>
+                                    <field name="descuadre"/>
+                                    <field name="pulido1"/>
+                                    <field name="entalle"/>
+                                    <field name="plantilla"/>
+                                    <field name="embalado"/>
+                                    <field name="page_number"/>
+                                    <field name="glass_break"/>
+                                    <field name="search_code"/>
+                                    <field name="state"/>
+                                    <field name="area" attsr="{'digits':(20,4)}"/>
+                                    <field name="peso" string="Peso"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_left" name="sale_total">
+                                <field name="total_pzs"/>
+                                <field name="total_area"/>
+                                <field name="total_peso"/>
+
+                            </group>
+                        </page>
+                        <page name="croquis" string ="Croquis">
+                            <group>
+                                <field name="file_name" invisible="0"/>
+                                <field name="sketch" widget="pdf_viewer" filename="file_name"/>
+                                
+                            </group>
+                         </page>
+                        <page name="requisiciones" string ="Requisiciones">
+                            <field name="file2" widget="pdf_viewer"/>
+                        </page>
+                    </notebook>
+                    
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+    <record id="view_glass_order_tree" model="ir.ui.view">
+        <field name="name">glass.order.tree.view</field>
+        <field name="model">glass.order</field>
+        <field name="arch" type="xml">
+            <tree string="Orden de producción">
+                <field name="name"/>
+                <field name="sale_order_id"/>
+                <field name="reference_order"/>
+                <field name="partner_id"/>
+                <field name="obra"/>
+                <field name="date_order"/>
+                <field name="date_production"/>
+                <field name="date_send"/>
+                <field name="date_delivery"/>
+                <field name="warehouse_id"/>
+                <field name="seller_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="glass_order_view" model="ir.ui.view">
+        <field name="name">Orden de producción - Búsqueda</field>
+        <field name="model">glass.order</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Órdenes de Producción">
+                <field name="name"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id"/>
+                <field name="reference_order"/>
+                <field name="obra"/>
+                <field name="date_order"/>
+                <group expand="0" string="Group By">
+                    <filter string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Obra" domain="[]" context="{'group_by':'obra'}"/>
+                    <filter string="Vendedor" domain="[]" context="{'group_by':'seleer_id'}"/>
+                    <filter string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="glass_order_action" model="ir.actions.act_window">
+        <field name="name">Órdenes de Producción</field>
+        <field name="res_model">glass.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_type">form</field>
+        <field name="context">{'tree_view_ref': 'view_glass_order_tree','form_view_ref': 'view_glass_order_form'}</field>
+    </record>
+
+ 
+    <menuitem id="glass_production_menu" name="Producción"  groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento,glass_production_order.group_glass_production_user" />
+    <menuitem id="glass_order_m_menu" parent="glass_production_menu" name="Órdenes de Producción" sequence="0" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_production_user"/>
+    <menuitem id="glass_order_menu" parent="glass_order_m_menu" action="glass_order_action" sequence="0" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_production_user"/>
+
+
+    <record id="view_glass_order_line_tree" model="ir.ui.view">
+        <field name="name">glass.order.line.tree.view</field>
+        <field name="model">glass.order.line</field>
+        <field name="priority" eval="1"/>
+        <field name="arch" type="xml">
+            <tree string="Orden de producción" colors="red:glass_break==True">
+                <field name="order_id"/>
+                <field name="reference_order"/>
+                <field name="partner_id"/>
+                <field name="date_production"/>
+                <field name="product_id"/>
+                <field name="crystal_number"/>
+                <field name="state"/>
+                <field name="base1"/>
+                <field name="base2"/>
+                <field name="altura1"/>
+                <field name="altura2"/>
+                <field name="descuadre"/>
+                <field name="page_number"/>
+                <field name="glass_break" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_glass_order_line_image" model="ir.ui.view">
+        <field name="name">glass.order.line.image.view</field>
+        <field name="model">glass.order.line</field>
+        <field name="priority" eval="15"/>
+        <field name="arch" type="xml">
+            <form string="Imagen">
+                <field name="image" widget="image" height="300" width="400"/>
+                <footer>
+                    <button name="return_wizard" string="Cerrar" type="object"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+
+
+    
+
+
+
+
+    <record id="view_glass_order_line_filter" model="ir.ui.view">
+            <field name="name">glass.order.line.search</field>
+            <field name="model">glass.order.line</field>
+            <field name="arch" type="xml">
+                <search string="Buscar elementos a producir">
+                    <field name="order_id"/>
+                    <field name="reference_order"/>
+                    <field name="product_id"/>
+                    <field name="crystal_number"/>
+                    <field name="state"/>
+                    <field name="partner_id"/>
+                    <field name="date_production"/>
+                    <field name="base1"/>
+                    <field name="base2"/>
+                    <field name="altura1"/>
+                    <field name="altura2"/>
+                    <field name="descuadre"/>
+                    <field name="pulido1"/>
+                    <field name="entalle"/>
+                    <field name="plantilla"/>
+                    <field name="page_number"/>
+                    <field name="embalado"/>
+
+                    <separator />
+                    <group expand="0" string="Group By">
+                        <filter string="Orden de producción" name="groupby_op" domain="[]" context="{'group_by':'order_id'}"/>
+                        <filter string="Producto" name="groupby_product" domain="[]" context="{'group_by':'product_id'}"/>
+
+                        <filter string="Estado" name="groupby_state"  domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+ 
+
+
+
+</odoo>

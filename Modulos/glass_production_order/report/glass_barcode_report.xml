@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+<template id="report_glass_simple_barcode">
+    <div class="col-xs-1" style="padding:0; " >
+        <div t-foreach="order.line_ids" t-as="l">
+        <table style="undefined;table-layout: fixed; width: 350px; border:2px black solid;" >
+          <tr>
+            <td><t t-if="l.lot_line_id.order_prod_id.name">
+                <strong t-field="l.lot_line_id.order_prod_id.name"/>
+            </t></td>
+            <td></td>
+            <td>Medidas</td>
+          </tr>
+          <tr>
+            <td>Cristal Nro.</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Nombre del producto</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Razon Social del Cliente</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>DIrección de entrega</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td style="border-style: solid;">Nro. Hornada</td>
+            <td style="border-style: solid;">Código Pulido</td>
+            <td style="border-style: solid;">Código Embalado</td>
+          </tr>
+          <tr>
+            <td>a</td>
+            <td>a</td>
+            <td>a</td>
+          </tr>
+        </table>
+        <br/>
+        <br/>
+        </div>
+    </div>
+</template>
+<template id="report_glassbarcode">
+    <t t-call="report.html_container">
+        <div class="page">
+            <t t-foreach="docs" t-as="GlassFurnaceOut">
+                <t t-call="glass_production_order.report_glass_simple_barcode">
+                    <t t-set="order" t-value="GlassFurnaceOut"/>
+                </t>
+            </t>
+        </div>
+    </t>
+</template>
+<report
+    id="report_glass_barcode"
+    string="Etiquetas"
+    model="glass.furnace.out"
+    report_type="qweb-pdf"
+    name="glass_production_order.report_glassbarcode"
+    file="glass_production_order.report_glassbarcode"/>
+</data>
+</odoo>
+
+<!-- 
+<table style="undefined;table-layout: fixed; width: 568px">
+<colgroup>
+<col style="width: 164px">
+<col style="width: 274px">
+<col style="width: 130px">
+</colgroup>
+  <tr>
+    <th>O/P</th>
+    <th></th>
+    <th>Medidas</th>
+  </tr>
+  <tr>
+    <td>Cristal Nro.</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Nombre del producto</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Razon Social del Cliente</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>DIrección de entrega</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Nro. Hornada</td>
+    <td>Código Pulido</td>
+    <td>Código Embalado</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table> -->

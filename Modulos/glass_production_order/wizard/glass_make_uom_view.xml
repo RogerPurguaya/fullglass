@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_glass_make_uom_form" model="ir.ui.view">
+        <field name="name">glass.make.uom.form.view</field>
+        <field name="model">glass.make.uom</field>
+        <field name="arch" type="xml">
+            <form string="Crear unidad de media">  
+                <group>                   
+                    <field name="alto" required="1"/>
+                    <field name="ancho" required="1"/>
+                </group>
+
+                <footer>
+                    <button string ="Crear Unidad" name="makeunit" type="object"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

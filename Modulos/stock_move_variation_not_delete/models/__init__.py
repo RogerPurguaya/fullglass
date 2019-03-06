@@ -1,0 +1,1 @@
+import stock_move_variation_not_delete

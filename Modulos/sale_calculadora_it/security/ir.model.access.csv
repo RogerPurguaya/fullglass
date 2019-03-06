@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_calculadora_type,sale.calculadora.type,model_sale_calculadora_type,sales_team.group_sale_salesman,1,1,1,1
+access_sale_pulido_proforma,sale.pulido.proforma,model_sale_pulido_proforma,sales_team.group_sale_salesman,1,1,1,1
+access_SaleCalculatorProformaLine,sale.calculadora.proforma.line,model_sale_calculadora_proforma_line,sales_team.group_sale_salesman,1,1,1,1
+access_SaleCalculatorProforma,sale.calculadora.proforma,model_sale_calculadora_proforma,sales_team.group_sale_salesman,1,1,1,1

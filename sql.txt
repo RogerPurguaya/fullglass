@@ -1,0 +1,121 @@
+
+CREATE OR REPLACE VIEW vst_kardex_onlyfisico_total_poliglass AS 
+ SELECT total.product_tmpl_id, total.product_id, total.ubicacion, 
+    total.saldo_fisico + total.reservas + total.salida_espera AS stock_disponible, 
+    total.saldo_fisico, total.por_ingresar, total.transito, total.salida_espera, 
+    total.reservas, 
+    total.saldo_fisico + total.por_ingresar + total.transito + total.reservas + total.salida_espera AS previsto, 
+    total.estado, 
+        CASE
+            WHEN (total.saldo_fisico + total.reservas + total.salida_espera) = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_stock_disponible, 
+        CASE
+            WHEN total.saldo_fisico = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_saldo_fisico, 
+        CASE
+            WHEN total.por_ingresar = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_por_ingresar, 
+        CASE
+            WHEN total.transito = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_transito, 
+        CASE
+            WHEN total.salida_espera = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_salida_espera, 
+        CASE
+            WHEN total.reservas = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_reservas, 
+        CASE
+            WHEN (total.saldo_fisico + total.por_ingresar + total.transito + total.reservas + total.salida_espera) = 0::numeric THEN NULL::integer
+            ELSE total.id
+        END AS id_previsto, total.date::date,total.unidad
+   FROM (         SELECT a1.product_tmpl_id, a1.product_id, a1.ubicacion, 
+                        CASE
+                            WHEN a1.estado::text = 'done'::text THEN a1.saldo
+                            ELSE 0::numeric
+                        END AS saldo_fisico, 
+                    0 AS por_ingresar, 0 AS transito, 
+                        CASE
+                            WHEN a1.estado::text = 'confirmed'::text THEN a1.saldo
+                            ELSE 0::numeric
+                        END AS salida_espera, 
+                        CASE
+                            WHEN a1.estado::text = 'assigned'::text THEN a1.saldo
+                            ELSE 0::numeric
+                        END + 
+                        CASE
+                            WHEN a1.estado::text = 'partially_available'::text THEN 
+                            CASE
+                                WHEN a1.qty_done = 0::numeric THEN a1.product_qty
+                                ELSE a1.qty_done
+                            END
+                            ELSE 0::numeric
+                        END AS reservas, 
+                    a1.estado, a1.id,a1.date, a1.unidad
+                   FROM ( SELECT pp.product_tmpl_id, 
+                            vst_kardex_fisico.product_id, 
+                            vst_kardex_fisico.location_id AS ubicacion, 
+                            - vst_kardex_fisico.product_qty AS saldo, 
+                            vst_kardex_fisico.estado, sp.en_ruta AS ruta, 
+                            vst_kardex_fisico.product_qty as qty_done, vst_kardex_fisico.product_qty, vst_kardex_fisico.id,vst_kardex_fisico.date,sm.product_uom as unidad
+                           FROM vst_kardex_onlyfisico vst_kardex_fisico
+                      JOIN product_product pp ON pp.id = vst_kardex_fisico.product_id
+                 JOIN stock_move sm ON sm.id = vst_kardex_fisico.id
+            JOIN stock_picking sp ON sm.picking_id = sp.id
+       
+   LEFT JOIN stock_location slt ON slt.id = vst_kardex_fisico.location_id
+  WHERE vst_kardex_fisico.date::date IS NOT NULL AND slt.usage::text = 'internal'::text) a1
+        UNION ALL 
+                 SELECT a2.product_tmpl_id, a2.product_id, a2.ubicacion, 
+                        CASE
+                            WHEN a2.estado::text = 'done'::text THEN 
+                            CASE
+                                WHEN a2.mov_interno = true AND a2.ruta = true THEN 0::numeric
+                                ELSE a2.saldo
+                            END
+                            ELSE 0::numeric
+                        END AS saldo_fisico, 
+                        CASE
+                            WHEN a2.estado::text = 'assigned'::text THEN a2.saldo
+                            ELSE 0::numeric
+                        END + 
+                        CASE
+                            WHEN a2.estado::text = 'partially_available'::text THEN 
+                            CASE
+                                WHEN a2.qty_done = 0::numeric THEN a2.product_qty
+                                ELSE a2.qty_done
+                            END
+                            ELSE 0::numeric
+                        END AS por_ingresar, 
+                        CASE
+                            WHEN a2.estado::text = 'done'::text AND a2.ruta = true AND a2.mov_interno = true THEN a2.saldo
+                            ELSE 0::numeric
+                        END AS transito, 
+                    0 AS salida_espera, 0 AS reservas, a2.estado, a2.id, a2.date, a2.unidad
+                   FROM ( SELECT pp.product_tmpl_id, 
+                            vst_kardex_fisico.product_id, 
+                            vst_kardex_fisico.location_dest_id AS ubicacion, 
+                            vst_kardex_fisico.product_qty AS saldo, 
+                            vst_kardex_fisico.estado, sp.en_ruta AS ruta, 
+                            vst_kardex_fisico.product_qty as qty_done, vst_kardex_fisico.product_qty, 
+                            l_d.usage::text = 'internal'::text AND l_o.usage::text = 'internal'::text AS mov_interno, 
+                            vst_kardex_fisico.id,
+                            vst_kardex_fisico.date,sm.product_uom as unidad
+                           FROM vst_kardex_onlyfisico vst_kardex_fisico
+                      JOIN product_product pp ON pp.id = vst_kardex_fisico.product_id
+                 JOIN stock_move sm ON sm.id = vst_kardex_fisico.id
+            JOIN stock_picking sp ON sm.picking_id = sp.id
+       JOIN stock_location l_o ON l_o.id = vst_kardex_fisico.location_id
+   JOIN stock_location l_d ON l_d.id = vst_kardex_fisico.location_dest_id
+
+   LEFT JOIN stock_location slt ON slt.id = vst_kardex_fisico.location_dest_id
+  WHERE slt.usage::text = 'internal'::text AND vst_kardex_fisico.date::date IS NOT NULL) a2) total;
+
+ALTER TABLE vst_kardex_onlyfisico_total_poliglass
+  OWNER TO openpg;
+

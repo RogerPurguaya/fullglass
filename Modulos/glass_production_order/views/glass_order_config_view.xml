@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="view_glass_order_config_form" model="ir.ui.view">
+        <field name="name">glass.order.configt.form.view</field>
+        <field name="model">glass.order.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuraciones de producción">
+            	<sheet>
+                    <notebook>
+                        <page string="Generales">
+                    		<separator string="Secuencias"/>
+                    		<group>
+                    			<group>
+                                    <field name="seq_requisi"/>
+                    				<field name="seq_order"/>
+        							<field name="seq_lot"/>
+        						</group>
+                    		</group>
+
+                    		<separator string="Optimización"/>
+                    		<group>
+                    			<field name="optimization_ext"/>
+        						<field name="optimization_path"/>
+                    		</group>
+                    		<separator string="Horno"/>
+                    		<group>
+        						<field name="seq_furnace"/>
+        						<field name="furnace_area"/>
+                                <field name="seq_furnace_out"/>
+        					</group>
+                            <separator string="Unidad de medida"/>
+                            <group>
+                                <field name="uom_categ_id"/>
+                            </group>
+                            <separator string="Cristales por Guia"/>
+                            <group>
+                                <field name="nro_cristales_guia"/>
+                            </group>
+                            <separator string="Atributo de Comparación"/>
+                            <group>
+                                <field name="compare_attribute"/>
+                            </group>
+                        </page>
+                        <page string="Orden de Requisición">
+                            <group>
+                                <group>
+                                    <field name="picking_type_pt"/>
+                                    <field name="traslate_motive_pt"/>
+                                </group>
+                                <group>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="picking_type_mp"/>
+                                    <field name="picking_type_pr"/>
+                                    <field name="picking_type_rt"/>
+                                    <field name="picking_type_drt"/>
+                                </group>
+                                <group>
+                                    <field name="traslate_motive_mp"/>
+                                    <field name="traslate_motive_pr"/>
+                                    <field name="traslate_motive_rt"/>
+                                    <field name="traslate_motive_drt"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Plazos de Producción Planta">
+                            <field name="limit_ids">
+                                <tree editable="button">
+                                    <field name="motive_limit"/>
+                                    <field name="piezas"/>
+                                    <field name="zero_2_50"/>
+                                    <field name="fiftyone_2_100"/>
+                                    <field name="onehundred1_2_200"/>
+                                    <field name="more_2_200"/>
+                                    <field name="obras"/>
+                                    <field name="entalle" string="Entalle o descuadre"/>
+                                    <field name="local_send"/>
+                                    <field name="external_send"/>
+                                    <field name="send2partner"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Usuarios - Etapas">
+                            <field name="userstage">
+                                <tree editable="button">
+                                    <field name="user_id"/>
+                                    <field name="stage"/>
+                                    <field name="order_prod"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Fecha Excluidas">
+                            <field name="dateexceptions_ids">
+                                <tree editable="button">
+                                    <field name="date"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+            	</sheet>
+            </form>
+        </field>
+    </record>
+
+	<record id="view_glass_order_config_tree" model="ir.ui.view">
+        <field name="name">glass.order.configt.tree.view</field>
+        <field name="model">glass.order.config</field>
+        <field name="arch" type="xml">
+            <tree string="Configuraciones de producción">
+        		<field name="name"/>
+
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="glass_order_config_action" model="ir.actions.act_window">
+        <field name="name">Parámetros</field>
+        <field name="res_model">glass.order.config</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+ 
+    <menuitem id="glass_order_config_menu" parent="glass_production_menu" name="Configuración" sequence="99" groups="glass_production_order.group_glass_manager"/>
+    <menuitem id="glass_order_c_menu" parent="glass_order_config_menu" action="glass_order_config_action" sequence="0"/>
+
+</odoo>

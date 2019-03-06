@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <record id="view_glass_productioncontrol_wizard_form" model="ir.ui.view">
+        <field name="name">glass.productioncontrol.wizard.form.view</field>
+        <field name="model">glass.productioncontrol.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Control de producción">  
+                <field name="is_used" invisible="1"/>
+                <field name="existe" invisible="1"/>
+                <field name="rotate" invisible="1"/>
+
+                    <script>
+                        $(document).ready(function(){
+
+setTimeout(function () {
+                                document.getElementById('myIframe').contentDocument.location.reload();
+    }, 1000);
+
+                            $('#search_code input').change(function(e){
+
+
+setTimeout(function () {
+                                document.getElementById('myIframe').contentDocument.location.reload();
+    }, 1000);
+                                
+                                
+
+                                   });
+                        });
+                    </script>
+             	<group col="5">
+
+                            <div col="2" style='margin: 0px 10px 0px 10px' >
+                                <b>Etapa</b>
+                                <field name="stage" required="1" readonly="1"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b>Nro. Cristal</b><br/>
+                                <field name="nro_cristal" readonly="1"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b>Cliente</b><br/>
+                                <field name="partner_id" readonly="1"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b>OP</b><br/>
+                                <field name="production_order" readonly="1"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b>Obra</b><br/>
+                                <field name="obra" readonly="1"/>
+                            </div>
+                            <div id="search_code" col="2" style='margin: 1px 10px 0px 10px'>
+                                <b>Producto</b><br/>
+                                <field name="search_code" required="0"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b>Cristal</b><br/>
+                                <field name="product_id" readonly="1"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b>Lote</b><br/>
+                                <field name="lot_id" readonly="1"/>
+                            </div>
+                            <div col="2" style='margin: 0px 10px 0px 10px'>
+                                <b></b><br/>
+                                <field name="messageline" attrs="{'invisible':[('is_used','=',False)],'readonly':True}"/>
+                            </div>                            
+
+            	</group>
+
+            	<notebook>
+            		<page name="image" string="Imagen" attrs="{'invisible':[('stage','not in',['corte','pulido'])]}">
+            			<field name="image_glass" widget="image" height="300" width="400"  readonly="1" options='{"size": [750, 700]}'/>
+            		</page>
+
+            		<page name="pdf" string="Croquis" attrs="{'invisible':[('stage','not in',['entalle','lavado'])]}">
+            			<!--<field name="sketch" readonly="0"  widget="pdf_viewer"/>-->
+                        <div id="pdfDoc">
+                            <iframe id="myIframe" src="/import_base_it/static/previsualizacion_op.pdf" width="100%" height="750px"></iframe>
+                        </div>
+            		</page>
+            	</notebook>
+            	<footer>
+                   <button string ="Cerrar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+     <record id="view_glass_productioncontrol_wizard_form_manager" model="ir.ui.view">
+        <field name="name">glass.productioncontrol.wizard.form.manager.view</field>
+        <field name="model">glass.productioncontrol.wizard</field>
+        <field name="inherit_id" ref="view_glass_productioncontrol_wizard_form"/>
+        <field name="groups_id" eval="[(6, 0, [ref('glass_production_order.group_glass_manager')])]" />                
+        <field name="arch" type="xml">
+            <field name="stage"  position="attributes">
+                <attribute name="readonly">False</attribute>
+            </field>
+        </field>
+    </record>
+	<record id="glass_production_control_wizard_action" model="ir.actions.act_window">
+        <field name="name">Control de Producción</field>
+        <field name="res_model">glass.productioncontrol.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record> 
+    <menuitem id="glass_order_control_menu" parent="glass_production_menu" name="Control" sequence="2"/>
+<!--     <menuitem id="glass_production_control_wizard_menu" parent="glass_order_control_menu" action="glass_production_control_wizard_action" sequence="1" groups="glass_production_order.group_glass_user"/> -->
+
+        <record id="produccion_control_actionop" model="ir.actions.server">
+            <field name="name">Control de Producción</field>
+            <field name="model_id" ref="model_glass_productioncontrol_wizard"/>
+            <field name="code">              
+                    action = model.get_new_element()
+            </field>
+        </record>
+
+<menuitem id="glass_production_control_wizard_menu_op" parent="glass_order_control_menu" action="produccion_control_actionop" sequence="1"/>
+
+
+
+ </odoo>
+
+

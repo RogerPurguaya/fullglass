@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    	<record model="ir.module.category" id="module_production_glass">
+		  <field name="name">Producción vidrios</field>
+		  <field name="description">Producción de vidrios</field>
+		  <field name="sequence">3</field>
+		</record>
+        
+        <record id="group_glass_production_user" model="res.groups">
+            <field name="name">Permisos de solo lectura en OP Generada</field>
+        </record>
+
+        <record id="group_glass_user" model="res.groups">
+            <field name="name">Usuario</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+
+        <record id="group_glass_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="implied_ids" eval="[(4, ref('glass_production_order.group_glass_user'))]"/>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+        <record id="group_glass_seguimiento" model="res.groups">
+            <field name="name">Seguimiento de Producción</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+
+        <record id="group_glass_readonly" model="res.groups">
+            <field name="name">Órdenes Solo Lectura</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+        <record id="group_glass_finish_op" model="res.groups">
+            <field name="name">Finalizar Orden de Producción</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+        <record id="group_furnace_in" model="res.groups">
+            <field name="name">Ingreso a horno</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+        <record id="group_furnace_out" model="res.groups">
+            <field name="name">Salida de Horno</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+    </data>
+</odoo>
+
