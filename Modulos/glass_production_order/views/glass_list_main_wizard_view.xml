@@ -16,18 +16,19 @@
         <field name="arch" type="xml">
             <form string="Seguimiento de Producción">     
                 <header>
-                    <button string ="Mostrar" name="makelist" type="object"/>
-                    <button string ="Registrar Rotura" name="callbreakcrystal" type="object" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento"/>
+                    <button string ="Mostrar" name="makelist" type="object" class="btn-primary"/>
+                    <!-- <button string ="Registrar Rotura" name="callbreakcrystal" type="object" groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento"/> -->
                 </header>
 
                 <sheet>            
                     <group>
-                        <group>
-                            <field name="order_id"/>
-                            <field name="lote_id"/>
-                            <field name="table_number"/>
-                        </group>
-                        <group>
+                    <group string="Parametro de Busqueda">
+                            <field name="search_param" required="1"/>
+                            <field name="order_id" attrs="{'invisible': [('search_param','!=','glass_order')],'required':[('search_param','=','glass_order')]}"/>
+                            <field name="lote_id" attrs="{'invisible': [('search_param','!=','lot')],'required':[('search_param','=','lot')]}"/>
+                            <field name="table_number" attrs="{'invisible': [('search_param','!=','requisition')],'required':[('search_param','=','requisition')]}"/>
+                    </group>
+                        <group string="Parametros adicionales">
                             <field name="date_ini"/>
                             <field name="date_end"/>
                             <field name="filter_field"/>
@@ -75,20 +76,20 @@
                     </notebook>
                     <group string="Totales">
                         <group>
-                            <field name="tot_optimizado"/>
-                            <field name="tot_requisicion"/>
-                            <field name="tot_corte"/>
-                            <field name="tot_pulido"/>
-                            <field name="tot_entalle"/>
-                            <field name="tot_horno"/>
+                            <field name="tot_optimizado" readonly="1"/>
+                            <field name="tot_requisicion" readonly="1"/>
+                            <field name="tot_corte" readonly="1"/>
+                            <field name="tot_pulido" readonly="1"/>
+                            <field name="tot_entalle" readonly="1"/>
+                            <field name="tot_horno" readonly="1"/>
                         </group>
                         <group>
-                            <field name="tot_lavado"/>
-                            <field name="tot_templado"/>
-                            <field name="tot_insulado"/>
-                            <field name="tot_comprado"/>
-                            <field name="tot_ingresado"/>
-                            <field name="tot_entregado"/>
+                            <field name="tot_lavado" readonly="1"/>
+                            <field name="tot_templado" readonly="1"/>
+                            <field name="tot_insulado" readonly="1"/>
+                            <field name="tot_comprado" readonly="1"/>
+                            <field name="tot_ingresado" readonly="1"/>
+                            <field name="tot_entregado" readonly="1"/>
                         </group>
                     </group>
                 </sheet>

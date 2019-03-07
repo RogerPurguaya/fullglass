@@ -38,14 +38,15 @@
         <field name="model">glass.order</field>
         <field name="priority" eval="1"/>
         <field name="arch" type="xml">
-            <form string="Orden de producción" groups="glass_production_order.group_glass_production_user">
+            <form string="Orden de producción">
                 <header>
                     <!--<button string="Revizar" name="validate_order" type="object"/>-->
                     <button string="Finalizar orden" name="endedop" type="object" groups="glass_production_order.group_glass_finish_op" confirm="Está seguro de finalizar esta orden de producción?"/>
                     
-                    <button string="Retirar orden" name="remove_order" type="object" states="confirmed,process,delivered" groups="glass_production_order.module_production_glass"/>
+                    <button string="Retirar orden" name="remove_order" type="object" states="confirmed,process,delivered" groups="glass_production_order.group_remove_op"/>
                     <field name="state" widget="statusbar" nolabel="1" />
                 </header>
+                <!-- <sheet groups="glass_production_order.group_glass_production_user"> -->
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_invoice"

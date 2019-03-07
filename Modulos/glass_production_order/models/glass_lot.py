@@ -158,7 +158,7 @@ class GlassLotLine(models.Model):
 
 	lot_id = fields.Many2one('glass.lot','Lote')
 	order_line_id = fields.Many2one('glass.order.line')
-	order_date_prod = fields.Date('Fecha OP')
+	#order_date_prod = fields.Date('Fecha OP')
 	order_prod_id = fields.Many2one('glass.order',related='order_line_id.order_id',string="OP")
 	order_date_prod = fields.Date('Fecha OP',related='order_prod_id.date_production')
 	search_code = fields.Char(u'Código de búsqueda')

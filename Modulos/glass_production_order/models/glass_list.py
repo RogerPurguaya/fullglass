@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models,api, _
+from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 from datetime import datetime
 
@@ -16,8 +16,8 @@ class GlassListMainWizard(models.Model):
 	date_ini = fields.Date('Fecha Incio')
 	date_end = fields.Date('Fecha Fin')
 	line_ids = fields.One2many('glass.list.wizard','main_id','Lineas')
-	filter_field = fields.Selection([('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar')],string='Filtro')
-
+	filter_field = fields.Selection([('all','Todos'),('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar'),('expired','Vencidos')],string='Filtro',default='all')
+	search_param = fields.Selection([('glass_order','Orden de Produccion'),('requisition','Mesa'),('lot','Lote')],string='Busqueda por')
 	tot_optimizado=fields.Integer('Optimizado')
 	tot_corte=fields.Integer('Corte')
 	tot_pulido=fields.Integer('Pulido')
@@ -49,8 +49,6 @@ class GlassListMainWizard(models.Model):
 		#print data
 		return data
 	
-
-
 	@api.multi
 	def makelist(self):
 		self.ensure_one()
@@ -59,73 +57,27 @@ class GlassListMainWizard(models.Model):
 			l.unlink()
 
 		orders1=[]
-		domain = []
 		lines_without_lot=[] # lineas sin lote de produccion
-		if self.filter_field:
-			if   self.filter_field == 'pending':
-				domain = [('templado','=',False)]
-			elif self.filter_field == 'produced':
-				domain = [('templado','=',True)]
-			elif self.filter_field == 'to inter':
-				domain = [('templado','=',True),('ingresado','=',False)]
-			elif self.filter_field == 'to deliver':
-				domain = [('ingresado','=',True),('entregado','=',False)]
 
-		if self.table_number:
-			requisitions = lineas = self.env['glass.requisition'].search([('table_number','=',self.table_number)])			
-			for requisition in requisitions:
-				for line_req in requisition.lot_ids:
-					res_lines = []
-					if self.filter_field:
-						if   self.filter_field == 'pending':
-							res_lines = list(filter(lambda x :x.templado==False, line_req.lot_id.line_ids))
-						elif self.filter_field == 'produced':
-							res_lines = list(filter(lambda x :x.templado==True, line_req.lot_id.line_ids))
-						elif self.filter_field == 'to inter':
-							res_lines = list(filter(lambda x:x.templado==True and ingresado==False,line_req.lot_id.line_ids))
-						elif self.filter_field == 'to deliver':
-							res_lines = list(filter(lambda x:x.ingresado==True and entregado==False,line_req.lot_id.line_ids))
-					else:
-						res_lines = line_req.lot_id.line_ids
-					for lote_line in res_lines:
-						if lote_line.id not in orders1:
-							orders1.append(lote_line.id)
+		if self.table_number and self.search_param == 'requisition':
+			requisitions = self.env['glass.requisition'].search([('table_number','=',self.table_number)])			
+			lot_lines = requisitions.mapped('lot_ids').mapped('lot_id').mapped('line_ids')
+			orders1 = self._get_data(lot_lines)
 
-		else:
-			if self.order_id:
-				lineas = self.env['glass.order.line'].search([('order_id','=',self.order_id.id),('state','=','process')])
-				lines_with_lot=list(filter(lambda x: x.lot_line_id,lineas))
-				lot_lines = map(lambda x: x.lot_line_id, lines_with_lot)
-				lines_without_lot=list(filter(lambda x: not x.lot_line_id,lineas))
-				if self.filter_field:
-					if   self.filter_field == 'pending':
-						lot_lines = list(filter(lambda x :x.templado==False,lot_lines))
-					elif self.filter_field == 'produced':
-						lot_lines = list(filter(lambda x :x.templado==True,lot_lines))
-					elif self.filter_field == 'to inter':
-						lot_lines = list(filter(lambda x:x.templado==True and ingresado==False,lot_lines))
-					elif self.filter_field == 'to deliver':
-						lot_lines = list(filter(lambda x:x.ingresado==True and entregado==False,lot_lines))
-				for linea in lot_lines:
-					if linea.id not in orders1:
-						orders1.append(linea.id)
-			else:
-				if self.lote_id:
-					orders1=[]
-					lineas = self.env['glass.lot.line'].search([('lot_id','=',self.lote_id.id)] + domain)
-					for line in lineas:
-						if line.id not in orders1:
-							orders1.append(line.id)
+		elif self.order_id and self.search_param == 'glass_order':
+			lineas = self.env['glass.order.line'].search([('order_id','=',self.order_id.id),('state','=','process')])
+			lot_lines=(lineas.filtered(lambda x: x.lot_line_id)).mapped('lot_line_id')
+			orders1 = self._get_data(lot_lines)
+			lines_without_lot=lineas.filtered(lambda x: not x.lot_line_id)
 
+		elif self.lote_id and self.search_param == 'lot':
+			orders1 = self._get_data(self.lote_id.mapped('line_ids')) 
+		
 		if len(orders1)>0:
-			orders = self.env['glass.lot.line'].browse(orders1)
+			orders = orders1
 		else:
-			orders = self.env['glass.order'].search([('date_order','>=',self.date_ini),('date_order','<=',self.date_end)])
-			for order in orders:
-				for line_order in order.line_ids:
-					if line_order.lot_line_id.id not in orders1:
-							orders1.append(line_order.lot_line_id.id)
-			orders = self.env['glass.lot.line'].browse(orders1)
+			return exceptions.Warning('No se ha encontrado informacion.')
+
 		tot_optimizado=0
 		tot_corte=0
 		tot_pulido=0
@@ -263,6 +215,30 @@ class GlassListMainWizard(models.Model):
 		self.write(vals)
 		return True
 
+	@api.multi
+	def _get_data(self,lot_lines):
+		if self.filter_field:
+			if self.filter_field == 'all':
+				return list(set(lot_lines))
+			if self.filter_field == 'pending':
+				lot_lines = lot_lines.filtered(lambda x:x.templado==False)
+			elif self.filter_field == 'produced':
+				lot_lines = lot_lines.filtered(lambda x:x.templado==True)
+			elif self.filter_field == 'to inter':
+				lot_lines = lot_lines.filtered(lambda x:x.templado==True and x.ingresado==False)
+			elif self.filter_field == 'to deliver':
+				lot_lines = lot_lines.filtered(lambda x:x.ingresado==True and x.entregado==False)
+			elif self.filter_field == 'expired':
+				now = datetime.now().date()
+				lot_lines = lot_lines.filtered(lambda x: datetime.strptime(x.order_date_prod.replace('-',''),"%Y%m%d").date() < now and x.templado == False)
+		if self.date_ini and self.date_end:
+			start = self._str2date(self.date_ini)
+			end = self._str2date(self.date_end)
+			lot_lines = lot_lines.filtered(lambda x: self._str2date(x.order_date_prod) < end and self._str2date(x.order_date_prod) > start)
+		return list(set(lot_lines))
+
+	def _str2date(self,string):
+		return datetime.strptime(string.replace('-',''),"%Y%m%d").date()
 
 class GlassListWizard(models.Model):
 	_name='glass.list.wizard'
@@ -400,9 +376,6 @@ class GlassReposWizard(models.TransientModel):
 	date_fisical=fields.Date('Fecha de Rotura',default=fields.Date.today())
 	date_record=fields.Date('Fecha de Registro',default=fields.Date.today())
 	
-
-
-
 	@api.one
 	def makerepo(self):
 		active_ids = self._context['active_ids']

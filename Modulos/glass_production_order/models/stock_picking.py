@@ -7,6 +7,7 @@ class StockPicking(models.Model):
 
 	identificador_glass = fields.Integer(index=True)
 	identifier = fields.Char(index=True)
+	test = fields.Char('lol')
 
 	@api.model
 	def create(self,vals):

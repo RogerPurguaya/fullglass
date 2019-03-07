@@ -177,7 +177,7 @@ class GlassProductionControlWizard(models.Model):
 				cont_t = file.read()
 				file.close()
 				direccion = self.env['main.parameter'].search([])[0].download_directory
-				print data.order_line_id.image_page_number,'omg'
+				#print data.order_line_id.image_page_number,'omg'
 				
 				file_new = open(direccion + 'previsualizacion_op.pdf','wb')
 				file_new.write(cont_t)

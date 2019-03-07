@@ -31,11 +31,11 @@ class StockReturnPicking(models.TransientModel):
         return t
 
 
-    @api.multi
-    def set_values(self):
-        for record in self:
-            if self._context.get('values'):
-                print('values')
+    # @api.multi
+    # def set_values(self):
+    #     for record in self:
+    #         if self._context.get('values'):
+    #             print('values')
 
     # Obtenemos los cristale que seran devueltos:
     @api.multi
@@ -111,7 +111,7 @@ class StockReturnPicking(models.TransientModel):
                 'context': {'first_wizard': self.id,'mode':'to_return'} 
             }
 
-class StockReturnPickingLine(models.TransientModel):
-    _inherit = 'stock.return.picking.line'
-    campito = fields.Char('yeah')
+# class StockReturnPickingLine(models.TransientModel):
+#     _inherit = 'stock.return.picking.line'
+#     campito = fields.Char('yeah')
 
