@@ -56,27 +56,25 @@ class GlassListMainWizard(models.Model):
 		for l in lin:
 			l.unlink()
 
-		orders1=[]
+		orders=[]
 		lines_without_lot=[] # lineas sin lote de produccion
 
 		if self.table_number and self.search_param == 'requisition':
 			requisitions = self.env['glass.requisition'].search([('table_number','=',self.table_number)])			
 			lot_lines = requisitions.mapped('lot_ids').mapped('lot_id').mapped('line_ids')
-			orders1 = self._get_data(lot_lines)
+			orders = self._get_data(lot_lines)
 
 		elif self.order_id and self.search_param == 'glass_order':
 			lineas = self.env['glass.order.line'].search([('order_id','=',self.order_id.id),('state','=','process')])
 			lot_lines=(lineas.filtered(lambda x: x.lot_line_id)).mapped('lot_line_id')
-			orders1 = self._get_data(lot_lines)
+			orders = self._get_data(lot_lines)
 			lines_without_lot=lineas.filtered(lambda x: not x.lot_line_id)
 
 		elif self.lote_id and self.search_param == 'lot':
-			orders1 = self._get_data(self.lote_id.mapped('line_ids')) 
+			orders = self._get_data(self.lote_id.mapped('line_ids')) 
 		
-		if len(orders1)>0:
-			orders = orders1
-		else:
-			return exceptions.Warning('No se ha encontrado informacion.')
+		if len(orders)==0 and len(lines_without_lot)==0:
+			raise exceptions.Warning('No se ha encontrado informacion.')
 
 		tot_optimizado=0
 		tot_corte=0
