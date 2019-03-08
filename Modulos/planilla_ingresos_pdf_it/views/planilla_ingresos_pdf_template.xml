@@ -104,7 +104,7 @@
                                                    
                                             </td>
                                             <td class="text-right" width="50px">
-                                                <span t-esc="'{:,}'.format(line.debit)"/>     
+                                                <span t-esc="'{:,}'.format(line.amount_currency)"/>     
                                             </td>
                                         </t>
                                         <td class="text-center" width="70px">
@@ -182,7 +182,7 @@
                                                    
                                             </td>
                                             <td class="text-right" width="50px">
-                                                <span t-esc="'{:,}'.format(line.credit)"/>     
+                                                <span t-esc="'{:,}'.format(line.amount_currency)"/>     
                                             </td>
                                         </t>
                                         <td class="text-center" width="70px">
