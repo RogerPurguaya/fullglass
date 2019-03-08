@@ -29,7 +29,7 @@
                     <notebook>
                         <page string="Cristales">
                             <field name="line_ids" readonly="1">
-                                <tree string="Seguimiento de Producción">
+                                <tree string="Seguimiento de Producción" decoration-danger="decorator == 'break'" decoration-warning="decorator == 'without_lot'">
                                     <button name="show_stages" type="object" string="Seguimiento" icon="fa-table"/>
                                     <field name="decorator" invisible="1"/>
                                     <button name="show_stages" type="object" string="Seguimiento" icon="fa-table" attrs="{'invisible': [('decorator','=','without_lot')]}"/>
