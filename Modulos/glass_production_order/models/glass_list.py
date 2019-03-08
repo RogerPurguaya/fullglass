@@ -105,7 +105,7 @@ class GlassListMainWizard(models.Model):
 					'glass_break':line.glass_break,
 					'repos':line.glass_repo,
 					'main_id':self.id,
-					'lot_line_id':line.lot_line_id.id if line.lot_line_id.id else line.last_lot_line.id,
+					#'lot_line_id':line.lot_line_id.id if line.lot_line_id.id else line.last_lot_line.id,
 					'croquis':line.image_page,
 					'order_line':line.id,
 					'decorator': 'without_lot',

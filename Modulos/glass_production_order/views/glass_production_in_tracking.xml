@@ -30,7 +30,6 @@
                         <page string="Cristales">
                             <field name="line_ids" readonly="1">
                                 <tree string="Seguimiento de Producción" decoration-danger="decorator == 'break'" decoration-warning="decorator == 'without_lot'">
-                                    <button name="show_stages" type="object" string="Seguimiento" icon="fa-table"/>
                                     <field name="decorator" invisible="1"/>
                                     <button name="show_stages" type="object" string="Seguimiento" icon="fa-table" attrs="{'invisible': [('decorator','=','without_lot')]}"/>
                                     <button name="show_croquis" type="object" string="Ver Croquis" icon="fa-instagram" attrs="{'invisible': [('decorator','=','without_lot')]}"/>
@@ -50,7 +49,7 @@
                                     <field name="ingresado"/>
                                     <field name="entregado"/>
                                     <field name="display_name_partner"/>
-                                    <field name="estado"/>
+                                    <field name="estado" string="Estado OP"/>
                                     <field name="glass_break"/>
                                 </tree>
                             </field>
