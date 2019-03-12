@@ -1,0 +1,30 @@
+<odoo>
+  <data>
+        <record model="ir.ui.view" id="modalmsg_form_view">
+            <field name="name">modalmsg.form</field>
+            <field name="model">modalmsg</field>
+            <field name="arch" type="xml">
+                <form string="Mensaje">
+                    El código de búsqueda NO EXISTE
+                    <footer>
+                        <button string="Cerrar" class="btn-primary" special="cancel" />
+                    </footer>
+                </form>
+
+            </field>
+        </record>
+        <record model="ir.ui.view" id="modalmsg_form_view1">
+            <field name="name">modalmsg.form</field>
+            <field name="model">modalmsg</field>
+            <field name="arch" type="xml">
+                <form string="Mensaje">
+                    Elemento ya registrado
+                    <footer>
+                        <button string="Cerrar" class="btn-primary" special="cancel" />
+                    </footer>
+                </form>
+
+            </field>
+        </record>
+  </data>
+</odoo>

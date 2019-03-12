@@ -11,6 +11,7 @@ import purchase_requisition
 import glass_furnace_out
 import product_template
 import stock_move
-import glass_list
+import glass_tracing_production
+import glass_tracing_production_stock
 import stock_return_picking
 import stock_picking

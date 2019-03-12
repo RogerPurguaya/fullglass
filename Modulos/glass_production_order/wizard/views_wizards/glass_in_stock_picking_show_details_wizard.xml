@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="glass_lines_for_move_wizard_form_view" model="ir.ui.view">
+            <field name="name">glass.lines.for.move.wizard.form.view</field>
+            <field name="model">glass.lines.for.move.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form>
+            <field name="warning_message" style="color:Red;font-weight:bold;" string=" " readonly="1"/>
+             <field name="get_glass_lines_for_move_ids" string="Lineas de Orden">
+                <tree string="Lineas de Orden" create="false" delete="false" editable="bottom">
+                    <field name="check"  readonly="0" />
+                    <!-- <button name='checking_field' string='Seleccionar' type="object" class="btn btn-success"/> -->
+                    <field name="origen"  readonly="1" />
+                    <field name="base1"  readonly="1" />
+                    <field name="base2"  readonly="1" />
+                    <field name="altura1"  readonly="1" />
+                    <field name="altura2"  readonly="1" />
+                    <field name="numero_cristal"  readonly="1" />
+                    <field name="cristal_area"  readonly="1" sum='Numero Cristal'/>
+                    <field name="templado"  readonly="1" />
+                    <field name="ingresado"  readonly="1" />
+                    <field name="entregado"  readonly="1" />
+                    <field name="requisicion"  readonly="1" />
+                    <field name="remision" readonly="1" />
+                </tree>
+             </field>
+                <footer>
+                    <field name="show_button" invisible="1"/>
+                    <button name="delivery_process" type="object" string="Entregar" class='oe_highlight' attrs="{'invisible': [('show_button','=',False)]}"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+            </field>
+        </record>  
+</odoo>

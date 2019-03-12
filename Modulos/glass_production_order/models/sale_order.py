@@ -275,9 +275,5 @@ class SaleOrder(models.Model):
 		} 
 		return data
 
-
-
-
-		
 	
 	

@@ -23,7 +23,7 @@ class GlassOrder(models.Model):
 
 	name = fields.Char(u'Orden de producción',default='/')
 	sale_order_id = fields.Many2one('sale.order', 'Pedido de venta',readonly=True)
-	invoice_id = fields.Many2one('account.invoice','Documento',readonly=True,track_visibility='always')
+	invoice_id = fields.Many2one('account.invoice','Documento',readonly=True)
 	partner_id = fields.Many2one('res.partner', 'Cliente', related="sale_order_id.partner_id",readonly=True)
 	delivery_department=fields.Char(u'Departamento', related="sale_order_id.partner_shipping_id.state_id.name")
 	delivery_province=fields.Char(u'Provincia', related="sale_order_id.partner_shipping_id.province_id.name")
@@ -47,8 +47,6 @@ class GlassOrder(models.Model):
 
 	sale_lines = fields.One2many(related='sale_order_id.order_line')
 	line_ids = fields.One2many('glass.order.line','order_id',u'Líneas a producir')
-	# nuevo campo:
-	#calc_proforma_lines_ids = fields.One2many('sale.calculadora.proforma.line','production_id','Calculadora Lines')
 	total_area = fields.Float(u'Metros',compute="_gettotals",digits=(20,4))
 	total_peso = fields.Float("Peso",compute="_gettotals",digits=(20,4))
 	total_pzs = fields.Float("Total Pzs",compute="_gettotals")
@@ -63,7 +61,7 @@ class GlassOrder(models.Model):
 
 
 	invoice_count = fields.Integer(string='# of Invoices', related='sale_order_id.invoice_count', readonly=True)
-	invoice_ids = fields.Many2many("account.invoice", string='Invoices', related="sale_order_id.invoice_ids", readonly=True)
+	invoice_ids = fields.Many2many("account.invoice", string='Invoices', related="sale_order_id.invoice_ids", readonly=True,track_visibility='always')
 	invoice_status = fields.Selection([
 		('upselling', 'Upselling Opportunity'),
 		('invoiced', 'Fully Invoiced'),
@@ -282,11 +280,6 @@ class GlassOrderLine(models.Model):
 	altura2 = fields.Integer("Altura2 (L 3)",related="calc_line_id.altura2",readonly=True)
 	area = fields.Float("Área M2",compute="getarea",readonly=True,digits=(20,4))
 	
-	#Move_id campo que guarda el albaran de entrada al cual pertenece esta linea
-	#move_id = fields.Many2one('stock.move', string='Move')
-	#Campo que guarda el move de salida cuando esta linea es procesada para su salida de almacen
-	#out_move = fields.Many2one('stock.move', string='Move Out')
-	# Campo para guardar todos los movimientos que tenga esta order line:
 	stock_move_ids = fields.Many2many('stock.move','glass_order_line_stock_move_rel','glass_order_line_id','stock_move_id',string='Stock Moves')
 	descuadre = fields.Char("Descuadre",size=7,related="calc_line_id.descuadre",readonly=True)
 	pulido1 = fields.Many2one("sale.pulido.proforma","Pulido",related="calc_line_id.pulido1",readonly=True)
@@ -314,7 +307,8 @@ class GlassOrderLine(models.Model):
 	retired_user = fields.Many2one('res.users','Retirado por')
 	retired_date = fields.Date('Fecha de retiro')
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
-
+	custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
+	warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
 
 	@api.one
 	def getarea(self):

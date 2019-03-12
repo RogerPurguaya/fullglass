@@ -10,3 +10,4 @@ import glass_reprograming_wizard
 import glass_make_uom
 import glass_in_stock_picking_show_details
 import show_detail_lines_entered_stock_wizard
+import show_detail_tracing_line

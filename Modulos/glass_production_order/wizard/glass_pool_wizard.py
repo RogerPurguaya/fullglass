@@ -12,7 +12,7 @@ class GlassPoolWizard(models.TransientModel):
 
 	line_order_ids=fields.Many2many('glass.order.line','glass_lines_wizard_rel','wizard_id','line_order_id')
 	prod_resu_id = fields.One2many('glass.pool.wizard.line','wizard_id')
- 	prod_detail_id = fields.One2many('glass.pool.wizard.line.detail','wizard_id')
+	prod_detail_id = fields.One2many('glass.pool.wizard.line.detail','wizard_id')
 	prod_detail_id_m = fields.Many2many('glass.pool.wizard.line.detail','glass_wizard_rel','wizard_id','detail_id')
 	nextlotnumber = fields.Char('Lote')
 	product_id = fields.Integer('productoid')

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="show_detail_lines_entered_stock_wizard" model="ir.ui.view">
+            <field name="name">show.detail.lines.entered.stock.wizard.form</field>
+            <field name="model">detail.crystals.entered.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form>
+            <field name="warning_message" style="color:Red;font-weight:bold;" string=" " readonly="1"/>
+             <field name="detail_lines" string="Lineas de Orden">
+                <tree string="Lineas de Orden" create="false" delete="false" editable="bottom" decoration-danger="lote == False">
+                    <field name="check"  readonly="0" />
+                    <!-- <button name='checking_field' string='Seleccionar' type="object" class="btn btn-success"/> -->
+                    <field name="origen"  readonly="1" />
+                    <field name="lote"  readonly="1" />
+                    <field name="base1"  readonly="1" />
+                    <field name="base2"  readonly="1" />
+                    <field name="altura1"  readonly="1" />
+                    <field name="altura2"  readonly="1" />
+                    <field name="numero_cristal"  readonly="1" />
+                    <!-- <field name="cantidad" readonly="1" sum='Cantidad'/> -->
+                    <field name="cristal_area"  readonly="1" sum='Area Total'/>
+                    <field name="templado"  readonly="1" />
+                    <field name="ingresado"  readonly="1" />
+                    <field name="entregado"  readonly="1" />
+                </tree>
+             </field>
+                <footer>
+                    <field name="show_button" invisible="1"/>
+                    <button name="select_crystals_to_return" type="object" string="Confirmar" class='oe_highlight' attrs="{'invisible': [('show_button','=',False)]}"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+            </field>
+        </record>  
+
+<!-- detail.crystals.entered.wizard action window -->
+<record id="detail_crystals_entered_wizard_action" model="ir.actions.act_window">
+    <field name="name">Ver cristales a Devolver</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">detail.crystals.entered.wizard</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_type">form</field>
+</record>
+
+</odoo>

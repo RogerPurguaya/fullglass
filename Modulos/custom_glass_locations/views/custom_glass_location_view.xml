@@ -1,0 +1,46 @@
+<odoo>
+    <data>
+        <record id="custom_glass_location_tree_view" model="ir.ui.view">
+            <field name="name">custom.glass.location.tree</field>
+            <field name="model">custom.glass.location</field>
+            <field name="arch" type="xml">
+                <tree string="Ubicaciones">
+                    <field name="name"/>
+                    <field name="location_code"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="custom_glass_location_form_view" model="ir.ui.view">
+            <field name="name">custom.glass.location.form</field>
+            <field name="model">custom.glass.location</field>
+            <field name="arch" type="xml">
+                <form string="Ubicación">
+                    <sheet>
+                        <group string="Datos generales:">
+                            <field name="name" required="1" />
+                            <field name="location_code" required="1" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_custom_glass_location" model="ir.actions.act_window">
+            <field name="name">Ubicación de existencias</field>
+            <field name="res_model">custom.glass.location</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Cree una ubicacion de almacen personalizada
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Ubicaciones de almacén"
+                  id="custom_glass_location_menu"
+                  parent="stock.menu_stock_config_settings"
+                  sequence="-1"
+                  action="action_custom_glass_location"/>
+    </data>
+</odoo>

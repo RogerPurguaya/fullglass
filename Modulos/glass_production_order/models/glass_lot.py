@@ -137,7 +137,7 @@ class GlassLotLine(models.Model):
 	area = fields.Float(u'Área M2',digits=(12,4))
 	descuadre = fields.Char("Descuadre",size=7)
 	page_number = fields.Char(u"Nro. Pág.")
-	
+	stages_ids = fields.One2many('glass.stage.record','lot_line_id','Etapas')
 	optimizado = fields.Boolean("Optimizado")
 	requisicion = fields.Boolean("Requisición")
 	pulido = fields.Boolean("Pulido")
@@ -150,6 +150,7 @@ class GlassLotLine(models.Model):
 	entregado = fields.Boolean("Entregado")
 	comprado = fields.Boolean("Comprado")
 	corte = fields.Boolean("Corte")
+	arenado = fields.Boolean("Arenado")
 	## new code:
 	ingresado = fields.Boolean("Ingresado")
 
@@ -167,6 +168,8 @@ class GlassLotLine(models.Model):
 	page_glass = fields.Binary(u"Página")
 	merma = fields.Float('Merma',digist=(12,4))
 	is_break = fields.Boolean('Roto')
+	location = fields.Many2one(related='order_line_id.custom_location',string='Ubicacion') 
+	warehouse = fields.Char(related='location.location_code.display_name',string='Almacen')
 	_rec_name="search_code"
 
 

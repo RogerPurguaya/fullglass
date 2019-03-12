@@ -43,10 +43,10 @@
 					</group>
 					<notebook>
 						<page string="Lotes de Producción">
-							<field name="lot_ids" attrs="{'readonly':[('state','not in',['confirm'])]}" context="{'lot_id':lot_id}" domain="[('state','=','done')]">
+							<field name="lot_ids" attrs="{'readonly':[('state','not in',['confirm'])]}" context="{'lot_id':lot_id}">
 
 								<tree name="lotestree" editable="button">
-									<field name="lot_id" />
+									<field name="lot_id" domain="[('state','=','done')]"/>
 									<field name="date" readonly="1"/>
 									<field name="user_id" readonly="1"/>
 									<field name="m2" readonly="1" sum=""/>

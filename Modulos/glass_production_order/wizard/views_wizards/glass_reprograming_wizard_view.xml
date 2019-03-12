@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_glass_reprograming_wizard_form" model="ir.ui.view">
+        <field name="name">glass.reprograming.wizard.form.view</field>
+        <field name="model">glass.reprograming.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reprogramar Producción">                 
+                <group>
+                    <group>
+                        <field name="motive"/>
+                        <field name="date"/>
+                        
+                    </group>
+                    <group>
+                    </group>
+                </group>
+                <footer>
+                    <button string ="Reprogramar" name="reprogram" type="object"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    
+    </record>
+     
+
+     <act_window name="Reprogramar Producción"
+        res_model="glass.reprograming.wizard"
+        src_model="glass.list.wizard"
+        multi="True"
+        key2="client_action_multi"
+        view_id="glass_production_order.view_glass_reprograming_wizard_form"
+        view_mode="form" 
+        target="new" 
+        view_type="form"
+        id="action_wizard_reprograming"
+    />
+</odoo>

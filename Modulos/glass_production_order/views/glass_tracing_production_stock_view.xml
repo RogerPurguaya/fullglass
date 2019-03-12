@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="assets_backend" inherit_id="web.assets_backend">
+     <xpath expr="." position="inside">
+         <link rel="stylesheet" href="/glass_production_order/static/src/css/sheet.css"/>
+     </xpath>
+</template>
+
+    <!-- <record id="view_glass_list_image_form" model="ir.ui.view">
+        <field name="name">glass.list.image.form.view</field>
+        <field name="model">glass.list.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Croquis">     
+                <field name="croquis" widget="image"/>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="glass_tracing_production_stock_form_view" model="ir.ui.view">
+        <field name="name">glass.tracing.production.stock.form.view</field>
+        <field name="model">glass.tracing.production.stock</field>
+        <field name="arch" type="xml">
+            <form string="Seguimiento de Producción">     
+                <header>
+                    <button string ="Mostrar" name="makelist" type="object" class="btn-primary"/>
+                </header>
+
+                <sheet> 
+                <group>
+                    <group>
+                            <field name="search_param" required="1"/>
+                            <field name="order_id" attrs="{'invisible': [('search_param','!=','glass_order')],'required':[('search_param','=','glass_order')]}"/>
+                            <field name="invoice_id" attrs="{'invisible': [('search_param','!=','invoice')],'required':[('search_param','=','invoice')]}" domain="[('type','=','out_invoice')]"/>
+                            <field name="customer_id" attrs="{'invisible': [('search_param','!=','customer')],'required':[('search_param','=','customer')]}" domain="[('customer','=',True)]"/>
+                            <field name="filter_field"/>
+                            <field name="show_breaks"/>
+                    </group>
+                    <group string="Fechas" attrs="{'invisible': [('search_param','!=','customer')]}">
+                        <field name="date_ini"/>
+                        <field name="date_end"/>
+                    </group>
+                </group>           
+                    <!-- <group> -->
+                    <notebook>
+                        <page string="Cristales">
+                            <field name="line_ids" readonly="1">
+                                <tree string="Seguimiento de Producción" version="7.0" class="glass_production_order__tracing_stock_tree" decoration-danger="decorator == 'break'">
+                                    <field name="decorator" invisible="1"/>
+                                    <button name="show_detail_tracing_line" type="object" string="Ver Seguimiento" icon="fa-table"/>
+                                    <field name="order_id" string="O.P."/>
+                                    <field name="lot_name" string="Lote"/>
+                                    <field name="product_name" string="Nombre_de_producto"/>
+                                    <field name="display_name_partner"/>
+                                    <field name="crystal_number" count="aaaa" string="Nro Cristal"/>
+                                    <field name="base1"/>
+                                    <field name="base2"/>
+                                    <field name="altura1"/>
+                                    <field name="altura2"/>
+                                    <field name="warehouse" string="Almacen"/>
+                                    <field name="custom_location"/>
+                                    <field name="arenado"/>
+                                    <field name="embalado"/>
+                                    <field name="templado" string="Templa"/>
+                                    <field name="ingresado" string="Ingres"/>
+                                    <field name="entregado" string="Entreg"/>
+                                    <field name="is_break"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <!-- </group> -->
+                    <group>
+                        <group string="Totales">
+                            <field name="total_area" string="Area Total"/>
+                            <field name="total_area_breaks" string="Area total Rotos"/>
+                            <field name="percentage_breaks" string="Porcentage de rotos (%)"/>
+                        </group>
+                        <group string="Totales por Proceso">
+                                <field name="tot_templado" readonly="1"/>
+                                <field name="tot_arenado" readonly="1"/>
+                                <field name="tot_ingresado" readonly="1"/>
+                                <field name="tot_entregado" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="glass_tracing_production_stock_action" model="ir.actions.act_window">
+        <field name="name">Seguimiento de Producción</field>
+        <field name="res_model">glass.tracing.production.stock</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+    </record>
+
+     <menuitem id="glass_tracing_production_stock_menu" parent="stock.menu_stock_inventory_control" action="glass_tracing_production_stock_action" sequence="8" 
+     groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento,glass_production_order.group_glass_production_user"/>
+
+</odoo>

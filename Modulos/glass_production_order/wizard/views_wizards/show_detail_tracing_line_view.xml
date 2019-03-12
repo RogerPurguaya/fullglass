@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>  
+        <record id="show_detail_tracing_line_wizard_form" model="ir.ui.view">
+            <field name="name">show.detail.tracing.line.wizard.form</field>
+            <field name="model">show.detail.tracing.line.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form string="Detalles de Seguimiento">
+            <sheet>
+            <group> 
+                <group string="Informacion General">
+                    <field name="display_name_product" readonly="1" string="Producto" />
+                    <field name="lot_name" string="Lote" readonly="1"/>
+                    <field name="op_name" string="Orden de Produccion" readonly="1"/>
+                    <field name="op_date_production" readonly="1" string="Fecha de produccion de OP"/>
+                    <field name="op_date_generate" readonly="1" string="Fecha de emision de OP"/>
+                    <field name="invoice" readonly="1" />
+                    <field name="invoice_number" readonly="1"/>
+                </group>
+                <group string="Cantidades solicitadas / producidas"> 
+                    <field name="count_required" string="Cantidad pedida"/>
+                    <field name="area_required" string="Area pedida(M2)"/>
+                    <field name="count_produced" string="Cantidad producida"/>
+                    <field name="area_produced" string="Area producida(M2)"/>
+                </group>
+            </group>
+                <group>
+                <notebook>
+                    <page string="Detalle de etapas">
+                        <field name="stages_lines_ids" readonly="1">
+                            <tree editable="bottom">
+                                <field name="stage" string="Etapa"/>
+                                <field name="user_id" string="Usuario Responsable"/>
+                                <field name="date" string= "Fecha"/>
+                                <field name="time" string="Hora"/>
+                                <field name="date_fisical" string="Fecha de rotura"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>                
+            </group>
+            </sheet>
+                <footer>
+                    <button string ="Cerrar" name="cancel" special="cancel" class="btn-warning"/>
+                </footer>
+            </form>
+            </field>
+        </record>  
+</data>
+</odoo>

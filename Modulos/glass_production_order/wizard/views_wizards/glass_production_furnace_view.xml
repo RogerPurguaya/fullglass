@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- vista removida -->
+   <record id="view_glass_productionfurnace_wizard_form" model="ir.ui.view">
+        <field name="name">glass.productionfurnace.wizard.form.view</field>
+        <field name="model">glass.productionfurnace.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Ingreso a horno">  
+                <field name="cad3" invisible="1"/>
+                <h3>Lote Horno: <field name="name" readonly="1"/></h3>
+                <group>
+                    <group>
+                        <field name="search_code"/>
+                        <field name="used_area" readonly="1"/>
+                        <field name="used_rest" readonly="1"/>
+                        <field name="percent_use" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="message_erro" style="color:Red;" string=" " readonly="1"/>
+                        <field name="user_ingreso" readonly="1"/>
+                        <field name="date_ingreso" readonly="1"/>
+                    </group>
+                </group>
+            	<notebook>
+            		<page name="detalle" string="Detalle">
+            			<field name="line_ids">
+                            <tree editable="button">
+                                <field name="order_number" readonly="1"/>
+                                <field name="crystal_number" readonly="1"/>
+                                <field name="lot_id" readonly="1"/>
+                                <field name="lot_line_id" readonly="1"/>
+                                <field name="base1" readonly="1"/>
+                                <field name="base2" readonly="1"/>
+                                <field name="altura1" readonly="1"/>
+                                <field name="altura2" readonly="1"/>
+                                <field name="area" readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="obra" readonly="1"/>
+                            </tree>
+                        </field>
+            		</page>
+
+            	</notebook>
+            	 <footer>
+                    <button string ="Ingresar" name="save_furnace" type="object"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+	
+    <record id="glass_productionfurnace_wizard_action" model="ir.actions.server">
+            <field name="name">Ingreso a horno</field>
+            <field name="model_id" ref="model_glass_productionfurnace_wizard"/>
+            <field name="code">              
+                    action = model.get_wizard()
+            </field>
+
+    </record> 
+    
+     <menuitem id="glass_productionfurnace_wizard_menu" parent="glass_order_control_menu" action="glass_productionfurnace_wizard_action" sequence="2" groups="glass_production_order.group_glass_user"/>
+
+ </odoo>
