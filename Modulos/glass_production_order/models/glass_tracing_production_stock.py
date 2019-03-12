@@ -83,7 +83,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				lines += glass_breaks
 
 		if len(lines)==0:
-			raise exceptions.Warning('No se ha encontrado informacion.')
+			raise exceptions.Warning('No se ha encontrado informacion.\nEs posible que los cristales aun no hayan iniciado el proceso de produccion')
 
 		for line in lines:
 			self.env['tracing.production.stock.line.lot'].create({
