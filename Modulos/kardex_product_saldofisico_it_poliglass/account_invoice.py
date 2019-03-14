@@ -47,8 +47,8 @@ class detalle_simple_fisico_total_d_wizard_poliglass(models.TransientModel):
 
 					from vst_kardex_onlyfisico_total_poliglass
 					inner join product_template pt on pt.id = product_tmpl_id
-					where vst_kardex_onlyfisico_total.date >= '"""+str(self.fiscalyear_id.name)+"""-01-01'
-					and vst_kardex_onlyfisico_total.date <= '"""+str(self.fiscalyear_id.name)+"""-12-31'
+					where vst_kardex_onlyfisico_total_poliglass.date >= '"""+str(self.fiscalyear_id.name)+"""-01-01'
+					and vst_kardex_onlyfisico_total_poliglass.date <= '"""+str(self.fiscalyear_id.name)+"""-12-31'
 					group by ubicacion, product_id, unidad, pt.categ_id
 					order by ubicacion,product_id, unidad, pt.categ_id
 					) Todo

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="report_ordenes_requisicion_wizard_form"> 
+			<field name="name">report.ordenes.requisicion.wizard.form</field>
+			<field name="model">report.ordenes.requisicion.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Reporte Ordenes Rrequisicion" version="8.0">
+
+						
+						<group>
+														
+							<field name="tipo_mp"  />	
+							<field name="orden_req"  />	
+							<field name="fecha_inicio"  />					
+							<field name="fecha_fin"  />
+							
+						</group>
+
+										
+
+						<footer>
+							<button string="Mostrar" name="do_rebuild" type="object" class="oe_highlight"/>
+							or
+							<button string="Cancel" class="oe_link" special="cancel"/>
+						</footer>
+				</form>
+			</field>
+		</record>
+
+
+		<record id="report_ordenes_requisicion_wizard_action" model="ir.actions.act_window">
+			<field name="name">Reporte Ordenes Rrequisicion</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.ordenes.requisicion.wizard</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+	
+		<menuitem name="reporte ordenes requisicion" id="report_ordenes_requisicion_wizard_menu" 
+				parent="academic_rpt.academic_asistencia_soc"
+		 		action="report_ordenes_requisicion_wizard_action" 
+		 		sequence="5" />
+
+
+
+
+	</data>
+</openerp>

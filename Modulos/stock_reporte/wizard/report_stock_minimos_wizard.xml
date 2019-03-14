@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="report_stock_minimos_wizard_form"> 
+			<field name="name">report.stock.minimos.wizard.form</field>
+			<field name="model">report.stock.minimos.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Stock Minimos" version="8.0">
+
+						<group>
+							
+							<field name="filtro_por" />
+							<field name="almacen" />
+							<field name="fecha" />
+
+						</group>
+
+										
+
+						<footer>
+							<button string="Mostrar" name="do_rebuild" type="object" class="oe_highlight"/>
+							or
+							<button string="Cancel" class="oe_link" special="cancel"/>
+						</footer>
+				</form>
+			</field>
+		</record>
+
+
+		<record id="report_stock_minimos_wizard_action" model="ir.actions.act_window">
+			<field name="name">Stock Minimos</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.stock.minimos.wizard</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+	
+		<menuitem name="Reporte Stock Minimos" id="report_stock_minimos_wizard_menu" 
+				parent="purchase.purchase_report"
+		 		action="report_stock_minimos_wizard_action" 
+		 		sequence="5" />
+
+
+
+
+	</data>
+</openerp>

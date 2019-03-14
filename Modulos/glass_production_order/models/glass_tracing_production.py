@@ -12,7 +12,7 @@ class GlassListMainWizard(models.Model):
 	titulo = fields.Char(default='Seguimiento de Produccion')
 	order_id = fields.Many2one('glass.order','Orden')
 	lote_id = fields.Many2one('glass.lot','Lote')
-	table_number = fields.Char('Mesa')
+	requisition_id = fields.Many2one('glass.requisition',string="Mesa")
 	line_ids = fields.One2many('glass.list.wizard','main_id','Lineas')
 	filter_field = fields.Selection([('all','Todos'),('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar'),('expired','Vencidos')],string='Filtro',default='all')
 	search_param = fields.Selection([('glass_order','Orden de Produccion'),('requisition','Mesa'),('lot','Lote')],string='Busqueda por')
@@ -100,9 +100,9 @@ class GlassListMainWizard(models.Model):
 		orders=[]
 		lines_without_lot=[] # lineas sin lote de produccion
 
-		if self.table_number and self.search_param == 'requisition':
-			requisitions = self.env['glass.requisition'].search([('table_number','=',self.table_number)])			
-			lot_lines = requisitions.mapped('lot_ids').mapped('lot_id').mapped('line_ids')
+		if self.requisition_id and self.search_param == 'requisition':
+						
+			lot_lines = self.requisition_id.mapped('lot_ids').mapped('lot_id').mapped('line_ids')
 			orders = self._get_data(lot_lines)
 
 		elif self.order_id and self.search_param == 'glass_order':

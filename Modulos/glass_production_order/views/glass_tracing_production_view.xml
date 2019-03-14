@@ -31,7 +31,7 @@
                             <field name="search_param" required="1"/>
                             <field name="order_id" attrs="{'invisible': [('search_param','!=','glass_order')],'required':[('search_param','=','glass_order')]}"/>
                             <field name="lote_id" attrs="{'invisible': [('search_param','!=','lot')],'required':[('search_param','=','lot')]}" domain="[('state','=','done')]"/>
-                            <field name="table_number" attrs="{'invisible': [('search_param','!=','requisition')],'required':[('search_param','=','requisition')]}"/>
+                            <field name="requisition_id" attrs="{'invisible': [('search_param','!=','requisition')],'required':[('search_param','=','requisition')]}"/>
                             <field name="filter_field"/>
                             <field name="show_breaks"/>
                     </group>

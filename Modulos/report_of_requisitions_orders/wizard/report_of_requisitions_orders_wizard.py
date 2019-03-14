@@ -316,9 +316,9 @@ class ReportRequisitionsOrdersWizard(osv.TransientModel):
 		(mp.mp_m2+rt.rt_m2)-co.corte-drt.rt_m2 as desper,
 		(mp.mp_m2+rt.rt_m2)-drt.rt_m2 as consum
 		from vst_rq_corte co
-		join vst_rq_mp mp on co.requisition_id = mp.requisition_id
-		join vst_rq_rt rt on mp.requisition_id = rt.requisition_id and mp.product_id = rt.product_id
-		join vst_rq_drt drt on mp.requisition_id = drt.requisition_id and mp.product_id = drt.product_id
+		left join vst_rq_mp mp on co.requisition_id = mp.requisition_id
+		left join vst_rq_rt rt on mp.requisition_id = rt.requisition_id and mp.product_id = rt.product_id
+		left join vst_rq_drt drt on mp.requisition_id = drt.requisition_id and mp.product_id = drt.product_id
 		where co.fecha >='"""+self.start_date+"""' and co.fecha<='"""+self.end_date+"""'
 		""")
 		return self.env.cr.dictfetchall()
