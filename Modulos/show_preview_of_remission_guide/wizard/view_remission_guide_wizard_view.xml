@@ -7,41 +7,22 @@
             <form string="Previsualizacion de la guia de remision">                 
                 <group string="Informacion general">
                     <group>
-                        <field name="date" readonly="1" />
-                        <field name="reference" readonly="1" />
-                        <field name="partner" readonly="1" />
-                        <field name="direction" readonly="1" />
+                        <field name="date" readonly="1" string="Fecha:"/>
+                        <field name="reference" readonly="1"  string="Referencia:"/>
+                        <field name="partner" readonly="1"  string="Destinatario:"/>
+                        <field name="direction" readonly="1"  string="Direccion:"/>
                     </group>
                     <group>
-                        <field name="transporter" readonly="1" />
-                        <field name="start_point" readonly="1" />
-                        <field name="end_point" readonly="1"/>
-                        <field name="phone" readonly="1" />
+                        <field name="transporter" readonly="1"  string="Transportista:"/>
+                        <field name="start_point" readonly="1"  string="Punto de Partida:"/>
+                        <field name="end_point" readonly="1" string="Punto de llegada:"/>
+                        <field name="phone" readonly="1"  string="Telef:"/>
                     </group>
                 </group>
                 <group string="Detalle de Cristales">
                         <field name="mode" invisible="1" readonly="1" />
                         <field name="data" readonly="1" />
                 </group>
-                <!-- <notebook>
-                    <page string="Lineas de pedido">
-                        <field name="lines_ids" readonly="1">
-                            <tree create="false" delete="false">
-                                <field name="selected"/>
-                                <field name="order_id" readonly="1"/>
-                                <field name="partner_id" readonly="1"/>
-                                <field name="date_production" readonly="1"/>
-                                <field name="total_pzs" readonly="1"/>
-                                <field name="total_area" readonly="1"/>
-                            </tree>
-                        </field>
-                        <field name="move_ids" readonly="1">
-                            <tree create="false" delete="false">
-                                <field name="product_id" readonly="1"/>
-                            </tree>
-                        </field>
-                    </page>
-                </notebook> -->
                 <footer>
                     <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
                 </footer>
