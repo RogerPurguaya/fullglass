@@ -3,6 +3,7 @@
 from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 from datetime import datetime
+from decimal import *
 from functools import reduce
 
 class GlassListMainWizard(models.Model):
@@ -17,9 +18,10 @@ class GlassListMainWizard(models.Model):
 	search_param = fields.Selection([('glass_order','Orden de Produccion'),('requisition','Mesa'),('lot','Lote')],string='Busqueda por')
 	show_breaks = fields.Boolean('Mostrar Rotos')
 	count_total_crystals = fields.Integer('Nro total de cristales')
-	total_area = fields.Float('Total M2',compute='_get_total_area')
-	total_area_breaks = fields.Float('Total Rotos M2',compute='_get_total_area_breaks')
-	percentage_breaks = fields.Float('Porcentage de rotos',compute='_get_percentage_breaks') 
+	total_with_production=fields.Float('Total M2 con produccion',compute='_get_in_production_area',digits=(20,4))
+	total_area_breaks = fields.Float('Total Rotos M2',compute='_get_total_area_breaks',digits=(20,4))
+	percentage_breaks = fields.Float('Porcentage de rotos',compute='_get_percentage_breaks',digits=(20,4)) 
+	total_area = fields.Float('Total M2',compute='_get_total_area', digits=(20,4))
 	tot_optimizado=fields.Integer('Optimizado')
 	tot_corte=fields.Integer('Corte')
 	tot_pulido=fields.Integer('Pulido')
@@ -33,14 +35,27 @@ class GlassListMainWizard(models.Model):
 	tot_entregado=fields.Integer('Entregado')
 	tot_requisicion=fields.Integer(u'Requisición')
 
-	@api.depends('line_ids')
+	@api.depends('line_ids','total_with_production')
 	def _get_total_area(self):
 		for record in self:
-			areas = record.line_ids.mapped('lot_line_id').mapped('area')
+			areas = []
+			lines = record.line_ids.mapped('order_line').filtered(lambda x: not x.lot_line_id)
+			for line in lines:
+				area = self._get_area(line.altura1,line.altura2,line.base1,line.base2)
+				areas.append(area)
 			if len(areas) > 0:
-				record.total_area = reduce(lambda x,y: x+y,areas)
+				record.total_area = reduce(lambda x,y: x+y,areas) + record.total_with_production
 			else:
-				record.total_area = 0
+				record.total_area = record.total_with_production
+
+	@api.depends('line_ids')
+	def _get_in_production_area(self):
+		for record in self:
+			areas = record.line_ids.mapped('lot_line_id').filtered(lambda x: not x.is_break).mapped('area')
+			if len(areas) > 0:
+				record.total_with_production = reduce(lambda x,y: x+y,areas)
+			else:
+				record.total_with_production = 0
 
 	@api.depends('line_ids')
 	def _get_total_area_breaks(self):
@@ -62,7 +77,6 @@ class GlassListMainWizard(models.Model):
 	@api.multi
 	def callbreakcrystal(self):
 		form_view_ref = self.env.ref('glass_production_order.view_glass_respos_wizard_form', False)
-		# tree_view_ref = self.env.ref('account.invoice_tree', False)
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_glass_respos_wizard_form' % module)
 		data = {
@@ -107,19 +121,6 @@ class GlassListMainWizard(models.Model):
 		if len(orders)==0 and len(lines_without_lot)==0:
 			raise exceptions.Warning('No se ha encontrado informacion.')
 
-		tot_optimizado=0
-		tot_corte=0
-		tot_pulido=0
-		tot_entalle=0
-		tot_lavado=0
-		tot_horno=0
-		tot_templado=0
-		tot_insulado=0
-		tot_comprado=0
-		tot_ingresado=0
-		tot_entregado=0
-		tot_requisicion=0
-
 		if len(lines_without_lot) > 0 and self.filter_field in ('all','pending'):
 			for line in lines_without_lot:
 				self.env['glass.list.wizard'].create({
@@ -139,59 +140,7 @@ class GlassListMainWizard(models.Model):
 					'order_line':line.id,
 					'decorator': 'without_lot',
 					})						
-		for line in orders:
-			corte=False
-			pulido=False
-			entalle=False
-			lavado=False
-			horno=False
-			templado=False
-			insulado=False
-			comprado=False
-			ingresado=False
-			entregado=False
-			optimizado=False
-			requisicion= False
-			estados = self.env['glass.stage.record'].search([('lot_line_id','=',line.id)])
-
-			for estado in estados:
-				if estado.stage== 'corte':
-					corte = True
-					tot_corte=tot_corte+1
-				if estado.stage== 'pulido':
-					tot_pulido=tot_pulido+1
-					pulido= True
-				if estado.stage== 'entalle':
-					tot_entalle=tot_entalle+1
-					entalle= True
-				if estado.stage== 'lavado':
-					tot_lavado=tot_lavado+1
-					lavado= True
-				if estado.stage== 'horno':
-					tot_horno=tot_horno+1
-					horno= True
-				if estado.stage== 'templado':
-					tot_templado=tot_templado+1
-					templado= True
-				if estado.stage== 'insulado':
-					tot_insulado=tot_insulado+1
-					insulado= True
-				if estado.stage== 'compra':
-					tot_comprado=tot_comprado+1
-					comprado= True
-				if estado.stage== 'ingresado':
-					tot_ingresado=tot_ingresado+1
-					ingresado= True
-				if estado.stage== 'entregado':
-					tot_entregado=tot_entregado+1
-					entregado= True
-				if estado.stage== 'optimizado':
-					tot_optimizado=tot_optimizado+1
-					optimizado= True
-				if estado.stage== 'requisicion':
-					tot_requisicion=tot_requisicion+1
-					requisicion= True
-			
+		for line in orders:			
 			self.env['glass.list.wizard'].create({
 				'order_id':line.order_prod_id.id,
 				'crysta_number':line.nro_cristal,
@@ -201,18 +150,18 @@ class GlassListMainWizard(models.Model):
 				'altura2':line.altura2,
 				'descudre':line.descuadre,
 				'nro_pagina':line.page_number,
-				'optimizado':optimizado,
-				'corte':corte,
-				'pulido':pulido,
-				'entalle':entalle,
-				'lavado':lavado,
-				'horno':horno,
-				'templado':templado,
-				'insulado':insulado,
-				'comprado':comprado,
-				'ingresado':ingresado,
-				'entregado':entregado,
-				'requisicion':requisicion,
+				'optimizado':line.optimizado,
+				'corte':line.corte,
+				'pulido':line.pulido,
+				'entalle':line.entalle,
+				'lavado':line.lavado,
+				'horno':line.horno,
+				'templado':line.templado,
+				'insulado':line.insulado,
+				'comprado':line.comprado,
+				'ingresado':line.ingresado,
+				'entregado':line.entregado,
+				'requisicion':line.requisicion,
 				'partner_id':line.order_prod_id.partner_id.id,
 				'estado':line.order_prod_id.state,
 				'glass_break':line.is_break,
@@ -226,21 +175,22 @@ class GlassListMainWizard(models.Model):
 				})
 
 		vals={
-			'tot_optimizado':tot_optimizado,
-			'tot_corte':tot_corte,
-			'tot_pulido':tot_pulido,
-			'tot_entalle':tot_entalle,
-			'tot_lavado':tot_lavado,
-			'tot_horno':tot_horno,
-			'tot_templado':tot_templado,
-			'tot_insulado':tot_insulado,
-			'tot_comprado':tot_comprado,
-			'tot_ingresado':tot_ingresado,
-			'tot_entregado':tot_entregado,
-			'tot_requisicion':tot_requisicion,
+			'tot_optimizado':len(list(filter(lambda x:x.templado and not x.is_break,orders))),
+			'tot_corte':len(list(filter(lambda x:x.corte and not x.is_break,orders))),
+			'tot_pulido':len(list(filter(lambda x:x.pulido and not x.is_break,orders))),
+			'tot_entalle':len(list(filter(lambda x:x.entalle and not x.is_break,orders))),
+			'tot_lavado':len(list(filter(lambda x:x.lavado and not x.is_break,orders))),
+			'tot_horno':len(list(filter(lambda x:x.horno and not x.is_break,orders))),
+			'tot_templado':len(list(filter(lambda x:x.templado and not x.is_break,orders))),
+			'tot_insulado':len(list(filter(lambda x:x.insulado and not x.is_break,orders))),
+			'tot_comprado':len(list(filter(lambda x:x.comprado and not x.is_break,orders))),
+			'tot_ingresado':len(list(filter(lambda x:x.ingresado and not x.is_break,orders))),
+			'tot_entregado':len(list(filter(lambda x:x.entregado and not x.is_break,orders))),
+			'tot_requisicion':len(list(filter(lambda x:x.requisicion and not x.is_break,orders))),
 		} 
 		self.write(vals)
 		return True
+
 
 	@api.multi
 	def _get_data(self,lot_lines):
@@ -261,6 +211,18 @@ class GlassListMainWizard(models.Model):
 		if not self.show_breaks:
 			lot_lines = lot_lines.filtered(lambda x: not x.is_break)
 		return list(set(lot_lines))
+
+	@api.multi
+	def _get_area(self,altura1,altura2,base1,base2):
+		area=Decimal(0.0000)
+		l1 = Decimal(float(base1))
+		if base2>base1:
+			l1=Decimal(float(base2))
+		l2 = Decimal(float(altura1))
+		if altura2>altura1:
+			l2=Decimal(float(altura2))
+		area = round(float(float(l1)*float(l2))/float(1000000.0000),4)
+		return area
 
 class GlassListWizard(models.Model):
 	_name='glass.list.wizard'
@@ -323,23 +285,6 @@ class GlassListWizard(models.Model):
 			'target': 'new',
 		} 
 
-	# @api.multi
-	# def show_stages(self):
-	# 	module = __name__.split('addons.')[1].split('.')[0]
-	# 	view = self.env.ref('%s.view_glass_stage_record_tree1' % module)
-	# 	data = {
-	# 		'name': _('Seguimiento'),
-	# 		'view_type': 'tree',
-	# 		'view_mode': 'tree',
-	# 		'res_model': 'glass.stage.record',
-	# 		'view_id': view.id,
-	# 		'type': 'ir.actions.act_window',
-	# 		'target': 'new',
-	# 		'domain': [('lot_line_id','=',self.lot_line_id.id)]
-	# 	} 
-	# 	#print self.lot_line_id.id
-	# 	return data
-
 	@api.multi
 	def break_crystal(self):
 		module = __name__.split('addons.')[1].split('.')[0]
@@ -373,15 +318,14 @@ class GlassListWizard(models.Model):
 
 class GlassReposWizard(models.TransientModel):
 	_name='glass.respos.wizard'
-
 	motive = fields.Selection([
-		('eentalle','Error entalle'), 
-		('emedida','Error medidas'), 
-		('vrayado','Vidrio rayado'), 
-		('vroto','Vidrio roto'), 
-		('planimetria','Planimetria'), 
-		('eventas','Error ventas'), 
-		('mprima','Materia prima')])
+		('Error entalle','Error entalle'), 
+		('Error medidas','Error medidas'), 
+		('Vidrio rayado','Vidrio rayado'), 
+		('Vidrio roto','Vidrio roto'), 
+		('Planimetria','Planimetria'), 
+		('Error ventas','Error ventas'), 
+		('Materia prima','Materia prima')])
 	stage = fields.Selection([
 		('corte','Corte'), 
 		('pulido','Pulido'), 
@@ -422,6 +366,7 @@ class GlassReposWizard(models.TransientModel):
 			'stage':'roto',
 			'lot_line_id':line.lot_line_id.id,
 			'date_fisical':self.date_fisical,
+			'break_motive':self.motive
 		}
 		stage_obj = self.env['glass.stage.record']
 		stage_obj.create(data)

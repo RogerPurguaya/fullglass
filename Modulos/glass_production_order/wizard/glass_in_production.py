@@ -3,7 +3,7 @@
 from odoo import fields, models,api, _
 from odoo.exceptions import UserError
 from datetime import datetime
-import itertools
+from functools import reduce
 
 class GlassInProductionWizard(models.TransientModel):
 	_name='glass.in.production.wizard'
@@ -13,17 +13,59 @@ class GlassInProductionWizard(models.TransientModel):
 	order_ids = fields.One2many('glass.in.order','mainid','order_id')
 	line_ids = fields.Many2many('glass.order.line','glass_in_lineorder_rel','in_id','line_id',string="lienas")
 	order_id = fields.Many2one('glass.order','Filtrar OP')
+	search_param = fields.Selection([('glass_order','Orden de Produccion'),('search_code','Lectura de barras')],string='Busqueda por',default='search_code')
+	message_erro = fields.Char()
+	location_id  = fields.Many2one('custom.glass.location',string='Ubicacion')
+	search_code  = fields.Char(string='Codigo de busqueda')
 
+	@api.multi
+	def get_new_element(self):
+		wizard = self.env['glass.in.production.wizard'].create({})
+		return {
+			'res_id':wizard.id,
+			'name':'Ingreso a la Produccion',
+			'type': 'ir.actions.act_window',
+			'res_model': 'glass.in.production.wizard',
+			'view_mode': 'form',
+			'view_type': 'form',
+			'target': 'new',
+		}
 
-	# @api.multi
-	# def _get_default_stock_type(self):
-	# 	config = self.env.['']
-
+	@api.depends('line_ids')
+	@api.onchange('search_code')
+	def onchangecode(self):
+		config_data = self.env['glass.order.config'].search([])
+		if len(config_data)==0:
+			raise UserError(u'No se encontraron los valores de configuración de producción')		
+		config_data = self.env['glass.order.config'].search([])[0]
+		if self.search_code:			
+			existe = self.env['glass.lot.line'].search([('search_code','=',self.search_code)])
+			if len(existe)==1:
+				line = existe.order_line_id
+				if line.state!='ended':
+					self.message_erro = 'La linea de orden no se encuentra en estado finalizado'
+					self.search_code=""
+					return
+				this_obj=self.env['glass.in.production.wizard'].browse(self._origin.id) 
+				if line not in this_obj.line_ids:
+					line.custom_location = self.location_id.id
+					this_obj.write({'line_ids':[(4,line.id)]})
+					self.search_code=""
+					return {'value':{'line_ids':this_obj.line_ids.ids}}
+				else:
+					self.message_erro = 'El registro ya se encuentra en la lista'
+					self.search_code=""
+			else:
+				self.message_erro="Registro no encontrado!"
+				self.search_code=""
+				return
+		else:
+			return
+	
 	@api.onchange('order_id')
 	def onchange_order_id(self):
 		vals = {}
 		aorder=[]
-
 		for existente in self.order_ids:
 			vals={
 				'selected':existente.selected,
@@ -46,21 +88,17 @@ class GlassInProductionWizard(models.TransientModel):
 			aorder.append((0,0,vals))
 		return {'value':{'order_ids':aorder}}
 
-
+	@api.depends('line_ids')
 	@api.onchange('order_ids')
-	def getlines(self):
-		alines = []
-		for order in self.order_ids:
-			if order.selected:
-				for line in order.order_id.line_ids:
-					if line.state =='ended':
-						alines.append(line.id)
-					#New code
-					# if line.state !='ended':
-					# 	alines.append(line.id)
-
-		if len(alines)>0:
-			self.line_ids=[(6,0,alines)]
+	def getlines(self):		
+		lines = self.order_ids.filtered(lambda x:x.selected).mapped('order_id').mapped('line_ids').filtered(lambda x:x.state=='ended')
+		if len(lines)>0:
+			this_obj = self.env['glass.in.production.wizard'].browse(self._origin.id)
+			for item in lines:
+				if item not in this_obj.line_ids:
+					item.custom_location = self.location_id.id
+					this_obj.write({'line_ids':[(4,item.id)]})
+			return {'value':{'line_ids':this_obj.line_ids.ids}}
 
 	@api.model
 	def default_get(self,fields):
@@ -70,21 +108,6 @@ class GlassInProductionWizard(models.TransientModel):
 			raise UserError(u'No se encontraron los valores de configuración de producción')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		res.update({'stock_type_id':config_data.picking_type_pt.id})
-
-		## old code
-		# orders=self.env['glass.order'].search([('state','=','process')])
-		# aorder=[]
-		# for order in orders:
-		# 	vals={
-		# 	'selected':False,
-		# 	'order_id':order.id,
-		# 	'partner_id':order.partner_id.id,
-		# 	'date_production':order.date_production,
-		# 	'total_pzs':order.total_pzs,
-		# 	'total_area':order.total_area,
-		# 	}
-		# 	aorder.append((0,0,vals))
-		# res.update({'order_ids':aorder})
 		return res
 
 	@api.one
@@ -103,84 +126,69 @@ class GlassInProductionWizard(models.TransientModel):
 
 		return data
 
-
-#New Code
-# Se puede mejorar los algoritmos y rutinas para un mejor performance, se hizo asi por moticos de prisa, queda pendiente para el siguiente programador  mejorar el código:)
-# Mejorar el algoritmo de "_processing_stock_move_lines" ya que realiza iteraciones de más
-# y se puede mejorar.
-
 	@api.multi
 	def makeingreso(self):
-		self.ensure_one()
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
 			raise UserError(u'No se encontraron los valores de configuración de producción')		
 		config_data = self.env['glass.order.config'].search([])[0]
-
-		#print('Config: ', config_data.traslate_motive_pt)
-
-		d = self._prepare_picking(self.stock_type_id,config_data.traslate_motive_pt)
-		useract = self.env.user
-		picking_ids=[]
-		for l1 in self.order_ids:
-
-			# en vista q no se guardan los ids filtrados anteriormente, lo haremos de nuevo :(
-			line_ids_tmp = []
-			for item in l1.order_id.line_ids:
-				if item.state == 'ended':
-					line_ids_tmp.append(item)
-
-			if l1.selected and len(line_ids_tmp) > 0:
-				
-				#Es necesario verificar el tipo de cambio y la moneda 
-				#para crear correctamente el picking y evitar crear stock moves erroneos 
-				#fecha_kardex = datetime.now().date()
-				self.verify_constrains_for_process(self.date_in)
-
-				data= {
-					'picking_type_id': self.stock_type_id.id,
-					'partner_id': None,
-					'date': datetime.now(),
-					'fecha_kardex': str(self.date_in),
-					'origin': l1.order_id.name,
-					'location_dest_id': self.stock_type_id.default_location_dest_id.id,
-					'location_id': self.stock_type_id.default_location_src_id.id,
-					'company_id': useract.company_id.id,
-					'einvoice_12': config_data.traslate_motive_pt.id,
-				}
-				
-				picking = self.env['stock.picking'].create(data)
-				picking_ids.append(picking.id)
-
-				moves_list = self._processing_stock_move_lines(line_ids_tmp,picking,useract,l1)
-				# Hacemos el siguiente proceso para que el albaran pase a realizado una 
-				# vez se genere:
-				context = None
-				action = picking.do_new_transfer()
-				if type(action) == type({}):
-					if action['res_model'] == 'stock.immediate.transfer' or action['res_model'] == 'stock.backorder.confirmation':
-						context = action['context']
-						sit = self.env['stock.immediate.transfer'].with_context(context).create({'pick_id': picking.id})	
-						sit.process()
-				
-				for line in line_ids_tmp:
-					line.state = 'instock'
-					line.lot_line_id.ingresado = True
-					vals = {
-						'user_id':self.env.uid,
-						'date':datetime.now(),
-						'time':datetime.now().time(),
-						'stage':'ingresado',
-						'lot_line_id':line.lot_line_id.id,
-					}
-					self.env['glass.stage.record'].create(vals)
-
-				if self._verify_complete_ending_order_lines(l1.order_id.line_ids):
-					l1.order_id.state='ended'
+		#Es necesario verificar el tipo de cambio y la moneda 
+		#para crear correctamente el picking y evitar crear stock moves erroneos 
+		self.verify_constrains_for_process(self.date_in)
 		
-		data={}
-		view = self.env.ref('stock.view_picking_form')
-		data = {
+		grouped_lines = []
+		picking_ids=[]
+		useract = self.env.user
+		grouped_ids =  set(self.line_ids.mapped('order_id').ids)
+		for i in grouped_ids:
+			sub = self.line_ids.filtered(lambda x: x.order_id.id == i)
+			grouped_lines.append(list(sub))
+		for lines in grouped_lines:
+			order = lines[0].order_id
+			data= {
+				'picking_type_id': self.stock_type_id.id,
+				'partner_id': None,
+				'date': datetime.now(),
+				'fecha_kardex': str(self.date_in),
+				'origin': order.name,
+				'location_dest_id': self.stock_type_id.default_location_dest_id.id,
+				'location_id': self.stock_type_id.default_location_src_id.id,
+				'company_id': useract.company_id.id,
+				'einvoice_12': config_data.traslate_motive_pt.id,
+			}
+			picking = self.env['stock.picking'].create(data)
+			picking_ids.append(picking.id)
+			moves_list = self._processing_stock_move_lines(lines,picking,useract,order)
+			# pasamos el albaran generado a realizado:
+			context = None
+			action = picking.do_new_transfer()
+			if type(action) == type({}):
+				if action['res_model'] == 'stock.immediate.transfer' or action['res_model'] == 'stock.backorder.confirmation':
+					context = action['context']
+					sit = self.env['stock.immediate.transfer'].with_context(context).create({'pick_id': picking.id})	
+					sit.process()
+				elif action['res_model'] == 'confirm.date.picking':
+					context = action['context']
+					cdp = self.env['confirm.date.picking'].with_context(context).create({'pick_id':picking.id,'date':picking.fecha_kardex})
+					res = cdp.changed_date_pincking()
+			
+			for line in lines:
+				line.state = 'instock'
+				line.lot_line_id.ingresado = True
+				vals = {
+					'user_id':self.env.uid,
+					'date':datetime.now(),
+					'time':datetime.now().time(),
+					'stage':'ingresado',
+					'lot_line_id':line.lot_line_id.id,
+				}
+				self.env['glass.stage.record'].create(vals)
+
+			not_ended = order.line_ids.filtered(lambda x: x.state != 'instock')
+			if len(not_ended) == 0:
+				order.state='ended'
+
+		return {
 				'name':u'Picking',
 				'view_type':'form',
 				'view_mode':'tree,form',
@@ -188,71 +196,44 @@ class GlassInProductionWizard(models.TransientModel):
 				'type':'ir.actions.act_window',
 				'domain':[('id','in',picking_ids)]
 		}
-		return data
-
-# campo = glass_order_line_ids
-#Verifica si el producto de cada linea es el mismo, en ese caso suma las areas para generar un solo albarán acumulativo
-
+# procesar las lineas del picking
 	@api.multi
-	def _processing_stock_move_lines(self,lines,picking,useract,l1):
-		acum_area = 0
-		tmp_line = None
-		list_lines = [] #acumulador de lista por move
+	def _processing_stock_move_lines(self,lines,picking,useract,order):
 		move_list = []
-		move = None
+		products_ids = set(map(lambda x: x.product_id.id,lines))
+		
+		for item in products_ids:
+			filtered = list(filter(lambda x: x.product_id.id == item,lines))
+			product = filtered[0].product_id #el prod sera el mismo
+			areas = map(lambda x: x.area,filtered)
+			total_area = reduce(lambda x,y: x+y,areas)
 
-		sorted_lines = sorted(lines, key = lambda line:line.product_id[0].id)
-		products_ids = map(lambda x: x.product_id[0].id , sorted_lines) 		
-		products_ids = set(products_ids)
-
-		for id in products_ids:
-			for line in sorted_lines:				
-				if line.product_id[0].id == id:
-					tmp_line = line
-					list_lines.append(tmp_line.id)
-					acum_area += line.area
-			
-			#tmp_line.sum_area = acum_area
 			vals = {
-				'name': tmp_line.product_id.name or '',
-				'product_id': tmp_line.product_id.id,
-				'product_uom': tmp_line.product_id.uom_id.id,
+				'name': product.name or '',
+				'product_id': product.id,
+				'product_uom': product.uom_id.id,
 				'date': datetime.now(),
 				'date_expected': datetime.now(),
 				'location_id': self.stock_type_id.default_location_src_id.id,
 				'location_dest_id': self.stock_type_id.default_location_dest_id.id,
 				'picking_id': picking.id,
-				'partner_id': tmp_line.order_id.partner_id.id,
+				'partner_id': order.partner_id.id,
 				'move_dest_id': False,
 				'state': 'draft',
 				'company_id': useract.company_id.id,
 				'picking_type_id': self.stock_type_id.id,
 				'procurement_id': False,
-				'origin': l1.order_id.name,
+				'origin': order.name,
 				'route_ids': self.stock_type_id.warehouse_id and [(6, 0, [x.id for x in self.stock_type_id.warehouse_id.route_ids])] or [],
 				'warehouse_id': self.stock_type_id.warehouse_id.id,
-				'product_uom_qty': acum_area,
-				'glass_order_line_ids': [(6,0,list_lines)]
+				'product_uom_qty': total_area,
+				'glass_order_line_ids': [(6,0,map(lambda x: x.id,filtered))]
 			}
 			move = self.env['stock.move'].create(vals)
 			move_list.append(move)
-			acum_area = 0
-			list_lines = []
-		
 		return move_list
 
-#VErifica si el total de las ineas de la orden de producción han sido entregadas
-# y de acuerdo a eso setar el estado de la orden de producción a finalizado
-	@api.multi
-	def _verify_complete_ending_order_lines(self,array):
-		aux = True
-		for item in array:
-			if item.state != 'instock':
-				aux = False
-				break
-		return aux
-
-#Método que verifica los tipos de cambio y moneda para la fecha de kardex, se realiza en 
+#Metodo que verifica los tipos de cambio y moneda para la fecha de kardex, se realiza en 
 # el proceso futuro, pero es necesario para evitar crear stock.moves incorrectos
 	@api.multi
 	def verify_constrains_for_process(self,date):

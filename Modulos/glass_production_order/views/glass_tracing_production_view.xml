@@ -77,8 +77,9 @@
                     <group>
                         <group string="Totales">
                             <field name="total_area" string="Area Total"/>
+                            <field name="total_with_production" string="Area con produccion"/>
                             <field name="total_area_breaks" string="Area total Rotos"/>
-                            <field name="percentage_breaks" string="Porcentage de rotos (%)"/>
+                            <field name="percentage_breaks" string="Porcentage rotos (%)"/>
                         </group>
                         <group string="Totales por Proceso">
                             <group>

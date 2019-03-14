@@ -9,9 +9,13 @@
                     <group>
                         <field name="stock_type_id"/>
                         <field name="date_in"/>
-                        <field name="order_id" domain="[('state','=','process')]"/>
+                        <field name="search_param" required="1"/>
+                        <field name="order_id"  attrs="{'invisible':[('search_param','!=','glass_order')]}" domain="[('state','=','process')]"/>
+                        <field name="search_code" attrs="{'invisible':[('search_param','!=','search_code')]}"/>
                     </group>
                     <group>
+                            <field name="message_erro" style="color:Red;" string=" " readonly="1"/>
+                            <field name="location_id"/>
                     </group>
                 </group>
                 <notebook>
@@ -26,34 +30,37 @@
                                 <field name="total_area" readonly="1"/>
                             </tree>
                         </field>
-                        <field name="line_ids"  readonly="1"  widget="many2many">
-                            <!-- <tree editable='bottom'>
-                                <field name="order_id" readonly="0"/>
-                                <field name="product_id" readonly="0"/>
-                                <field name="crystal_number" readonly="0"/>
-                                <field name="base1" readonly="0"/>
-                                <field name="base2" readonly="0"/>
-                                <field name="altura1" readonly="0"/>
-                                <field name="altura2" readonly="0"/>
-                            </tree> -->
+                        <field name="line_ids" widget="many2many">
+                            <tree editable='bottom' create="false" delete="false">
+                                <field name="order_id" readonly="1"/>
+                                <field name="product_id" readonly="1"/>
+                                <field name="crystal_number" readonly="1"/>
+                                <field name="base1" readonly="1"/>
+                                <field name="base2" readonly="1"/>
+                                <field name="altura1" readonly="1"/>
+                                <field name="altura2" readonly="1"/>
+                                <field name="custom_location" readonly="0"/>
+                            </tree>
                         </field>
                     </page>
                 </notebook>
                 <footer>
-                    <button string ="Generar Ingreso" name="makeingreso" type="object"/>
+                    <button string ="Generar Ingreso" name="makeingreso" type="object" class="btn-primary"/>
                     <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
                 </footer>
             </form>
         </field>
     
     </record>
-    <record id="glass_in_production_wizard_action" model="ir.actions.act_window">
-        <field name="name">Ingreso de la Producción</field>
-        <field name="res_model">glass.in.production.wizard</field>
-        <field name="view_type">form</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
+        <record id="glass_in_production_wizard_action" model="ir.actions.server">
+            <field name="name">Ingreso a la Producción</field>
+            <field name="model_id" ref="model_glass_in_production_wizard"/>
+            <field name="code">              
+                    action = model.get_new_element()
+            </field>
+        </record>
+
+
      <menuitem id="glass_in_production_wizard_menu" parent="glass_inventory_menu" action="glass_in_production_wizard_action" sequence="9" groups="glass_production_order.group_glass_user"/>
 
 </odoo>

@@ -13,7 +13,6 @@ import tempfile
 from pdf2image import convert_from_path
 from PIL import Image
 
-
 class GlassProductionControlWizard(models.Model):
 	_name='glass.productioncontrol.wizard'
 
@@ -41,13 +40,15 @@ class GlassProductionControlWizard(models.Model):
 
 	@api.multi
 	def get_new_element(self):
-
+		import PyPDF2
 		direccion = self.env['main.parameter'].search([])[0].download_directory
-		file_new = open(direccion + 'previsualizacion_op.pdf','wb')
-		file_new.write('')
-		file_new.close()
 
-		retornable = {
+		writer = PyPDF2.PdfFileWriter()
+		writer.insertBlankPage(width=500, height=500, index=0)
+		with open(direccion+'previsualizacion_op.pdf', "wb") as outputStream: 
+			writer.write(outputStream) #write pages to new PDF
+
+		return {
 			'name':'Control de Produccion',
 			'type': 'ir.actions.act_window',
 			'res_model': 'glass.productioncontrol.wizard',
@@ -55,9 +56,6 @@ class GlassProductionControlWizard(models.Model):
 			'view_type': 'form',
 			'target': 'new',
 		}
-
-		return retornable
-
 
 	@api.one
 	def get_asf(self):
@@ -92,7 +90,6 @@ class GlassProductionControlWizard(models.Model):
 	def onchangecode(self):
 		self.ensure_one()
 		vals={}
-
 		if self.search_code:
 			config_data = self.env['glass.order.config'].search([])
 			if len(config_data)==0:
@@ -116,42 +113,6 @@ class GlassProductionControlWizard(models.Model):
 				self.search_code=False
 
 				vals={}
-				# if existe_act.entalle==False
-				# if existe_act.order_prod_id.sketch:
-				# 	value = existe_act.order_prod_id.sketch.decode('base64')
-				# 	f = StringIO(value)	
-				# 	tf = tempfile.NamedTemporaryFile()
-				# 	tf.close()
-
-				# 	direccion = self.env['main.parameter'].search([])[0].dir_create_file
-				# 	f= open(tf.name, 'wb')
-				# 	f.write(base64.b64decode(existe_act.order_prod_id.sketch))
-				# 	f.close()
-					
-				# 	pdf_path=tf.name		
-				# 	tdir = tempfile.mkdtemp()
-				# 	if existe_act.page_number:
-				# 		if existe_act.page_number!="":
-				# 			pages = convert_from_path(pdf_path, 500,tdir,int(existe_act.page_number),int(existe_act.page_number),'png')
-				# 		else:
-				# 			pages = convert_from_path(pdf_path, 500,tdir,1,1,'png')
-				# 	else:
-				# 		pages = convert_from_path(pdf_path, 500,tdir,1,1,'png')
-				# 	pages[0].save(direccion+'image.png')
-				# 	lsttmp = os.listdir(tdir)
-
-				# 	file_base64 = ''
-				# 	with open(direccion+'image.png', "rb") as file:
-				# 		file_base64 = base64.b64encode(file.read())
-				# 		file.close()
-
-
-
-
-
-					# os.remove(tdir)
-					
-
 				
 				vals.update({
 					'lot_line_id':existe_act.id,
@@ -177,7 +138,6 @@ class GlassProductionControlWizard(models.Model):
 				cont_t = file.read()
 				file.close()
 				direccion = self.env['main.parameter'].search([])[0].download_directory
-				#print data.order_line_id.image_page_number,'omg'
 				
 				file_new = open(direccion + 'previsualizacion_op.pdf','wb')
 				file_new.write(cont_t)
@@ -185,8 +145,6 @@ class GlassProductionControlWizard(models.Model):
 
 				self.messageline=''
 				stage_obj = self.env['glass.stage.record']
-				#print self.stage
-				#print self.lot_line_id.calc_line_id.entalle
 				
 				if self.stage=='entalle':
 					if self.lot_line_id.calc_line_id.entalle==0:
@@ -206,26 +164,28 @@ class GlassProductionControlWizard(models.Model):
 				
 
 			else:
-				self.is_used=False
-				self.lot_line_id=False
-				self.production_order=False
-				self.partner_id=False
-				self.product_id=False
-				self.lot_id=False
-				self.obra=False
-				self.image_glass=False
-				self.sketch=False
-				self.sketch_page=False
-				self.search_code=False
-
+				self.write({
+					'is_used':False,
+					'lot_line_id':False,
+					'production_order':False,
+					'partner_id':False,
+					'product_id':False,
+					'lot_id':False,
+					'obra':False,
+					'image_glass':False,
+					'sketch':False,
+					'sketch_page':False,
+					'search_code':False,
+				})
+				
 				direccion = self.env['main.parameter'].search([])[0].download_directory
-				file_new = open(direccion + 'previsualizacion_op.pdf','wb')
-				file_new.write('')
-				file_new.close()
-
+				import PyPDF2
+				writer = PyPDF2.PdfFileWriter()
+				writer.insertBlankPage(width=500, height=500, index=0)
+				with open(direccion+'previsualizacion_op.pdf', "wb") as outputStream: 
+					writer.write(outputStream) 
 				self.image_page=False
 
-				
 		self.search_code=''
 		self.write(vals)
 		

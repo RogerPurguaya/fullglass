@@ -122,9 +122,6 @@ class GlassLot(models.Model):
 		} 
 		return data
 
-
-
-
 class GlassLotLine(models.Model):
 	_name='glass.lot.line'
 
@@ -135,9 +132,9 @@ class GlassLotLine(models.Model):
 	altura1 = fields.Integer("Altura1 (L 1)")
 	altura2 = fields.Integer("Altura2 (L 3)")
 	area = fields.Float(u'Área M2',digits=(12,4))
-	descuadre = fields.Char("Descuadre",size=7)
 	page_number = fields.Char(u"Nro. Pág.")
-	stages_ids = fields.One2many('glass.stage.record','lot_line_id','Etapas')
+	
+	descuadre = fields.Char("Descuadre",size=7)
 	optimizado = fields.Boolean("Optimizado")
 	requisicion = fields.Boolean("Requisición")
 	pulido = fields.Boolean("Pulido")
@@ -151,15 +148,14 @@ class GlassLotLine(models.Model):
 	comprado = fields.Boolean("Comprado")
 	corte = fields.Boolean("Corte")
 	arenado = fields.Boolean("Arenado")
-	## new code:
 	ingresado = fields.Boolean("Ingresado")
-
+	is_break = fields.Boolean('Roto')
+	
+	stages_ids = fields.One2many('glass.stage.record','lot_line_id','Etapas')
 	is_service = fields.Boolean('Es servicio')
 	type_prod = fields.Char('tipoproducto')
-
 	lot_id = fields.Many2one('glass.lot','Lote')
 	order_line_id = fields.Many2one('glass.order.line')
-	#order_date_prod = fields.Date('Fecha OP')
 	order_prod_id = fields.Many2one('glass.order',related='order_line_id.order_id',string="OP")
 	order_date_prod = fields.Date('Fecha OP',related='order_prod_id.date_production')
 	search_code = fields.Char(u'Código de búsqueda')
@@ -167,7 +163,6 @@ class GlassLotLine(models.Model):
 	image_glass = fields.Binary("imagen",related="calc_line_id.image")
 	page_glass = fields.Binary(u"Página")
 	merma = fields.Float('Merma',digist=(12,4))
-	is_break = fields.Boolean('Roto')
 	location = fields.Many2one(related='order_line_id.custom_location',string='Ubicacion') 
 	warehouse = fields.Char(related='location.location_code.display_name',string='Almacen')
 	_rec_name="search_code"

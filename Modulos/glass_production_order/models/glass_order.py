@@ -193,10 +193,9 @@ class GlassOrder(models.Model):
 		for i in range(opened_pdf.numPages):
 			output = PyPDF2.PdfFileWriter()
 			output.addPage(opened_pdf.getPage(i))
-			with open(direccion + self.name + "-%s.pdf" % i, "wb") as output_pdf:
+			print('el path asign : ',direccion + self.name + "-%s.pdf" % i)
+			with open(direccion + self.name + "-%s.pdf" % (i+1), "wb") as output_pdf:
 				output.write(output_pdf)
-
-
 
 		for saleline in self.sale_lines:
 			for calcline in saleline.id_type.id_line:
@@ -224,9 +223,6 @@ class GlassOrder(models.Model):
 								area= float(maxaltura*maxbase)/1000000
 								peso = saleline.product_id.weight*area
 
-
-
-
 								vals ={
 									'order_id':self.id,
 									'product_id':saleline.product_id.id,
@@ -251,7 +247,6 @@ class GlassOrder(models.Model):
 									area= float(maxaltura*maxbase)/1000000
 									peso = saleline.product_id.weight*area
 
-									
 									vals ={
 										'order_id':self.id,
 										'product_id':saleline.product_id.id,
@@ -320,9 +315,6 @@ class GlassOrderLine(models.Model):
 		if self.altura2>self.altura1:
 			l2=Decimal(float(self.altura2))
 		self.area = round(float(float(l1)*float(l2))/float(1000000.0000),4)
-
-
-
 
 
 	@api.multi

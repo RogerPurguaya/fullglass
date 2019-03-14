@@ -8,26 +8,6 @@
                 <field name="is_used" invisible="1"/>
                 <field name="existe" invisible="1"/>
                 <field name="rotate" invisible="1"/>
-
-                    <script>
-                        $(document).ready(function(){
-
-setTimeout(function () {
-                                document.getElementById('myIframe').contentDocument.location.reload();
-    }, 1000);
-
-                            $('#search_code input').change(function(e){
-
-
-setTimeout(function () {
-                                document.getElementById('myIframe').contentDocument.location.reload();
-    }, 1000);
-                                
-                                
-
-                                   });
-                        });
-                    </script>
              	<group col="5">
 
                             <div col="2" style='margin: 0px 10px 0px 10px' >
@@ -75,15 +55,28 @@ setTimeout(function () {
             		</page>
 
             		<page name="pdf" string="Croquis" attrs="{'invisible':[('stage','not in',['entalle','lavado'])]}">
-            			<!--<field name="sketch" readonly="0"  widget="pdf_viewer"/>-->
                         <div id="pdfDoc">
-                            <iframe id="myIframe" src="/import_base_it/static/previsualizacion_op.pdf" width="100%" height="750px"></iframe>
+                            <iframe id="myIframe" src="/import_base_it/static/previsualizacion_op.pdf?t=666" width="100%" height="750px"></iframe>
                         </div>
             		</page>
             	</notebook>
             	<footer>
                    <button string ="Cerrar" name="cancel" special="cancel" class="oe_link oe_inline"/>
                 </footer>
+                <script>
+                    $(document).ready(function(){
+                        setTimeout(function (){
+                            random = Math.floor(Math.random() * 100000);
+                            $('#myIframe').attr('src','/import_base_it/static/previsualizacion_op.pdf?t='+random);
+                        }, 1000);
+                        $('#search_code').change(function(e){
+                        setTimeout(function (){
+                            random = Math.floor(Math.random() * 100000);
+                            $('#myIframe').attr('src','/import_base_it/static/previsualizacion_op.pdf?t='+random);
+                        }, 1000);
+                        });
+                    });
+                </script>
             </form>
         </field>
     </record>

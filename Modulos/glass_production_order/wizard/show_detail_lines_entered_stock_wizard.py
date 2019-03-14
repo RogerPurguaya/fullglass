@@ -10,42 +10,46 @@ class Detail_Crystals_Entered_Wizard(models.TransientModel):
 	# para mostrar el boton de confirmacion:
 	show_button = fields.Boolean(string='Show button', compute='_get_show_button')
 	warning_message = fields.Char()
-
+	
 	@api.depends('detail_lines')
 	def _get_show_button(self):
 		for item in self:
-			mode = self._context['mode']
-			if mode == 'view_origin': # si el albaran es de entrada no muetsra el boton
-				item.show_button = False
-			elif len(item.detail_lines) > 0:
-				item.show_button = True
+			if 'mode' in self._context:
+				mode = self._context['mode']
+				if mode=='view_origin': # si el albaran es de 	entrada no mostrar
+					item.show_button = False
+				elif mode=='return_crystals' and len(item.detail_lines) > 0:
+					item.show_button = True
 			else:
 				item.show_button = False
 
 	@api.multi
 	def select_crystals_to_return(self):
 		for record in self:
-			selected_lines = list(filter(lambda i: i.check, self.detail_lines))
+			selected_lines = self.detail_lines.filtered(lambda i: i.check)
 			if len(selected_lines) == 0:
 				raise exceptions.Warning('Debe seleccionar un(os) cristal(es) para devolver.')
 			else:
-				bad_lines = list(filter(lambda x: x.entregado or not x.gll_id, selected_lines))
+				bad_lines = selected_lines.filtered(lambda x: x.entregado or not x.gll_id)
 				if len(bad_lines) > 0:
 					msg = ''
 					for bad in bad_lines:
 						msg+='-> '+str(bad.origen)+' - '+str(bad.numero_cristal)+'\n' 
 					raise exceptions.Warning('Los siguientes cristales ya se han marcado como entregados o ya fueron devueltos: \n' + msg)
-				product_ids = set(map(lambda x: x.product_id, selected_lines))
-				for prod_id in product_ids:
-					filter_list = list(filter(lambda x:x.product_id == prod_id,selected_lines))
-					quantitys = map(lambda x: x.cristal_area,filter_list)
-					total_area = reduce(lambda x,y: x+y,quantitys)
+				
+				for prod_id in set(selected_lines.mapped('product_id')):
+					fil_list = selected_lines.filtered(lambda x:x.product_id == prod_id)
+					total_area = reduce(lambda x,y:x+y,fil_list.mapped('cristal_area'))
 					return_line = self.env['stock.return.picking.line'].search([('wizard_id','=',self._context['first_wizard']),('product_id','=',prod_id)])
-
 					return_line.write({'quantity': float(total_area)})
 
-
-				lines_to_return_ids = map(lambda x: x.gol_id, selected_lines)
+				#lines_to_return_ids = selected_lines.mapped('gol_id')
+				lines_to_return = []
+				for item in selected_lines:
+					if not item.motive:
+						raise exceptions.Warning('Debe establecer el motivo de rotura para todos los items seleccionados')
+					vals = {'line':item.gol_id,'motive':item.motive,}
+					lines_to_return.append(vals)
 				new_wizard = self.env['stock.return.picking'].search([('id','=',self._context['first_wizard'])])
 
 				view_id = self.env.ref('stock.view_stock_return_picking_form')
@@ -59,11 +63,8 @@ class Detail_Crystals_Entered_Wizard(models.TransientModel):
 						'view_type': 'form',
 						'views': [(view_id.id, 'form')],
 						'target': 'new',
-						'context': {'lines_to_return':lines_to_return_ids}
+						'context': {'lines_to_return':lines_to_return}
 					}
-
-			
-
 
  # Contenedor para lineas de cristles a devolver desde APT
 class Detail_Crystals_Entered_Wizard_Lines(models.TransientModel):
@@ -87,10 +88,19 @@ class Detail_Crystals_Entered_Wizard_Lines(models.TransientModel):
 	ingresado = fields.Boolean(string='Ingresado')
 	entregado = fields.Boolean(string='Entregado') 
 	requisicion = fields.Char(string='Requisicion')
-	#add
 	gol_id = fields.Integer('Glass order line id')
 	gll_id = fields.Integer('Glass Lote Line id')
 	sm_id  =  fields.Integer('Move ID')
+	mode = fields.Char('Modo')
+	#campo para motivo de rotura:
+	motive = fields.Selection([
+		('Vidrio roto','Vidrio roto'), 
+		('Error entalle','Error entalle'), 
+		('Error medidas','Error medidas'), 
+		('Vidrio rayado','Vidrio rayado'), 
+		('Planimetria','Planimetria'), 
+		('Error ventas','Error ventas'), 
+		('Materia prima','Materia prima')])
 
 	# aun no funciona :(
 	@api.multi
