@@ -57,8 +57,8 @@
                                     <field name="base2"/>
                                     <field name="altura1"/>
                                     <field name="altura2"/>
-                                    <field name="warehouse" string="Almacen"/>
-                                    <field name="custom_location"/>
+                                    <!-- <field name="warehouse" string="Almacen"/> -->
+                                    <!-- <field name="custom_location"/> -->
                                     <field name="arenado"/>
                                     <field name="embalado"/>
                                     <field name="templado" string="Templa"/>

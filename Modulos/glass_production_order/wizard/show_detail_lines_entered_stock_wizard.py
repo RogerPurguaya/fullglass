@@ -26,7 +26,7 @@ class Detail_Crystals_Entered_Wizard(models.TransientModel):
 	@api.multi
 	def select_crystals_to_return(self):
 		for record in self:
-			selected_lines = self.detail_lines.filtered(lambda i: i.check)
+			selected_lines = record.detail_lines.filtered(lambda i: i.check)
 			if len(selected_lines) == 0:
 				raise exceptions.Warning('Debe seleccionar un(os) cristal(es) para devolver.')
 			else:

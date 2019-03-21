@@ -28,6 +28,8 @@ class GlassLot(models.Model):
 	user_id = fields.Many2one('res.users','Responsable')
 	optimafile=fields.Binary('Archivo OPTIMA')
 	file_name = fields.Char(string='File Name', compute='_get_file_name')
+	requisition_id = fields.Many2one('glass.requisition',string="Requisicion")
+
 
 	@api.depends('name')
 	def _get_file_name(self):
@@ -163,8 +165,9 @@ class GlassLotLine(models.Model):
 	image_glass = fields.Binary("imagen",related="calc_line_id.image")
 	page_glass = fields.Binary(u"Página")
 	merma = fields.Float('Merma',digist=(12,4))
-	location = fields.Many2one(related='order_line_id.custom_location',string='Ubicacion') 
-	warehouse = fields.Char(related='location.location_code.display_name',string='Almacen')
+	
+	#location = fields.Many2one(related='order_line_id.custom_location',string='Ubicacion') 
+	#warehouse = fields.Char(related='location.location_code.display_name',string='Almacen')
 	_rec_name="search_code"
 
 

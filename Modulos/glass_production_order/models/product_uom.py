@@ -16,7 +16,7 @@ class ProductUom(models.Model):
 			if self.ancho:
 				if self.alto:
 					newfactor = float(self.ancho*self.alto)/1000000
-		print newfactor,self.ancho,self.alto
+		#print newfactor,self.ancho,self.alto
 		return {'value':{'factor_inv':newfactor}}
 
 	@api.multi

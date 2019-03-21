@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_packing_list_form" model="ir.ui.view">
+        <field name="name">packing.list.form.view</field>
+        <field name="model">packing.list</field>
+        <field name="arch" type="xml">
+            <form string="Packing List">
+                <header>
+                    <button string="Hacer Packing List" name="execute_packing_list" type="object" states="draft" class="oe_highlight"/>
+                    <button string="Cancelar" name="furnace_out" type="object" states="process" />
+                    <button string="Entregar Packing List" name="ending_packing_list" type="object" states="process" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" nolabel="1"/>
+                </header>
+                <sheet>
+                <h1>Packing List <field name="name" nolabel="1" readonly="1"  default="Nuevo"/> </h1>
+                <div class="oe_button_box" name="button_box">
+						<button type="object"
+							name="action_view_stock_picking"
+							class="oe_stat_button"
+							icon="fa-truck"
+							attrs="{'invisible':[('picking_count','=',0)]}">
+							<field name="picking_count" widget="statinfo" string="Picking Generado" help="Entregas Generadas"/>
+						</button>
+					</div>
+                    <group>
+                        <group>
+                            <field name="stock_location_id" string="Almacén" attrs="{'readonly': ['|',('state','=','done'),('state','=','process')]}"/>
+                            <field name="date" string="Fecha Packing List" attrs="{'readonly': ['|',('state','=','done'),('state','=','process')]}"/>
+                            <field name="order_filter" attrs="{'invisible': ['|',('state','=','done'),('state','=','process')]}" string="Filtro OP"/>
+                        </group>
+                        <group>
+                            <field name="location" attrs="{'readonly': ['|',('state','=','done'),('state','=','process')]}"/>
+                            <field name="picking_type" readonly="1" string="Tipo Picking"/>
+                            <field name="traslate_motive" readonly="1" string="Motivo de traslado"/>
+                        </group>
+                    </group>
+                <group string="Acciones" attrs="{'invisible': ['|',('state','=','done'),('state','=','process')]}">
+                    <div>
+                        <header>
+                        <button string ="Obtener Cristales" name="get_crystals_for_op" type="object" class="btn-primary"/>
+                        <button string ="Agregar Todos" name="add_selected_items" type="object" class="btn-success"/>
+                        <button string ="Limpiar Lista" name="clear_all_lines" type="object" class="btn-warning"/>
+                        </header>
+                    </div>
+                </group>
+                <group>
+                </group>
+                    <notebook>                    
+                        <page string="Cristales Disponibles" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                            <field name="order_line_ids"   options="{'reload_on_button': true}">
+                                <tree string="Disponibles" editable="bottom" create="false" decoration-warning="decorator == 'warning'">
+                                    <field name="decorator" invisible="1"/>
+                                    <field name="selected" readonly="0" string="Check"/>
+                                    <button string="Check" name="check" type="object" icon="fa-check"/>
+                                    <button string="Agregar" name="add_item" type="object" icon="fa-plus" attrs="{'invisible':['|',('decorator','=','warning'),('selected','=',False)]}"/>
+                                    
+                                    <field name="order_id" readonly="1" string="OP"/>
+                                    <field name="crystal_number" readonly="1" string="Nro Cristal"/>
+                                    <field name="picking_id" readonly="1" string="Albaran"/>
+                                    <field name="product_id" readonly="1" string="Producto"/>
+                                    <field name="measures" readonly="1" string="Medidas"/>
+                                    <field name="partner_id" readonly="1" string="Cliente"/>
+                                    <field name="invoice_id" readonly="1" string="Factura"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Cristales Seleccionados"> 
+                            <field name="selected_line_ids" attrs="{'readonly': [('state', '!=', 'draft')]}">
+                                <tree editable="bottom" create="false">
+                                    <field name="order_id" readonly="1" string="OP"/>
+                                    <field name="crystal_number" readonly="1" string=" Nro. Cristal"/>
+                                    <field name="picking_id" readonly="1" string="Albaran"/>
+                                    <field name="product_id" readonly="1" string="Producto"/>
+                                    <field name="measures" readonly="1" string="Medidas"/>
+                                    <field name="partner_id" readonly="1" string="Cliente"/>
+                                    <field name="invoice_id" readonly="1" string="Factura" />
+                                    <field name="location_tmp" readonly="0" string="Ubicación"/>
+                                    <field name="warehouse_tmp" readonly="1" string="Almacén" />
+                                    <field name="area"/>
+                                    <field name="weight"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Resumen">
+                            <group>
+                            <button string="Refrescar" name="refresh_resume_lines" type="object" class="btn-primary" attrs="{'invisible': ['|',('state','=','done'),('state','=','process')]}"/>
+                            </group>
+                            <field name="grouped_lines" attrs="{'readonly': [('state', '!=', 'draft')]}">
+                                <tree string="Resumen" editable="bottom" create="false" delete="false">
+                                    <field name="product_id" readonly="1" string="Producto"/>
+                                    <field name="count_crystals" readonly="1" string="Nro de Cristales"/>
+                                    <field name="area" readonly="1" string="Area M2"/>
+                                    <field name="weight" readonly="1" string="Total Peso"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="view_packing_list_tree" model="ir.ui.view">
+        <field name="name">packing.list.tree.view</field>
+        <field name="model">packing.list</field>
+        <field name="arch" type="xml">
+            <tree string="Packing List" decoration-info="state=='draft'">
+                <field name="name" string="Nombre"/>
+                <field name="stock_location_id" string="Ubicacion de Almacen"/>
+                <field name="state" string="Estado"/>
+                <field name="date" string="Fecha"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="packing_list_action" model="ir.actions.act_window">
+        <field name="name">Packing List</field>
+        <field name="res_model">packing.list</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+        
+     <menuitem id="packing_list_menu" parent="stock.menu_stock_inventory_control" action="packing_list_action" sequence="8" />
+
+</odoo>

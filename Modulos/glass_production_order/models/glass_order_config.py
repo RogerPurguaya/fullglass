@@ -42,6 +42,8 @@ class GlassOrderConfig(models.Model):
 	nro_cristales_guia = fields.Integer(string='Nro. de Cristales por guia', default=100)
 	compare_attribute = fields.Many2one('product.atributo',string=u'Atributo de Comparación')
 
+	requisition_materials_ids = fields.One2many('requisition.material','config_id',string='Materiales de Requisicion')
+
 	@api.constrains('nro_cristales_guia')
 	def _verify_nro_cristales(self):
 		for record in self:

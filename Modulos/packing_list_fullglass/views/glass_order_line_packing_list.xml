@@ -1,0 +1,36 @@
+<odoo>
+<data>
+    <!-- glass.order.line.packing.list form view -->
+    <record id="glass_order_line_packing_list_view_form" model="ir.ui.view">
+        <field name="name">glass.order.line.packing.list.view.form</field>
+        <field name="model">glass.order.line.packing.list</field>
+        <field name="arch" type="xml">
+            <form string="Cristales seleccionados">
+                <sheet>
+                    <group>
+                    <group>
+                        <field name="packing_id" readonly="1" string="Packing"/>
+                        <field name="order_line_id" readonly="1" string="Linea de Orden" />
+                        <field name="order_id" readonly="1" string="OP"/>
+                        <field name="product_id" readonly="1" string="Producto"/>
+                        <field name="picking_id" readonly="1" string="Picking de origen"/>
+                        <field name="invoice_id" readonly="1" string="Factura de Origen" />
+                        <field name="origin" readonly="1" string="Doc Origen"/>
+                    </group>
+                    <group>
+                        <field name="crystal_number" readonly="1" string="Nro de Cristal"/>
+                        <field name="lot_id" readonly="1" string="Lote"/>
+                        <field name="requisition_id" readonly="1" string="Requisición"/>
+                        <field name="location_tmp" readonly="1" string="Ubicación PL"/>
+                        <field name="warehouse_tmp" readonly="1" string="Almacén PL"/>
+                        <field name="measures" readonly="1" string="Medidas"/> 
+                        <field name="weight" readonly="1" string="Peso"/>  
+                        <field name="area" readonly="1" string="Area"/>             
+                    </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</data>
+</odoo>

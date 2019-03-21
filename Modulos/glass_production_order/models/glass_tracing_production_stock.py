@@ -103,7 +103,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				'parent_id':self.id,
 				'lot_line_id':line.id,
 				'lot_name': line.lot_id.name,
-				'custom_location': line.location.id,
+				#'custom_location': line.location.id,
 				'is_break': line.is_break
 				})
 		self.write({
@@ -155,8 +155,8 @@ class Tracing_Production_Stock_Line_Lot(models.Model):
 	base2=fields.Float('Base2',digist=(12,2))
 	altura1=fields.Float('Altura1',digist=(12,2))
 	altura2=fields.Float('Altura2',digist=(12,2))
-	custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
+	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
+	#warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
 	arenado = fields.Boolean('Arena')
 	embalado = fields.Boolean('Embalado')
 	templado=fields.Boolean('Templado')

@@ -64,6 +64,19 @@
                                     <field name="traslate_motive_drt"/>
                                 </group>
                             </group>
+                            <group>
+                            <notebook>
+                             <page string="Materiales de Requisicion">
+                                <field name="requisition_materials_ids">
+                                    <tree>
+                                        <field name="identifier" string="Identificador"/>
+                                        <field name="product_id" string="Producto base"/>
+                                        <field name="date" string="Fecha"/>
+                                    </tree>
+                                </field>
+                             </page>
+                            </notebook>
+                            </group>
                         </page>
                         <page string="Plazos de Producción Planta">
                             <field name="limit_ids">

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="crystals_for_packinglist_wizard_form" model="ir.ui.view">
+            <field name="name">crystals.for.packinglist.wizard.form</field>
+            <field name="model">crystals.for.packinglist.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form>
+             <field name="detail_lines" string="Cristales">
+                <tree string="Lineas de Orden" create="false" delete="false" editable="bottom" decoration-warning="packing!=False">
+                    <field name="packing" invisible="1"/>
+                    <field name="check"  readonly="0" />
+                    <field name="origen"  readonly="1" />
+                    <field name="lote"  readonly="1" />
+                    <field name="base1"  readonly="1" />
+                    <field name="base2"  readonly="1" />
+                    <field name="altura1"  readonly="1" />
+                    <field name="altura2"  readonly="1" />
+                    <field name="numero_cristal"  readonly="1" />
+                    <field name="cristal_area"  readonly="1" sum='Area Total'/>
+                    <field name="templado"  readonly="1" />
+                    <field name="ingresado"  readonly="1" />
+                    <field name="entregado"  readonly="1" />
+                </tree>
+             </field>
+                <footer>
+                    <field name="show_button" invisible="1"/>
+                    <button name="select_crystals_to_packing_list" type="object" string="Confirmar" class='oe_highlight' attrs="{'invisible': [('show_button','=',False)]}"/>
+                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                </footer>
+            </form>
+            </field>
+        </record>  
+</odoo>

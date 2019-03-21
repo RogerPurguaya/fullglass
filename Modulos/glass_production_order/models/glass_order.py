@@ -47,6 +47,7 @@ class GlassOrder(models.Model):
 
 	sale_lines = fields.One2many(related='sale_order_id.order_line')
 	line_ids = fields.One2many('glass.order.line','order_id',u'Líneas a producir')
+	picking_out_ids = fields.One2many('stock.picking','order_source_id','albaranes de Salida a APT')
 	total_area = fields.Float(u'Metros',compute="_gettotals",digits=(20,4))
 	total_peso = fields.Float("Peso",compute="_gettotals",digits=(20,4))
 	total_pzs = fields.Float("Total Pzs",compute="_gettotals")
@@ -193,7 +194,7 @@ class GlassOrder(models.Model):
 		for i in range(opened_pdf.numPages):
 			output = PyPDF2.PdfFileWriter()
 			output.addPage(opened_pdf.getPage(i))
-			print('el path asign : ',direccion + self.name + "-%s.pdf" % i)
+			print('el path asign : ', direccion + self.name + "-%s.pdf" % (i+1))
 			with open(direccion + self.name + "-%s.pdf" % (i+1), "wb") as output_pdf:
 				output.write(output_pdf)
 
@@ -287,7 +288,7 @@ class GlassOrderLine(models.Model):
 	glass_repo=fields.Boolean("reposicioij")
 	
 	search_code = fields.Char(u'Código de búsqueda',related="lot_line_id.search_code")
-	peso = fields.Float("Peso")
+	peso = fields.Float("Peso",digits=(20,4))
 	lot_id = fields.Many2one('glass.lot','Lote')
 	lot_line_id = fields.Many2one('glass.lot.line','Lote Linea')
 	last_lot_line = fields.Many2one('glass.lot.line','Lote Linea')
@@ -302,8 +303,18 @@ class GlassOrderLine(models.Model):
 	retired_user = fields.Many2one('res.users','Retirado por')
 	retired_date = fields.Date('Fecha de retiro')
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
-	custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
+	
+
+	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
+	#locacion temporal
+	location_tmp = fields.Many2one('custom.glass.location',string='Ubicacion') 
+	#warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
+	
+
+	# modelo a consultar
+	locations =  fields.Many2many('custom.glass.location','glass_line_custom_location_rel','glass_line_id','custom_location_id',string='Ubicaciones')
+	
+
 
 	@api.one
 	def getarea(self):

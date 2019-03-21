@@ -6,7 +6,7 @@
 		<field name="arch" type="xml">
 			<form string="Orden de requisición">
 				<header>
-					<button name="confirm" string="Confirmar" states='draft' type="object"/>
+					<button name="confirm" string="Confirmar" states='draft' type="object" class="btn-primary"/>
 					<button name="process" string="Procesar" states='confirm' type="object" class="btn-primary"/>
 					<button name="cancel" string="Cancelar" states='process,confirm' type="object"/>
 					<button name="reopen" string="Re-abrir" states='cancel' type="object"/>
@@ -46,7 +46,7 @@
 							<field name="lot_ids" attrs="{'readonly':[('state','not in',['confirm'])]}" context="{'lot_id':lot_id}">
 
 								<tree name="lotestree" editable="button">
-									<field name="lot_id" domain="[('state','=','done')]"/>
+									<field name="lot_id" domain="[('state','=','done'),('requisition_id','=',False)]"/>
 									<field name="date" readonly="1"/>
 									<field name="user_id" readonly="1"/>
 									<field name="m2" readonly="1" sum=""/>
@@ -57,7 +57,9 @@
 							<field name="production_order_ids" readonly="1"/>
 						</page>
 						<page string="Materia Prima">
-							<button class="btn btn-primary" name="create_glass_picking" string="Generar Almacen" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							<group>
+							<button class="btn btn-primary" name="create_glass_picking" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>	
+							</group>
 							<field name="picking_mp_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_mp,'default_einvoice_12':traslate_motive_mp,'default_origin':name}"  attrs="{'readonly':1}">
 								
 								<tree >
@@ -77,7 +79,9 @@
 		
 						</page>
 						<page string="Materia Prima - Retazos">
-							<button class="btn btn-primary" name="create_glass_picking_rt" string="Generar Almacen" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							<group>
+							<button class="btn btn-primary" name="create_glass_picking_rt" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							</group>
 							<field name="picking_rt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_rt,'default_einvoice_12':traslate_motive_rt,'default_origin':name}"  attrs="{'readonly':1}">
 								<tree >
 									<field name="name"/>
@@ -94,8 +98,12 @@
 						</page>
 
 						<page string="Devolución Retazos">
-							<button class="btn btn-primary" name="create_glass_picking_drt" string="Generar Almacen" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
-							<button name="call_units" string="Crear Unidad de Retazo" type="object" class="btn-success oe_edit_only"/> 
+							<group>
+							<button class="btn btn-primary" name="create_glass_picking_drt" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							</group>
+							<group>
+							<button name="call_units" string="Crear Unidad de Retazo" type="object" class="btn-success oe_edit_only"/> 		
+							</group>
 							<field name="picking_drt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_drt,'default_einvoice_12':traslate_motive_drt,'default_origin':name}"  attrs="{'readonly':1}">
 								<tree >
 									<field name="name"/>

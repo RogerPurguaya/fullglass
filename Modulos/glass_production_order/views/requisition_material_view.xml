@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+<data>
+    <!-- requisition.material form view -->
+    <record id="requisition_material_view_form" model="ir.ui.view">
+        <field name="name">requisition.material.view.form</field>
+        <field name="model">requisition.material</field>
+        <field name="arch" type="xml">
+            <form string="Materiales para Requisición">
+                <sheet>
+                    <group>
+                        <field name="identifier" string="Identificador" required="1"/>
+                        <field name="product_id" string="Producto" required="1" />
+                        <field name="type_operation" string="Tipo de Operacion" required="1"/>
+                    </group>
+                        <group>
+                        <notebook>
+                            <page string="Materiales Base">
+                            <field name="materials_ids" required="1">
+                                <tree>
+                                    <field name="name" string="Producto"/>
+                                    <field name="uom_name" string="Unidad de Medida"/>
+                                </tree>
+                            </field>
+                            </page>
+                        </notebook>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- requisition.material tree view -->
+    <record id="requisition_material_view_tree" model="ir.ui.view">
+        <field name="name">requisition.material.view.tree</field>
+        <field name="model">requisition.material</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="identifier"/>
+                <field name="product_id"/>
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+
+</data>
+</odoo>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_report_print_journal_view" model="ir.ui.view">
+        <field name="name">Liquidacion de Caja</field>
+        <field name="model">account.print.cash</field>
+        <field name="inherit_id" ref="account.account_common_report_view"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//field[@name='date_from']" position="attributes">
+                    <attribute name="string">Fecha de Inicio</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_to']" position="attributes">
+                    <attribute name="string">Fecha Final</attribute>
+                </xpath>
+                <xpath expr="//field[@name='target_move']" position="attributes">
+                    <attribute name="string">Movimientos Objetivo</attribute>
+                </xpath>
+                <xpath expr="//field[@name='target_move']" position="after">
+                    <field name="amount_currency" groups="base.group_multi_currency"/>
+                    <field name="sort_selection" widget="radio"/>
+                    <field name="serie_id" widget="many2many_tags"/>
+                    <field name="account_id" widget="many2many_tags"/>
+                    <newline/>
+                </xpath>
+            </data>
+        </field>
+    </record>
+
+    <record id="action_account_print_cash_set_menu" model="ir.actions.act_window">
+        <field name="name">Liquidacion de Caja</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.print.cash</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_report_print_journal_view"/>
+        <field name="target">new</field>
+    </record>
+    <menuitem id="menu_print_cash_set" name="Liquidacion de Caja" parent="account.menu_finance_legal_statement" action="action_account_print_cash_set_menu" groups="account.group_account_manager,account.group_account_user" />
+</odoo>

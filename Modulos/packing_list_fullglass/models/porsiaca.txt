@@ -1,0 +1,66 @@
+	@api.multi
+	def get_crystals_for_packing_list(self):
+		if not self.main_id.id:
+			raise exceptions.Warning('Debe Guardar Este Packing List antes de proseguir.') 
+		moves_ids = self.picking_id.move_lines.ids
+		sql_ext = ','.join(map(str,moves_ids))
+		self.env.cr.execute("""
+        select
+		glor.name as origen,
+        gl.name as lote,
+        sm.product_qty as cantidad,
+        sm.picking_id as picking_id,
+        sm.id as sm_id,
+        scpl.base1 as base1,
+        scpl.base2 as base2,
+        scpl.altura1 as altura1,
+        scpl.altura2 as altura2,
+        gol.crystal_number as numero_cristal,
+        gol.state as estado,
+        gol.product_id as product_id,
+        gol.id as gol_id,
+        gll.area as cristal_area,
+        gll.templado as templado,
+        gll.entregado as entregado,
+        gll.ingresado as ingresado,
+        gll.id as gll_id,
+        grq.name as requisicion,
+		golpl.packing_id as packing
+        from 
+        glass_order_line_stock_move_rel rel
+        join glass_order_line gol on gol.id = rel.glass_order_line_id
+        join stock_move sm on sm.id = rel.stock_move_id
+        left join sale_calculadora_proforma_line scpl on scpl.id = gol.calc_line_id
+        left join glass_lot_line gll on gol.lot_line_id = gll.id
+        left join glass_lot gl on gl.id = gll.lot_id
+        left join glass_requisition_line_lot grll on gll.lot_id = grll.lot_id
+        left join glass_requisition grq on grll.requisition_id = grq.id
+        left join glass_order glor on glor.id = gol.order_id
+		left join stock_picking sp on sp.id = sm.picking_id
+		left join stock_picking_type spt on spt.id = sp.picking_type_id
+		left join packing_list_line pll on pll.picking_id = sp.id
+		left join glass_order_line_packing_list golpl on golpl.parent_id = pll.id
+	where sm.id in('"""+sql_ext+"""') and spt.code='internal' and gll.is_break = false  order by origen, numero_cristal
+		""")
+
+		results = self.env.cr.dictfetchall()
+		elem = []
+		for val in results:
+			tmp = self.env['crystals.for.packinglist.wizard.line'].create(val)
+			elem.append(tmp.id)
+		
+		wizard = self.env['crystals.for.packinglist.wizard'].create({})
+		wizard.write({'detail_lines': [(6,0,elem)]})
+		
+		view_id = self.env.ref('packing_list_fullglass.crystals_for_packinglist_wizard_form',False)
+		return {
+			'name':'Ver cristales para Para Packing List',
+			'res_id': wizard.id,
+			'type': 'ir.actions.act_window',
+			'res_model': 'crystals.for.packinglist.wizard',
+			'view_mode': 'form',
+			'view_type': 'form',
+			'views': [(view_id.id, 'form')],
+			'target': 'new',
+			'context':{'main_id':self.main_id.id,'parent_id':self.id}
+		}

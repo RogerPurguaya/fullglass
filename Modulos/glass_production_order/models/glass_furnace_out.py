@@ -27,7 +27,6 @@ class GlassFurnaceOut(models.Model):
 	# New Code
 	@api.onchange('search_code')
 	def onchangecode(self):
-		print(self.id)
 		idsact = []
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
@@ -52,7 +51,6 @@ class GlassFurnaceOut(models.Model):
 					self.search_code=""
 					return
 				
-		###new:
 				existe_act = existe[0]
 				pasoentalle = stage_obj.search([('stage','=','lavado'),('lot_line_id','=',existe_act.id)])
 				cuenta = 0
@@ -71,23 +69,6 @@ class GlassFurnaceOut(models.Model):
 					return						
 				if len(pasoentalle)>0:
 					ordern = len(self.line_ids)+1
-					# data = {
-					# 	'mainwizard_id':self.id,
-					# 	'order_number':ordern,
-					# 	'lot_id':existe_act.lot_id.id,
-					# 	'lot_line_id':existe_act.id,
-					# 	'crystal_number':existe_act.nro_cristal,
-					# 	'base1':existe_act.base1,
-					# 	'base2':existe_act.base2,
-					# 	'altura1':existe_act.altura1,
-					# 	'altura2':existe_act.altura2,
-					# 	'area':existe_act.area,
-					# 	'partner_id':existe_act.order_prod_id.partner_id.id,
-					# 	'obra':existe_act.order_prod_id.obra,
-					# }
-					#t=self.env['glass.productionfurnace.line.wizard'].create(data)
-					
-
 
 					data = {
 						#'main_id': self._origin.id,
@@ -103,11 +84,9 @@ class GlassFurnaceOut(models.Model):
 						'partner_id':existe_act.order_prod_id.partner_id.id,
 						'obra':existe_act.order_prod_id.obra,
 					}
-					#print('xd: ', data['main_id'])
 					t=self.env['glass.furnace.line.out'].create(data)
 					idsact.append(t.id)
-					#print('xd2: ', t.main_id)
-					print('create !', t)
+					#print('create !', t)
 					if self.cad3:
 						self.cad3=self.cad3+str(t.id)+','
 					else:
@@ -126,52 +105,18 @@ class GlassFurnaceOut(models.Model):
 
 		obj = self.env['glass.furnace.out'].search([('id','=',self._origin.id)])
 		obj.write({'line_ids': [(6,0,idsact)]})
-		#obj.onchangelines()
 		self.search_code=''
-		# mylines=[]
-		# if self.cad3:
-		# 	mylines = self.cad3[:-1].split(',')
-		# 	print('cad3 item')
-		# llines=[]
-		# for l in mylines:
-		# 	llines.append(int(l))
-		# used_area=0
-		# qty = 0
-		# used_rest=0
-		# for line in self.env['glass.furnace.line.out'].browse(llines):
-		# 	used_area=used_area+line.area
-		# 	qty = qty+1
-		# farea = config_data.furnace_area
-		# e_percent=0
-		# percent_use = 0
-		# if used_area>0:
-		# 	e_percent=farea-used_area
-		# percent_use=(used_area*100)/farea
-
-		#area = area+line.area
-		#qty = qty+1
 		data = {
 			'user_id':self.env.uid,
 			'date':datetime.now(),
 			'time':datetime.now().time(),
 			'stage':'horno',
 			'lot_line_id':existe_act.id,
-			'date_fisical':datetime.now(),
+			#'date_fisical':datetime.now(), fecha rotura??
 		}
 		stage_obj = self.env['glass.stage.record']
 		stage_obj.create(data)
 		existe_act.horno=True
-		#self.write({'total_m2':used_area,'nro_crystal':qty,'e_percent':e_percent})
-		# print('1: ',idsact)
-		# print('2: ',used_area)
-		# print('3: ',e_percent)
-		# print('4: ',percent_use)
-		print('finish ')
-		# return {
-        # 'type': 'ir.actions.client',
-        # 'tag': 'reload',
-        # }
-		#return {'value':{'line_ids':idsact,'used_area':used_area,'used_rest':e_percent,'percent_use':percent_use}}
 		return {'value':{'line_ids':idsact}}
 # End code
 
@@ -181,7 +126,7 @@ class GlassFurnaceOut(models.Model):
 		area = 0
 		for line in self.line_ids:
 			area= area+line.area
-			print('lineas en el onchange ',line)
+			#print('lineas en el onchange ',line)
 		self.total_m2=area
 		self.nro_crystal=len(self.line_ids)
 		config_data = self.env['glass.order.config'].search([])

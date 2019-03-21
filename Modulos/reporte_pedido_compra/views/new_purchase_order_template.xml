@@ -331,8 +331,14 @@
                     </div>
 
                     <div class="col-xs-6" style="padding-top:7px">
+<<<<<<< HEAD
                         IMPORTANTE: CONSIGNAR EL NÚMERO DE LA ORDEN DE COMPRA
                         EN LA FACTURA Y GUÍA DE REMISIÓN. 
+=======
+                        IMPORTANTE
+                        CONSIGNAR EL NUMERO DE LA ORDEN DE COMPRA
+                        EN LA FACTURA Y GUIA DE REMISION. 
+>>>>>>> 2d3156c17e615d6bb6570d83349ed846a1133dca
                     <br/>    
 
                         ENVIAR FACTURAS ELECTRÓNICAS Al CORREO:

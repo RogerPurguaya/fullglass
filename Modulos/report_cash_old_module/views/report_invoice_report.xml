@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+            id="id_account_invoices"
+            model="report.report_cash.report_invoice"
+            string="Liquidacion de Caja"
+            report_type="qweb-pdf"
+            name="report_cash.report_invoice"
+            file="report_cash.report_invoice"
+        />
+    </data>
+</odoo>

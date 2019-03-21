@@ -45,6 +45,7 @@
 		'wizard/views_wizards/show_detail_lines_entered_stock_wizard_view.xml',
 		'views/stock_return_picking.xml',
 		'wizard/views_wizards/show_detail_tracing_line_view.xml',
+		'views/requisition_material_view.xml',
         ],
     'css': [
 		'static/src/css/sheet.css'

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="view_packing_list_config_form" model="ir.ui.view">
+        <field name="name">packing.list.config.form.view</field>
+        <field name="model">packing.list.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuraciones de Packing List">
+            	<sheet>
+                    <notebook>
+                        <page string="Generales">
+                    		<separator string="Secuencias"/>
+                    		<group>
+                    			<group>
+                                    <field name="seq_packing_list" string="Secuencia Packing List" required="1"/>
+        						</group>
+                    		</group>
+                    		<separator string="Picking para Albaran de Packing List"/>
+                    		<group>
+                    			<field name="picking_type_pl" string="Tipo de Picking" required="1"/>
+        						<field name="traslate_motive_pl" string="Motivo de Traslado" required="1"/>
+                                <field name="warehouse_default" string="Almacen de Origen" required="1"/>
+                    		</group>
+                    		<separator string="Ubicación por defecto"/>
+                    		<group>
+                    			<field name="custom_location" string="Ubicación" required="1"/>
+                    		</group>
+                        </page>
+                    </notebook>
+            	</sheet>
+            </form>
+        </field>
+    </record>
+
+	<record id="view_packing_list_config_tree" model="ir.ui.view">
+        <field name="name">packing.list.config.tree.view</field>
+        <field name="model">packing.list.config</field>
+        <field name="arch" type="xml">
+            <tree string="Configuraciones de Packing List">
+        		<field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="packing_list_config_action" model="ir.actions.act_window">
+        <field name="name">Parámetros</field>
+        <field name="res_model">packing.list.config</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+ 
+
+<menuitem name="Configuración de Packing List"
+                  id="packing_list_config_menu"
+                  parent="stock.menu_stock_config_settings"
+                  sequence="1"
+                  action="packing_list_config_action"/>
+</odoo>

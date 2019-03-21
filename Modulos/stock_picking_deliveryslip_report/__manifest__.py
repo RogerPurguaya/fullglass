@@ -10,7 +10,7 @@
     Agregar al reporte en PDF el campo transporte y guia de remision de stock picking
 
     """,
-    'depends': ['stock','reporte_vale_entrega'],
+    'depends': ['stock'],
     'auto_install': False,
     'demo': [],
     'data': ['pdf_report_view.xml'],

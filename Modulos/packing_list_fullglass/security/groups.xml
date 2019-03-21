@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_packing_list_partners" model="res.groups">
+            <field name="name">Puede hacer Packing List</field>
+             <field name="description">Packing List</field>
+        </record>
+    </data>
+</odoo>
+

@@ -10,13 +10,13 @@ from time import time
 class reporte_seguimiento_produccion_wizard(osv.TransientModel):
 	_name='report.pending.wizard'
 
-	def _get_end_date(self):
+	def _get_start_date(self):
 		now = datetime.now().date()
-		end_date = now + timedelta(days=30)
-		return end_date
+		start_date = now - timedelta(days=30)
+		return start_date
 
-	start_date = fields.Date(string='Fecha Inicio',default=fields.Date.today)
-	end_date = fields.Date(string='Fecha Fin',default=_get_end_date)
+	start_date = fields.Date(string='Fecha Inicio',default=_get_start_date)
+	end_date = fields.Date(string='Fecha Fin',default=fields.Date.today)
 	search_param = fields.Selection([('glass_order','Orden de Produccion'),('product','Producto')],string='Busqueda por')
 	glass_order_id = fields.Many2one('glass.order','Nro de Orden de Produccion')
 	product_id = fields.Many2one('product.product','Nombre de producto')
@@ -149,6 +149,9 @@ class reporte_seguimiento_produccion_wizard(osv.TransientModel):
 				end = datetime.strptime(self.end_date.replace('-',''),"%Y%m%d")
 				date_order = datetime.strptime(self.glass_order_id.date_production.replace('-',''),"%Y%m%d")
 				if start.date()<=date_order.date()<=end.date():
+					print(' 1 ',start.date())
+					print(' 2 ',date_order.date())
+					print(' 3 ',end.date())
 					sale_lines = map(lambda item:item,self.glass_order_id.sale_lines)
 					data = self.get_data(sale_lines,self.filters,self.show_breaks,self.glass_order_id)
 			else:

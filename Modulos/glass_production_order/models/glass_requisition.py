@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models,api, _
+from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 from datetime import datetime
 
@@ -81,8 +81,6 @@ class GlassRequisition(models.Model):
 		pickings_drt = self.mapped('picking_drt_ids')
 		pickings = pickings + pickings_rt + pickings_drt
 		
-		print("pickingjoin",','.join(map(str, pickings.ids)))
-		print("picking",pickings)
 
 		if len(pickings) > 1:
 			action['domain'] = "[('id', 'in',[" + ','.join(map(str, pickings.ids)) + "])]"
@@ -343,6 +341,8 @@ class GlassRequisition(models.Model):
 		self.state='cancel'
 		for line in self.picking_ids:
 			line.action_cancel()
+		for lot in self.lot_ids.mapped('lot_id'):
+			lot.requisition_id = False
 		return True 
 
 	@api.onchange('lot_ids')
@@ -422,6 +422,19 @@ class GlassRequisition(models.Model):
 
 	@api.one
 	def process(self):
+		if len(self.lot_ids) == 0:
+			raise exceptions.Warning('No ha agregado ningun Lote de produccion')
+		used_lots = self.lot_ids.mapped('lot_id').filtered(lambda x: x.requisition_id)
+		if len(used_lots) > 0:
+			msg = ''
+			for item in used_lots:
+				msg += '-> Lote: ' + item.name + ' con Requisicion: '+ item.requisition_id.name+'.\n'
+			raise exceptions.Warning('Los siguientes lotes ya tienen orden de requisicion:\n'+msg)
+		
+
+		if len(self.mapped('picking_mp_ids'))==0 and len(self.mapped('picking_rt_ids'))==0:
+			raise exceptions.Warning('Error:\nLa Orden de requisicion debe tener por lo menos un albaran de Materias primas o de Retazos')
+
 		pickings = self.mapped('picking_mp_ids')+self.mapped('picking_rt_ids')+self.mapped('picking_drt_ids')
 		self.transfer_pickings(pickings) # procesar los pickings de la requisition
 		
@@ -429,6 +442,7 @@ class GlassRequisition(models.Model):
 		n=0
 		for l in self.lot_ids:
 			n=n+l.lot_id.total_area
+			l.lot_id.write({'requisition_id':l.requisition_id.id}) # record requisition id on lot
 		totalsolicitado = n
 		merma = self.merma
 
@@ -462,99 +476,6 @@ class GlassRequisition(models.Model):
 				msg += '-> '+ i + '\n'
 			raise UserError('No es posible procesar los siguientes Pickings:\n'+msg+'Posible causa: No hay stock disponible para procesarlos.')
 		
-		# picking = self.env['stock.picking'].create(self._prepare_picking(pt_mp,motive))
-		# apickings.append(picking.id)
-		# useract = self.env.user
-		# for l in self.mp_ids:
-		# 	if not l.uom_id.is_retazo:
-		# 		vals = {
-		# 			'name': self.name or '',
-		# 			'product_id': l.product_id.id,
-		# 			'product_uom': l.uom_id.id,
-		# 			'date': datetime.now(),
-		# 			'date_expected': datetime.now(),
-		# 			'location_id': pt_mp.default_location_src_id.id,
-		# 			'location_dest_id': pt_mp.default_location_dest_id.id,
-		# 			'picking_id': picking.id,
-		# 			'partner_id': None,
-		# 			'move_dest_id': False,
-		# 			'state': 'draft',
-		# 			'company_id': useract.company_id.id,
-		# 			'picking_type_id': pt_mp.id,
-		# 			'procurement_id': False,
-		# 			'origin': self.name,
-		# 			'route_ids': pt_mp.warehouse_id and [(6, 0, [x.id for x in pt_mp.warehouse_id.route_ids])] or [],
-		# 			'warehouse_id': pt_mp.warehouse_id.id,
-		# 			'product_uom_qty': l.qty,
-		# 		}
-		# 		self.env['stock.move'].create(vals)
-
-		# pt_mp=config_data.picking_type_rt
-		# motive = config_data.traslate_motive_rt
-		# generar_retazo = False
-		# for l in self.mp_ids:
-		# 	if l.uom_id.is_retazo:
-		# 		generar_retazo=True
-		# 		break
-		# if generar_retazo:
-		# 	picking = self.env['stock.picking'].create(self._prepare_picking(pt_mp,motive))
-		# 	apickings.append(picking.id)
-		# 	for l in self.mp_ids:
-		# 		if l.uom_id.is_retazo:
-		# 			vals = {
-		# 				'name': self.name or '',
-		# 				'product_id': l.product_id.id,
-		# 				'product_uom': l.uom_id.id,
-		# 				'date': datetime.now(),
-		# 				'date_expected': datetime.now(),
-		# 				'location_id': pt_mp.default_location_src_id.id,
-		# 				'location_dest_id': pt_mp.default_location_dest_id.id,
-		# 				'picking_id': picking.id,
-		# 				'partner_id': None,
-		# 				'move_dest_id': False,
-		# 				'state': 'draft',
-		# 				'company_id': useract.company_id.id,
-		# 				'picking_type_id': pt_mp.id,
-		# 				'procurement_id': False,
-		# 				'origin': self.name,
-		# 				'route_ids': pt_mp.warehouse_id and [(6, 0, [x.id for x in pt_mp.warehouse_id.route_ids])] or [],
-		# 				'warehouse_id': pt_mp.warehouse_id.id,
-		# 				'product_uom_qty': l.qty,
-		# 			}
-		# 			self.env['stock.move'].create(vals)
-
-		# pt_mp=config_data.picking_type_drt
-		# motive = config_data.traslate_motive_drt
-		# picking = self.env['stock.picking'].create(self._prepare_picking(pt_mp,motive))
-		# apickings.append(picking.id)
-		# for l in self.mp_ids:
-		# 	if not l.uom_id.is_retazo:
-		# 		vals = {
-		# 			'name': self.name or '',
-		# 			'product_id': l.product_id.id,
-		# 			'product_uom': l.uom_id.id,
-		# 			'date': datetime.now(),
-		# 			'date_expected': datetime.now(),
-		# 			'location_id': pt_mp.default_location_src_id.id,
-		# 			'location_dest_id': pt_mp.default_location_dest_id.id,
-		# 			'picking_id': picking.id,
-		# 			'partner_id': None,
-		# 			'move_dest_id': False,
-		# 			'state': 'draft',
-		# 			'company_id': useract.company_id.id,
-		# 			'picking_type_id': pt_mp.id,
-		# 			'procurement_id': False,
-		# 			'origin': self.name,
-		# 			'route_ids': pt_mp.warehouse_id and [(6, 0, [x.id for x in pt_mp.warehouse_id.route_ids])] or [],
-		# 			'warehouse_id': pt_mp.warehouse_id.id,
-		# 			'product_uom_qty': l.qty,
-		# 		}
-		# 		self.env['stock.move'].create(vals)	
-		
-		# self.picking_ids=apickings
-
-
-
 
 class GlassRequisitionLineLot(models.Model):
 	_name = 'glass.requisition.line.lot'

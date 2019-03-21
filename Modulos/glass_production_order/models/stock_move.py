@@ -8,12 +8,10 @@ class StockMove(models.Model):
 	_inherit='stock.move'
 
 	retazo_origen = fields.Char('Retazo Origen', compute="getretazo_product_id")
-	#glass_order_line_ids = fields.One2many('glass.order.line','move_id',u'Lineas de Orden')
-	#lineas procesadas listas para salir de almacen:
-	#process_glass_order_line_ids = fields.One2many('glass.order.line','out_move','Lineas de salida')
 	glass_order_line_ids = fields.Many2many('glass.order.line','glass_order_line_stock_move_rel','stock_move_id','glass_order_line_id',string='Glass Order Lines')
 	show_buttons = fields.Char('Mostrar_botones', compute='_get_show_buttons')
 
+	# Visualizar los botones en funcion a si es un albaran de entrada o de salida:
 	@api.depends('picking_id')
 	def _get_show_buttons(self):
 		for record in self:
@@ -89,7 +87,8 @@ class StockMove(models.Model):
 		
 		wizard = self.env['glass.lines.for.move.wizard'].create({})
 		wizard.write({'get_glass_lines_for_move_ids': [(6,0,elem)]})
-		view_id = self.env.ref('glass_production_order.glass_lines_for_move_wizard_form_view',False)
+		module = __name__.split('addons.')[1].split('.')[0]
+		view_id = self.env.ref('%s.glass_lines_for_move_wizard_form_view' % module,False)
 		return {
 			'name': 'Seleccionar Cristales',
 			'res_id': wizard.id,
@@ -152,7 +151,8 @@ class StockMove(models.Model):
 		
 		wizard = self.env['detail.crystals.entered.wizard'].create({})
 		wizard.write({'detail_lines': [(6,0,elem)]})
-		view_id = self.env.ref('glass_production_order.show_detail_lines_entered_stock_wizard',False)
+		module = __name__.split('addons.')[1].split('.')[0]
+		view_id =self.env.ref('%s.show_detail_lines_entered_stock_wizard' % module,False)
 		return {
 			'name':'Ver cristales de origen',
 			'res_id': wizard.id,

@@ -39,7 +39,7 @@
                                 <field name="base2" readonly="1"/>
                                 <field name="altura1" readonly="1"/>
                                 <field name="altura2" readonly="1"/>
-                                <field name="custom_location" readonly="0"/>
+                                <field name="location_tmp" readonly="0"/>
                             </tree>
                         </field>
                     </page>
