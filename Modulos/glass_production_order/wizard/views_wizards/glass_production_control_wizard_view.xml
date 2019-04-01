@@ -32,7 +32,7 @@
                             </div>
                             <div id="search_code" col="2" style='margin: 1px 10px 0px 10px'>
                                 <b>Producto</b><br/>
-                                <field name="search_code" required="0"/>
+                                <field id="search_code_field" name="search_code" required="0"/>
                             </div>
                             <div col="2" style='margin: 0px 10px 0px 10px'>
                                 <b>Cristal</b><br/>
@@ -44,7 +44,7 @@
                             </div>
                             <div col="2" style='margin: 0px 10px 0px 10px'>
                                 <b></b><br/>
-                                <field name="messageline" attrs="{'invisible':[('is_used','=',False)],'readonly':True}"/>
+                                <field name="messageline" style="color:Red;font-weight:bold;" attrs="{'invisible':[('is_used','=',False)],'readonly':True}"/>
                             </div>                            
 
             	</group>
@@ -65,15 +65,20 @@
                 </footer>
                 <script>
                     $(document).ready(function(){
+                        let fields = document.getElementById('search_code').getElementsByTagName('input');
+                        fields[0].focus();
                         setTimeout(function (){
                             random = Math.floor(Math.random() * 100000);
                             $('#myIframe').attr('src','/import_base_it/static/previsualizacion_op.pdf?t='+random);
-                        }, 1000);
+                        },1000);
                         $('#search_code').change(function(e){
+                        let fields = document.getElementById('search_code').getElementsByTagName('input');
+                        fields[0].focus();
                         setTimeout(function (){
+                            document.getElementById('search_code').focus()
                             random = Math.floor(Math.random() * 100000);
                             $('#myIframe').attr('src','/import_base_it/static/previsualizacion_op.pdf?t='+random);
-                        }, 1000);
+                        },1000);
                         });
                     });
                 </script>

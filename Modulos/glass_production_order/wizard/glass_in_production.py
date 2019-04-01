@@ -11,7 +11,7 @@ class GlassInProductionWizard(models.TransientModel):
 	stock_type_id = fields.Many2one('stock.picking.type',u'Operación de almacén') 
 	date_in = fields.Date('Fecha ingreso',default=datetime.now())
 	order_ids = fields.One2many('glass.in.order','mainid','order_id')
-	line_ids = fields.Many2many('glass.order.line','glass_in_lineorder_rel','in_id','line_id',string="lienas")
+	line_ids = fields.Many2many('glass.order.line','glass_in_lineorder_rel','in_id','line_id',string="Lineas")
 	order_id = fields.Many2one('glass.order','Filtrar OP')
 	search_param = fields.Selection([('glass_order','Orden de Produccion'),('search_code','Lectura de barras')],string='Busqueda por',default='search_code')
 	message_erro = fields.Char()
@@ -30,6 +30,14 @@ class GlassInProductionWizard(models.TransientModel):
 			'view_type': 'form',
 			'target': 'new',
 		}
+
+	@api.multi
+	def refresh_selected_lines(self):
+		# otro boton q no hace ni m xD
+		will_removed = self.line_ids.filtered(lambda x: x.order_id.id not in self.order_ids.mapped('order_id').ids)
+		for item in will_removed.ids:
+			self.write({'line_ids':[(3,item)]})
+		return {"type": "ir.actions.do_nothing",}
 
 	@api.depends('line_ids')
 	@api.onchange('search_code')
@@ -50,8 +58,18 @@ class GlassInProductionWizard(models.TransientModel):
 				if line not in this_obj.line_ids:
 					line.location_tmp = self.location_id.id
 					this_obj.write({'line_ids':[(4,line.id)]})
+					# if line.order_id.id not in this_obj.order_ids.mapped('order_id').ids:
+					# 	vals={
+					# 		'selected':True,
+					# 		'order_id':line.order_id.id,
+					# 		'partner_id':line.order_id.partner_id.id,
+					# 		'date_production':line.order_id.date_production,
+					# 		'total_pzs':line.order_id.total_pzs,
+					# 		'total_area':line.order_id.total_area,
+					# 		}
+					# 	this_obj.write({'order_ids': [(0,0,vals)]})
 					self.search_code=""
-					return {'value':{'line_ids':this_obj.line_ids.ids}}
+					return {'value':{'line_ids':this_obj.line_ids.ids,'order_ids':this_obj.order_ids.ids}}
 				else:
 					self.message_erro = 'El registro ya se encuentra en la lista'
 					self.search_code=""
@@ -90,7 +108,7 @@ class GlassInProductionWizard(models.TransientModel):
 
 	@api.depends('line_ids')
 	@api.onchange('order_ids')
-	def getlines(self):		
+	def getlines(self):	
 		lines = self.order_ids.filtered(lambda x:x.selected).mapped('order_id').mapped('line_ids').filtered(lambda x:x.state=='ended')
 		if len(lines)>0:
 			this_obj = self.env['glass.in.production.wizard'].browse(self._origin.id)
@@ -176,10 +194,13 @@ class GlassInProductionWizard(models.TransientModel):
 					res = cdp.changed_date_pincking()
 			
 			for line in lines:
-				line.write({
-					'locations': [(4,line.location_tmp.id)],
-					'state' : 'instock',
-					})
+				if line.location_tmp:
+					line.write({
+						'locations': [(4,line.location_tmp.id)],
+						'state' : 'instock',
+						})
+				else:
+					line.write({'state' : 'instock',})
 				line.lot_line_id.ingresado = True
 				line.location_tmp = False
 				vals = {

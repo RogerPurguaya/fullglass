@@ -7,6 +7,10 @@ access_glass_config,glass.order.config,model_glass_order_config,glass_production
 access_glass_production_user_stage,glass.production.user.stage,model_glass_production_user_stage,glass_production_order.group_glass_user,1,1,1,1
 access_glass_stage_record,glass.stage.record,model_glass_stage_record,glass_production_order.group_glass_user,1,1,1,1
 
+access_glass_tracing_prod,glass.tracing.production.stock,model_glass_tracing_production_stock,glass_production_order.group_tracing_production_in_stock,1,1,1,1
+
+access_glass_tracing_prod_line,glass.tracing.production.stock.line,model_tracing_production_stock_line_lot,glass_production_order.group_tracing_production_in_stock,1,1,1,1
+
 access_glass_pdf_file,glass.pdf.file,model_glass_pdf_file,,1,1,1,1
 
 access_glass_product_order,glass.order,model_glass_order,glass_production_order.group_glass_production_user,1,0,0,0

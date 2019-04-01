@@ -95,7 +95,6 @@
         <field name="view_mode">form</field>
     </record>
 
-     <menuitem id="glass_tracing_production_stock_menu" parent="stock.menu_stock_inventory_control" action="glass_tracing_production_stock_action" sequence="8" 
-     groups="glass_production_order.group_glass_user,glass_production_order.group_glass_seguimiento,glass_production_order.group_glass_production_user"/>
-
+     <menuitem id="glass_tracing_production_stock_menu_ls_csm" parent="stock.menu_stock_inventory_control" action="glass_tracing_production_stock_action" sequence="8" 
+     groups="glass_production_order.group_tracing_production_in_stock"/>
 </odoo>

@@ -12,9 +12,10 @@
                 <group string="Informacion General">
                     <field name="display_name_product" readonly="1" string="Producto" />
                     <field name="lot_name" string="Lote" readonly="1"/>
-                    <field name="op_name" string="Orden de Produccion" readonly="1"/>
-                    <field name="op_date_production" readonly="1" string="Fecha de produccion de OP"/>
-                    <field name="op_date_generate" readonly="1" string="Fecha de emision de OP"/>
+                    <field name="order_id" string="Orden de Produccion" readonly="1"/>
+                    <field name="op_date_production" readonly="1" string="Fecha de Produccion"/>
+                    <field name="op_date_generate" readonly="1" string="Fecha de emision OP"/>
+                    <field name="op_date_send" readonly="1" string="Fecha de Despacho"/>
                     <field name="invoice" readonly="1" />
                     <field name="invoice_number" readonly="1"/>
                 </group>

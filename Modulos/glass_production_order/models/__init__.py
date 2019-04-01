@@ -16,3 +16,4 @@ import glass_tracing_production_stock
 import stock_return_picking
 import stock_picking
 import requisition_material
+import account_invoice

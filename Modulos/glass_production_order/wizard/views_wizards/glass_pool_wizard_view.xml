@@ -13,9 +13,11 @@
                     <field name="user_id" required="1" readonly="1"/>
                     <field name="qty_lines"/>
                     <field name="area_lines"/>
+                    <field name="show_button" invisible="1"/>
+                     <button name="confirm" string='Confirmar' type="object" class="btn-primary" attrs="{'invisible': [('show_button','=',False)]}"/>
                 </group>
                 <field name="prod_resu_id" windget="one2many_list">
-                    <tree editable="top" create="false" >
+                    <tree editable="top" create="false" delete="false" decoration-info="selected == True">
                         <field name="selected"/>
                         <field name="default_code" readonly="1"/>
                         <field name="product_id" readonly="1"/>
@@ -55,12 +57,22 @@
         </field>
     
     </record>
-    <record id="glass_pool_wizard_action" model="ir.actions.act_window">
+
+        <record id="glass_pool_wizard_action" model="ir.actions.server">
+            <field name="name">Pool de producción</field>
+            <field name="model_id" ref="model_glass_pool_wizard"/>
+            <field name="code">              
+                    action = model.get_new_element()
+            </field>
+        </record>
+
+    <!-- <record id="glass_pool_wizard_action" model="ir.actions.act_window">
         <field name="name">Pool de producción</field>
         <field name="res_model">glass.pool.wizard</field>
         <field name="view_type">form</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-    </record>
+    </record> -->
+
      <menuitem id="glass_pool_wizard_menu" parent="glass_order_m_menu" action="glass_pool_wizard_action" sequence="3" groups="glass_production_order.group_glass_user"/>
 </odoo>

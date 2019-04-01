@@ -192,6 +192,9 @@
             <field name="state" position="before">
                 <field name="op_control"/>
             </field>
+            <field name="name" position="after">
+                <field name="reference_order" string="Referencia OP"/>
+            </field>
       </field>
     </record>
 

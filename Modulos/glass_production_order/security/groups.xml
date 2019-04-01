@@ -51,6 +51,11 @@
             <field name="name">Retirar OP</field>
             <field name="category_id" ref="glass_production_order.module_production_glass"/>
         </record>
+
+        <record id="group_tracing_production_in_stock" model="res.groups">
+            <field name="name">Seguimiento de Produccion en Almacén</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
     </data>
 </odoo>
 

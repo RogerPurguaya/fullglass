@@ -431,10 +431,8 @@ class GlassReposWizard(models.TransientModel):
 			'time':datetime.now().time(),
 			'stage':'roto',
 			'lot_line_id':line.lot_line_id.id,
-			'date_fisical':self.date_fisical,
 		}
-		stage_obj = self.env['glass.stage.record']
-		stage_obj.create(data)
+		stage_obj = self.env['glass.stage.record'].create(data)
 		line.order_line.last_lot_line=line.lot_line_id.id
 		line.order_line.glass_break=True
 		line.order_line.lot_line_id=False

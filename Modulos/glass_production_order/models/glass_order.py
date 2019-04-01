@@ -274,7 +274,7 @@ class GlassOrderLine(models.Model):
 	base2 = fields.Integer("Base2 (L 2)",related="calc_line_id.base2",readonly=True)
 	altura1 = fields.Integer("Altura1 (L 1)",related="calc_line_id.altura1",readonly=True)
 	altura2 = fields.Integer("Altura2 (L 3)",related="calc_line_id.altura2",readonly=True)
-	area = fields.Float("Área M2",compute="getarea",readonly=True,digits=(20,4))
+	area = fields.Float("Área M2",compute="_getarea",readonly=True,digits=(20,4),store=True)
 	
 	stock_move_ids = fields.Many2many('stock.move','glass_order_line_stock_move_rel','glass_order_line_id','stock_move_id',string='Stock Moves')
 	descuadre = fields.Char("Descuadre",size=7,related="calc_line_id.descuadre",readonly=True)
@@ -303,7 +303,7 @@ class GlassOrderLine(models.Model):
 	retired_user = fields.Many2one('res.users','Retirado por')
 	retired_date = fields.Date('Fecha de retiro')
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
-	
+	canceled = fields.Boolean('Anulado')
 
 	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
 	#locacion temporal
@@ -315,17 +315,18 @@ class GlassOrderLine(models.Model):
 	locations =  fields.Many2many('custom.glass.location','glass_line_custom_location_rel','glass_line_id','custom_location_id',string='Ubicaciones')
 	
 
-
-	@api.one
-	def getarea(self):
-		self.area=Decimal(0.0000)
-		l1 = Decimal(float(self.base1))
-		if self.base2>self.base1:
-			l1=Decimal(float(self.base2))
-		l2 = Decimal(float(self.altura1))
-		if self.altura2>self.altura1:
-			l2=Decimal(float(self.altura2))
-		self.area = round(float(float(l1)*float(l2))/float(1000000.0000),4)
+	#@api.one
+	@api.depends('base1','base2','altura1','altura2')
+	def _getarea(self):
+		for record in self:
+			record.area=Decimal(0.0000)
+			l1 = Decimal(float(record.base1))
+			if record.base2>record.base1:
+				l1=Decimal(float(record.base2))
+			l2 = Decimal(float(record.altura1))
+			if record.altura2>record.altura1:
+				l2=Decimal(float(record.altura2))
+			record.area = round(float(float(l1)*float(l2))/float(1000000.0000),4)
 
 
 	@api.multi

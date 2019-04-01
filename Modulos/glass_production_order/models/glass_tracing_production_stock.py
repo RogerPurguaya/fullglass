@@ -16,7 +16,7 @@ class Glass_tracing_Production_Stock(models.Model):
 	date_end = fields.Date('Fecha Fin')
 	line_ids = fields.One2many('tracing.production.stock.line.lot','parent_id','Lineas')
 	filter_field = fields.Selection([('all','Todos'),('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar'),('expired','Vencidos')],string='Filtro',default='all')
-	search_param = fields.Selection([('glass_order','Orden de Produccion'),('invoice','Factura'),('customer','Cliente')],string='Busqueda por')
+	search_param = fields.Selection([('glass_order','Orden de Produccion'),('invoice','Factura'),('customer','Cliente')],default='glass_order',string='Busqueda por')
 	show_breaks = fields.Boolean('Mostrar Rotos')
 	count_total_crystals = fields.Integer('Nro total de cristales')
 	total_area = fields.Float('Total M2',compute='_get_total_area')
@@ -67,6 +67,11 @@ class Glass_tracing_Production_Stock(models.Model):
 			sale_order = sale_order_lines.mapped('order_id')
 			if len(set(sale_order)) == 1:
 				lines = sale_order.op_ids.mapped('line_ids').mapped('lot_line_id')
+				aux_lines = sale_order.op_ids.mapped('line_ids')
+				lines = self._get_data(lines)
+			if self.show_breaks:
+				glass_breaks = self.env['glass.lot.line'].search([('order_line_id','in',aux_lines.ids),('is_break','=',True)])
+				lines += glass_breaks
 
 		elif self.order_id and self.search_param == 'glass_order':
 			lines=(self.order_id.line_ids.filtered(lambda x:x.lot_line_id)).mapped('lot_line_id')
@@ -78,6 +83,7 @@ class Glass_tracing_Production_Stock(models.Model):
 		elif self.customer_id and self.search_param == 'customer':
 			sale_orders = self.env['sale.order'].search([('partner_id','=',self.customer_id.id)])
 			lines = sale_orders.mapped('op_ids').mapped('line_ids').mapped('lot_line_id')
+			lines = self._get_data(lines)
 			if self.show_breaks:
 				glass_breaks = self.env['glass.lot.line'].search([('order_line_id','in',sale_orders.mapped('op_ids').mapped('line_ids').ids),('is_break','=',True)])
 				lines += glass_breaks
@@ -119,7 +125,7 @@ class Glass_tracing_Production_Stock(models.Model):
 		if self.filter_field:
 			if self.filter_field == 'all':
 				pass
-			if self.filter_field == 'pending':
+			elif self.filter_field == 'pending':
 				lot_lines = lot_lines.filtered(lambda x:x.templado==False)
 			elif self.filter_field == 'produced':
 				lot_lines = lot_lines.filtered(lambda x:x.templado==True)
@@ -169,7 +175,7 @@ class Tracing_Production_Stock_Line_Lot(models.Model):
 	@api.depends('customer_id')
 	def _get_display_name_partner(self):
 		for record in self:
-			record.display_name_partner = record.customer_id.name[:14]
+			record.display_name_partner = record.customer_id.name[:14] if record.customer_id.name else ''
 
 	@api.multi
 	def show_detail_tracing_line(self):

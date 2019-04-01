@@ -8,38 +8,38 @@ class GlassRequisition(models.Model):
 	_name = 'glass.requisition'
 	_order_by='id desc'
 
-	name = fields.Char('Orden de Requisición',default="/")
+	name = fields.Char('Orden de Requisicion',default="/")
 	table_number=fields.Char('Nro. de Mesa')
-	date_order = fields.Date('Fecha Almacén',default=datetime.now())
+	date_order = fields.Date('Fecha Almacen',default=fields.Date.today)
 	required_area = fields.Float('M2 Requeridos',compute="totals",digits=(20,4))
 	required_mp = fields.Float('M2 Materia Prima',compute="totals",digits=(20,4))
 	merma = fields.Float('Merma',compute="totals",digits=(20,4))
 	state=fields.Selection([('draft','Borrador'),('confirm','Confirmada'),('process','Procesada'),('cancel','Cancelada')],'Estado',default='draft')
-	picking_ids = fields.Many2many('stock.picking','glass_requisition_picking_rel','requisition_id','picking_id',u'Operaciones de Almacén')
+	picking_ids = fields.Many2many('stock.picking','glass_requisition_picking_rel','requisition_id','picking_id',u'Operaciones de Almacen')
 
-	picking_mp_ids = fields.Many2many('stock.picking','glass_requisition_picking_mp_rel','requisition_id','picking_id',u'Operaciones de Almacén')
-	picking_rt_ids = fields.Many2many('stock.picking','glass_requisition_picking_rt_rel','requisition_id','picking_id',u'Operaciones de Almacén')
-	picking_drt_ids = fields.Many2many('stock.picking','glass_requisition_picking_drt_rel','requisition_id','picking_id',u'Operaciones de Almacén')
-	picking_pt_ids = fields.Many2many('stock.picking','glass_requisition_picking_pt_rel','requisition_id','picking_id',u'Operaciones de Almacén')
+	picking_mp_ids = fields.Many2many('stock.picking','glass_requisition_picking_mp_rel','requisition_id','picking_id',u'Operaciones de Almacen')
+	picking_rt_ids = fields.Many2many('stock.picking','glass_requisition_picking_rt_rel','requisition_id','picking_id',u'Operaciones de Almacen')
+	picking_drt_ids = fields.Many2many('stock.picking','glass_requisition_picking_drt_rel','requisition_id','picking_id',u'Operaciones de Almacen')
+	picking_pt_ids = fields.Many2many('stock.picking','glass_requisition_picking_pt_rel','requisition_id','picking_id',u'Operaciones de Almacen')
 
 	total_picking_mp = fields.Float('Total M2',compute="totals",digits=(20,4))
 	total_picking_rt = fields.Float('Total M2',compute="totals",digits=(20,4))
 	total_picking_drt = fields.Float('Total M2',compute="totals",digits=(20,4))
 
 
-	production_order_ids = fields.Many2many('glass.order','glass_requisition_production_rel','requisition_id','order_id',u'Órdenes de Producción',compute="getprdorders")
+	production_order_ids = fields.Many2many('glass.order','glass_requisition_production_rel','requisition_id','order_id',u'ordenes de Produccion',compute="getprdorders")
 
 	lot_ids = fields.One2many('glass.requisition.line.lot','requisition_id','Lotes')
 
 
-	picking_type_mp = fields.Integer(u'Operación consumo materia prima ')
-	picking_type_rt = fields.Integer(u'Operación consumo retazos')
-	picking_type_drt = fields.Integer(u'Operación devolución retazos')
-	picking_type_pr = fields.Integer(u'Operación producción')
+	picking_type_mp = fields.Integer(u'Operacion consumo materia prima ')
+	picking_type_rt = fields.Integer(u'Operacion consumo retazos')
+	picking_type_drt = fields.Integer(u'Operacion devolucion retazos')
+	picking_type_pr = fields.Integer(u'Operacion produccion')
 	traslate_motive_mp = fields.Integer('Motivo traslado consumo materia prima ')
 	traslate_motive_rt = fields.Integer('Motivo traslado consumo retazos')
-	traslate_motive_drt = fields.Integer(u'Motivo traslado devolución retazos')
-	traslate_motive_pr = fields.Integer(u'Motivo traslado  producción')
+	traslate_motive_drt = fields.Integer(u'Motivo traslado devolucion retazos')
+	traslate_motive_pr = fields.Integer(u'Motivo traslado  produccion')
 
 	product_id=fields.Many2one('product.product','Producto General')
 	lot_id=fields.Many2one('glass.lot','Lote')	
@@ -47,7 +47,7 @@ class GlassRequisition(models.Model):
 	picking_count = fields.Integer(compute='_compute_glass_picking', string='Receptions', default=0)
 
 	_sql_constraints = [
-		('table_number_uniq', 'unique(table_number)', u'El número de mesa debe de ser único'),
+		('table_number_uniq', 'unique(table_number)', u'El numero de mesa debe de ser unico'),
 	]
 
 	@api.depends('picking_mp_ids','picking_rt_ids','picking_drt_ids')
@@ -57,6 +57,24 @@ class GlassRequisition(models.Model):
 		pickings_drt = self.mapped('picking_drt_ids')
 		pickings = pickings + pickings_rt + pickings_drt
 		self.picking_count = len(pickings)
+
+	@api.multi
+	@api.depends('table_number','name')
+	def name_get(self):
+		result = []
+		for req in self:
+			name = req.table_number + ' - ' + req.name
+			result.append((req.id, name))
+		return result
+
+	@api.model
+	def name_search(self, name, args=None, operator='ilike', limit=100):
+		args = args or []
+		domain = []
+		if name:
+			domain = ['|',('table_number', operator, name), ('name',operator,name)]
+		requisitions = self.search(domain + args, limit=limit)
+		return requisitions.name_get()
 
 	@api.multi
 	def call_units(self):
@@ -81,7 +99,6 @@ class GlassRequisition(models.Model):
 		pickings_drt = self.mapped('picking_drt_ids')
 		pickings = pickings + pickings_rt + pickings_drt
 		
-
 		if len(pickings) > 1:
 			action['domain'] = "[('id', 'in',[" + ','.join(map(str, pickings.ids)) + "])]"
 			action['context'] = {
@@ -94,6 +111,10 @@ class GlassRequisition(models.Model):
 
 	@api.multi
 	def create_glass_picking(self):
+
+		#allowed_materials = self.get_allowed_materials(self.product_id,'raw_materials')
+		#print('los permitidos: ', allowed_materials)
+		# Pendiente de desarrollo:
 		return {
 			'type':'ir.actions.act_window',
 			'res_model': 'stock.picking',
@@ -108,8 +129,9 @@ class GlassRequisition(models.Model):
 				'default_origin':self.name,
 				'default_identifier':'mp',
 				'identificador_glass':self.id,
-				'default_identificador_glass':self.id
-				}
+				'default_identificador_glass':self.id,
+				#'default_move_lines': los lines
+				},
 		}
 
 	@api.multi
@@ -152,6 +174,19 @@ class GlassRequisition(models.Model):
 				}
 		}
 
+	@api.multi
+	def get_allowed_materials(self,product_id,type):
+		config = self.env['glass.order.config'].search([])
+		if len(config) == 0:
+			raise exceptions.Warning('No ha encontrado la configuracion de produccion.')
+		allowed = config[0].requisition_materials_ids.filtered(lambda x: x.product_id.id == product_id.id and x.type_operation == type)
+		if len(allowed) == 0:
+			raise exceptions.Warning('No se ha encontrado la lista de materiales para: '+self.product_id.name + ' en este tipo de requisicion.\nConfigure su lista de materiales en: Produccion->Parametros->Orden de Requisicion->Materiales de Requisicion.')
+		elif len(allowed.materials_ids) == 0:
+			raise exceptions.Warning('La lista de materiales permitidos para '+self.product_id.name + ' en este tipo de operacion esta vacia')
+		else:
+			return allowed.materials_ids
+
 	@api.one
 	def reopen(self):
 		self.update({'state':'draft'})
@@ -160,10 +195,12 @@ class GlassRequisition(models.Model):
 	def confirm(self):
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
+		if config_data.seq_requisi == False or len(config_data.seq_requisi) == 0:
+			raise exceptions.Warning('No ha configurado la secuencia de Requisiciones')
 		if self.name=='/':
-			newname = config_data.seq_lot.next_by_id()
+			newname = config_data.seq_requisi.next_by_id()
 			self.update({'name':newname})
 		self.update({'state':'confirm'})
 
@@ -173,7 +210,7 @@ class GlassRequisition(models.Model):
 		res = super(GlassRequisition,self).default_get(fields)
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		# newname = config_data.seq_requisi.next_by_id()
 		res.update({'picking_type_mp':config_data.picking_type_mp.id})
@@ -219,12 +256,6 @@ class GlassRequisition(models.Model):
 		
 		if 'table_number' in vals:
 			vals['table_number']=self.get_table_name(vals['table_number'])
-			# if len(vals['table_number'])!=7:
-			# 	raise UserError(u'El número de mesa debe tener el formato M999999')		
-			# if vals['table_number'][0:1]!='M':
-			# 	raise UserError(u'El número de mesa debe tener el formato M999999')		
-			# if not vals['table_number'][1:].isnumeric():
-			# 	raise UserError(u'El número de mesa debe tener el formato M999999')
 		if 'lot_ids' in vals:
 			for lote in vals['lot_ids']:
 				lote_act = self.env['glass.lot'].browse(lote[2]['lot_id'])
@@ -253,21 +284,13 @@ class GlassRequisition(models.Model):
 								'time':datetime.now().time(),
 								'stage':'requisicion',
 								'lot_line_id':line.id,
-								'date_fisical':datetime.now(),
 							}
 							stage_obj = self.env['glass.stage.record']
 							stage_obj.create(data)
 							line.requisicion=True
 
 		if 'table_number' in vals:
-			vals['table_number']=self.get_table_name(vals['table_number'])
-			# if len(vals['table_number'])!=7:
-			# 	raise UserError(u'El número de mesa debe tener el formato M999999')		
-			# if vals['table_number'][0:1]!='M':
-			# 	raise UserError(u'El número de mesa debe tener el formato M999999')		
-			# if not vals['table_number'][1:].isnumeric():
-			# 	raise UserError(u'El número de mesa debe tener el formato M999999')
-		
+			vals['table_number']=self.get_table_name(vals['table_number'])		
 		t = super(GlassRequisition,self).write(vals)
 		if 'product_id' in vals:
 			return t
@@ -291,7 +314,7 @@ class GlassRequisition(models.Model):
 			config_attr = self.env['glass.order.config'].search([])[0].compare_attribute
 		except IndexError as e:
 			print('Error: ', e)
-			raise UserError(u'No se ha encontrado los valores de configuración para el Atributo de comparación.')
+			raise UserError(u'No se ha encontrado los valores de configuracion para el Atributo de comparacion.')
 		product = list(set(map(lambda x: x.lot_id.product_id , lot_lines))) # prod de los lot lines
 		if len(product) > 1:
 			raise UserError('Las lineas de lotes deben tener todas el mismo producto.')
@@ -358,7 +381,7 @@ class GlassRequisition(models.Model):
 	@api.one
 	def unlink(self):
 		if self.state!='draft':
-			raise UserError(u'No se puede borrar una Requisición que ha fue Procesada')		
+			raise UserError(u'No se puede borrar una Requisicion que ha fue Procesada')		
 		return super(GlassRequisition,self).unlink()
 
 	@api.one
@@ -485,7 +508,7 @@ class GlassRequisitionLineLot(models.Model):
 	user_id=fields.Many2one('res.users','Usuario')
 	m2 = fields.Float('M2',digits=(20,4))
 	requisition_id = fields.Many2one('glass.requisition','requisition')
-	crystal_count=fields.Integer(u'Número de cristales')
+	crystal_count=fields.Integer(u'Numero de cristales')
 
 
 	@api.onchange('lot_id')

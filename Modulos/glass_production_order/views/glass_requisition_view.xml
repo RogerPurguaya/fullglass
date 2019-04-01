@@ -82,7 +82,17 @@
 							<group>
 							<button class="btn btn-primary" name="create_glass_picking_rt" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
 							</group>
-							<field name="picking_rt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_rt,'default_einvoice_12':traslate_motive_rt,'default_origin':name}"  attrs="{'readonly':1}">
+							<!-- <field name="picking_rt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_rt,'default_einvoice_12':traslate_motive_rt,'default_origin':name}"  attrs="{'readonly':1}">
+								<tree >
+									<field name="name"/>
+									<field name="fecha_kardex"/>
+									<field name="einvoice_12"/>
+									<field name="picking_type_id"/>
+									<field name="origin"/>
+									<field name="state"/>
+								</tree>
+							</field> -->
+							<field name="picking_rt_ids" attrs="{'readonly':1}">
 								<tree >
 									<field name="name"/>
 									<field name="fecha_kardex"/>

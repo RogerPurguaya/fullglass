@@ -17,6 +17,9 @@
                             <field name="message_erro" style="color:Red;" string=" " readonly="1"/>
                             <field name="location_id"/>
                     </group>
+                    <group>
+                    <button name="refresh_selected_lines" type="object" string="Refrescar Lineas" class="btn-warning"/>
+                    </group>
                 </group>
                 <notebook>
                     <page string="Ordenes de Producción" name ="ops">
@@ -39,7 +42,7 @@
                                 <field name="base2" readonly="1"/>
                                 <field name="altura1" readonly="1"/>
                                 <field name="altura2" readonly="1"/>
-                                <field name="location_tmp" readonly="0"/>
+                                <field name="location_tmp" readonly="1"/>
                             </tree>
                         </field>
                     </page>

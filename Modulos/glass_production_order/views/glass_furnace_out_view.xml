@@ -6,16 +6,16 @@
         <field name="arch" type="xml">
             <form string="Lotes de producción">
                 <header>
-                    <button string="Ingresar a Horno" name="send_to_process" type="object" states="draft" class="oe_highlight" groups="glass_production_order.group_furnace_in"/>
+                    <button string="Ingresar a Horno" name="send_to_process" type="object" states="confirm" class="oe_highlight" groups="glass_production_order.group_furnace_in"/>
                     <button string="Salida de Horno" name="furnace_out" type="object" states="process" groups="glass_production_order.group_furnace_out"/>
-                    <!--<button string="Cancelar" name="cancel" type="object" states='done'/>-->
+                    <button string="Confirmar" name="confirm" type="object" states='draft' class="btn-primary"/>
                     <field name="state" widget="statusbar" nolabel="1"/>
                 </header>
                 <sheet>
                 <h1>Lote de Horno <field name="name" nolabel="1" readonly="1" default="Nuevo"/> </h1>
                     <group>
                         <group>
-                            <field name="search_code" attrs="{'invisible': [('state','!=','draft')]}"/>
+                            <field name="search_code" attrs="{'invisible': [('state','!=','confirm')]}"/>
                             <field name="nro_crystal" readonly='1' />
                             <field name="total_m2" readonly='1'/>
                             <field name="e_percent" readonly='1'/>
@@ -28,17 +28,20 @@
                             <field name="user_out" readonly='1'/>
                         </group>
                     </group>
+                    <group> 
+                    <field name="show_button" invisible="1"/>
+                     <button string="Limpiar" name="remove_bad_lines" type="object" class="btn-primary" attrs="{'invisible':['|',('show_button','!=',True),('state','=','done'),('state','=','process')]}"/>
+                    </group>
                     <notebook>
                     <!-- -->
                         <page name="lot_lines" string="Detalle">
-                            <field name="line_ids" attrs="{'readonly': [('state', '!=', 'draft')]}" create="false">
-                                <tree string="pool" editable="bottom" create="false" edit="false">
+                            <field name="line_ids" attrs="{'readonly': [('state', '!=', 'draft'),('state', '!=', 'process')]}" create="false">
+                                <tree string="pool" editable="bottom" create="false" edit="false" decoration-danger="is_break == True" decoration-success="etiqueta == True">
                                     <field name="lot_line_id" invisible="0" required="1" attrs="{'domain':[('is_used','=',False)]}"/>
                                     <field name="order_number" readonly="1"/>
                                     <field name="crystal_number"/>
                                     <field name="lot_id" invisible="1"/>
                                     <field name="is_used" invisible="1"/>
-                                    <!--<field name="search_code" readonly="1"/>-->
                                     <field name="base1" readonly="1"/>
                                     <field name="base2" readonly="1"/>
                                     <field name="altura1" readonly="1"/>
@@ -47,6 +50,7 @@
                                     <field name="partner_id" readonly="1"/>
                                     <field name="obra" readonly="1"/>
                                     <field name="etiqueta" readonly="1"/>
+                                    <field name="is_break" readonly="1"/>
                                 </tree>
                             </field>
                         </page>

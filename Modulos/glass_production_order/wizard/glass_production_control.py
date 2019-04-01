@@ -211,22 +211,23 @@ class GlassProductionControlWizard(models.Model):
 				#print 2
 				if self.stage=='lavado':
 					#print 3
-				
-					if self.lot_line_id.calc_line_id.entalle:
-						#print 4,self.lot_line_id.calc_line_id.entalle
-						pasoentalle = stage_obj.search([('stage','=','entalle'),('lot_line_id','=',self.lot_line_id.id)])
-						if len(pasoentalle)==0:
-							self.is_used=True
-							self.lot_line_id=False
-							self.production_order=False
-							self.partner_id=False
-							self.product_id=False
-							self.lot_id=False
-							self.obra=False
-							self.image_glass=False
-							self.sketch=False
-							self.search_code=False
-							return
+					# Queda pendiente que el cristal deba estar con entalle antes de entrar a la etapa de lavado, po ahora no habra restricciones.
+					pass
+					# if self.lot_line_id.calc_line_id.entalle:
+					# 	pasoentalle = stage_obj.search([('stage','=','entalle'),('lot_line_id','=',self.lot_line_id.id)])
+					# 	if len(pasoentalle)==0:
+					# 		self.is_used=True
+					# 		self.lot_line_id=False
+					# 		self.production_order=False
+					# 		self.partner_id=False
+					# 		self.product_id=False
+					# 		self.lot_id=False
+					# 		self.obra=False
+					# 		self.image_glass=False
+					# 		self.sketch=False
+					# 		self.search_code=False
+					# 		self.messageline=u'No se puede registrar LAVADO si no se ha pasado por ENTALLE'
+					# 		return
 							# raise UserError(u'No se puede registrar LAVADO si no se ha pasado por ENTALLE')		
 				data = {
 						'user_id':self.env.uid,

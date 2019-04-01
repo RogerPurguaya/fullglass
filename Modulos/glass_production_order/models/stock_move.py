@@ -146,6 +146,7 @@ class StockMove(models.Model):
 		results = self.env.cr.dictfetchall()
 		elem = []
 		for val in results:
+			val['mode'] = 'view_origin'
 			tmp = self.env['detail.crystals.entered.wizard.line'].create(val)
 			elem.append(tmp.id)
 		

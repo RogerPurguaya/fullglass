@@ -4,7 +4,7 @@
         <field name="name">glass.lot.form.view</field>
         <field name="model">glass.lot</field>
         <field name="arch" type="xml">
-            <form string="Lotes de producción">
+            <form string="Lotes de producción" create="false" edit="false">
                 <header>
                     <button string="Emisión de Lote" name="validate_lot" type="object" states="draft"/>
                     <button string="Cancelar" name="cancel_lot" type="object" states='done'/>
@@ -87,7 +87,7 @@
         <field name="name">glass.lot.tree.view</field>
         <field name="model">glass.lot</field>
         <field name="arch" type="xml">
-            <tree string="Lote de producción">
+            <tree string="Lote de producción" create="false" edit="false">
                 <field name="name"/>
                 <field name="date"/>
                 <field name="product_id"/>

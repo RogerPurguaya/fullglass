@@ -15,7 +15,7 @@ class GlassListMainWizard(models.Model):
 	requisition_id = fields.Many2one('glass.requisition',string="Mesa")
 	line_ids = fields.One2many('glass.list.wizard','main_id','Lineas')
 	filter_field = fields.Selection([('all','Todos'),('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar'),('expired','Vencidos')],string='Filtro',default='all')
-	search_param = fields.Selection([('glass_order','Orden de Produccion'),('requisition','Mesa'),('lot','Lote')],string='Busqueda por')
+	search_param = fields.Selection([('glass_order','Orden de Produccion'),('requisition','Mesa'),('lot','Lote')],default='glass_order',string='Busqueda por')
 	show_breaks = fields.Boolean('Mostrar Rotos')
 	count_total_crystals = fields.Integer('Nro total de cristales')
 	total_with_production=fields.Float('Total M2 con produccion',compute='_get_in_production_area',digits=(20,4))
@@ -268,7 +268,7 @@ class GlassListWizard(models.Model):
 	@api.depends('partner_id')
 	def _get_display_name_partner(self):
 		for record in self:
-			record.display_name_partner = record.partner_id.name[:14]
+			record.display_name_partner = record.partner_id.name[:14] if record.partner_id.name else ''
 
 	@api.multi
 	def show_detail_tracing_line(self):

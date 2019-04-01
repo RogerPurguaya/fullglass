@@ -14,7 +14,7 @@ class GlassFurnaceOut(models.Model):
 	nro_crystal=fields.Integer('Nro. Cristales')
 	total_m2=fields.Float('Total M2',digits=(12,4))
 	e_percent=fields.Float('% de Eficiencia',digits=(12,4))
-	state = fields.Selection([('draft','Borrador'),('process','Proceso'),('done','Finalizado')],'Estado',default='draft')
+	state = fields.Selection([('draft','Borrador'),('confirm','Confirmado'),('process','En Proceso'),('done','Finalizado')],'Estado',default='draft')
 	line_ids=fields.One2many('glass.furnace.line.out','main_id','Detalle')
 	user_ingreso = fields.Many2one('res.users','Usuario Ingreso')
 	date_ingreso = fields.Datetime('Fecha Ingreso')
@@ -24,7 +24,17 @@ class GlassFurnaceOut(models.Model):
 	search_code = fields.Char('Producto', store=False)
 	message_erro = fields.Char('*',default='')
 	cad3 = fields.Char('cad3',default='')
-	# New Code
+	show_button = fields.Boolean('Mostrar Limpiar', compute='_get_show_button')
+
+	@api.depends('line_ids')
+	def _get_show_button(self):
+		for record in self:
+			bad_lines = record.line_ids.filtered(lambda x: x.lot_line_id.is_break or x.lot_line_id.horno)
+			if len(bad_lines) > 0:
+				record.show_button = True
+			else:
+				record.show_button = False
+
 	@api.onchange('search_code')
 	def onchangecode(self):
 		idsact = []
@@ -97,7 +107,7 @@ class GlassFurnaceOut(models.Model):
 					self.search_code=""
 					return
 			else:
-				self.message_erro="Product not found!"
+				self.message_erro="Codigo de busqueda no encontrado!"
 				self.search_code=""
 				return
 		else:
@@ -106,17 +116,7 @@ class GlassFurnaceOut(models.Model):
 		obj = self.env['glass.furnace.out'].search([('id','=',self._origin.id)])
 		obj.write({'line_ids': [(6,0,idsact)]})
 		self.search_code=''
-		data = {
-			'user_id':self.env.uid,
-			'date':datetime.now(),
-			'time':datetime.now().time(),
-			'stage':'horno',
-			'lot_line_id':existe_act.id,
-			#'date_fisical':datetime.now(), fecha rotura??
-		}
-		stage_obj = self.env['glass.stage.record']
-		stage_obj.create(data)
-		existe_act.horno=True
+
 		return {'value':{'line_ids':idsact}}
 # End code
 
@@ -156,7 +156,6 @@ class GlassFurnaceOut(models.Model):
 			vals.update({'e_percent':(area*100)/farea})
 		return super(GlassFurnaceOut,self).create(vals)
 
-
 	@api.one
 	def write(self,vals):
 		area = 0
@@ -180,17 +179,44 @@ class GlassFurnaceOut(models.Model):
 		for line in self.line_ids:
 			line.lot_line_id.etiqueta=True
 		return True
+	
+	@api.multi
+	def remove_bad_lines(self):
+		bad_lines = self.line_ids.filtered(lambda x: x.lot_line_id.is_break or x.lot_line_id.horno)
+		for item in bad_lines:
+			item.unlink()
+		return True
+
+	@api.multi
+	def confirm(self):
+		self.state = 'confirm'
 
 	@api.one
 	def send_to_process(self):
 		if len(self.line_ids) == 0:
 			raise exceptions.Warning('No ha ingresado productos.')
+		bad_lines = self.line_ids.filtered(lambda x: x.lot_line_id.is_break or x.lot_line_id.horno)
+		if len(bad_lines) > 0:
+			msg = ''
+			for item in bad_lines:
+				motive = ' :Cristal Roto' if item.lot_line_id.is_break else ' :Ya tiene etapa de horno'
+				msg += '-> '+item.lot_line_id.search_code+' - '+item.lot_line_id.nro_cristal+motive+'\n'
+			raise exceptions.Warning('Los siguientes cristales no pueden procesarse:\n'+msg+'Haga click en el boton Limpiar para quitar estos cristales y seguir el proceso.')
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
 			raise UserError(u'No se encontraron los valores de configuración de producción')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		newname = config_data.seq_furnace.next_by_id()
 		
+		for line in self.line_ids:
+			stage_obj = self.env['glass.stage.record'].create({
+				'user_id':self.env.uid,
+				'date':datetime.now(),
+				'time':datetime.now().time(),
+				'stage':'horno',
+				'lot_line_id':line.lot_line_id.id,
+				})
+			line.lot_line_id.horno=True
 		self.write({'name':newname, 'state': 'process'})
 		return True
 
@@ -233,7 +259,6 @@ class GlassFurnaceLineOut(models.Model):
 	#_rec_name="lot_line_id"
 
 	main_id = fields.Many2one('glass.furnace.out')
-	
 	lot_id = fields.Many2one('glass.lot','Lote')
 	lot_line_id = fields.Many2one('glass.lot.line',u'Línea de lote')
 	order_number = fields.Integer(u'Nro. Orden')
@@ -247,3 +272,4 @@ class GlassFurnaceLineOut(models.Model):
 	obra = fields.Char(string='Obra')
 	etiqueta = fields.Boolean(string='Etiqueta')
 	is_used = fields.Boolean(string='Usado', default=False)
+	is_break = fields.Boolean(related='lot_line_id.is_break',string='Roto')

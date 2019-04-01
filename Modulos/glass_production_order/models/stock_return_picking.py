@@ -7,9 +7,9 @@ class StockReturnPicking(models.TransientModel):
 	@api.multi
 	def create_returns(self):
 		t = super(StockReturnPicking,self).create_returns()
-		if self._context['lines_to_return']:
+		if self._context.get('lines_to_return'):
 			for item in self._context['lines_to_return']:
-				line = self.env['glass.order.line'].search([('id','=',item['line'])])
+				line = self.env['glass.order.line'].browse(item['line'])
 				data = {
 					'user_id':self.env.uid,
 					'date':datetime.now(),
@@ -20,8 +20,7 @@ class StockReturnPicking(models.TransientModel):
 					'break_motive':item['motive']
 				}
 				line.lot_line_id.is_break=True
-				stage_obj = self.env['glass.stage.record']
-				stage_obj.create(data)
+				stage_obj = self.env['glass.stage.record'].create(data)
 				line.write({
 					'last_lot_line':line.lot_line_id.id,
 					'glass_break':True,

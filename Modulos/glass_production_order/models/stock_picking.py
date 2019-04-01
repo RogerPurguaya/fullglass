@@ -17,6 +17,7 @@ class StockPicking(models.Model):
 			requisition = self.env['glass.requisition'].search([('id','=',record.identificador_glass)])
 			aux = []
 			if record.identifier == 'mp':
+				print('lo que va llegando: ', vals)
 				for i in requisition.picking_mp_ids:
 					aux.append(i[0].id)
 				aux.append(record.id)

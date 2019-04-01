@@ -19,6 +19,25 @@ class GlassPoolWizard(models.TransientModel):
 	qty_lines = fields.Integer('Cantidad',compute="getarealines")
 	area_lines = fields.Float(u'Área M2',compute="getqtyarea",digits=(20,4))
 	user_id=fields.Many2one('res.users','Responsable')
+	show_button = fields.Boolean('Show button', default=True)
+
+	@api.multi
+	def get_new_element(self):
+		wizard = self.env['glass.pool.wizard'].create({})
+		return {
+			'res_id': wizard.id,
+			'name':'Pool de Produccion',
+			'type': 'ir.actions.act_window',
+			'res_model': 'glass.pool.wizard',
+			'view_mode': 'form',
+			'view_type': 'form',
+			'target': 'new',
+		}
+	@api.multi
+	def confirm(self):
+		# boton que no hace ni m xD
+		self.show_button = False
+		return {"type": "ir.actions.do_nothing",}
 
 
 
@@ -574,19 +593,13 @@ class GlassPoolWizardLine(models.TransientModel):
 	uom_id = fields.Many2one('product.uom',string='Unidad de Medida')
 	qty = fields.Float('Cantidad')
 	area = fields.Float('M2',digits=(20,4))
-	selected = fields.Boolean('Ver')
+	selected = fields.Boolean('Seleccionado')
 	area_rest = fields.Float(u'Área Restante M2',digits=(20,4))
 	cant_rest = fields.Integer(u'Cantidad restante')
 	wizard_id = fields.Many2one('glass.pool.wizard','header_id')
 
-	
-
-
-
-
 	@api.onchange('selected')
 	def onchangeselec(self):
-		#print 'bbbbbb'
 		self.wizard_id.product_id = self.product_id
 
 class GlassPoolWizardLineDetail(models.TransientModel):

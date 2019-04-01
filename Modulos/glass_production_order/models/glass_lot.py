@@ -165,7 +165,7 @@ class GlassLotLine(models.Model):
 	image_glass = fields.Binary("imagen",related="calc_line_id.image")
 	page_glass = fields.Binary(u"Página")
 	merma = fields.Float('Merma',digist=(12,4))
-	
+	canceled = fields.Boolean(related='order_line_id.canceled')
 	#location = fields.Many2one(related='order_line_id.custom_location',string='Ubicacion') 
 	#warehouse = fields.Char(related='location.location_code.display_name',string='Almacen')
 	_rec_name="search_code"
