@@ -8,11 +8,8 @@ class StockReturnPicking(models.TransientModel):
 	def create_returns(self):
 		t = super(StockReturnPicking,self).create_returns()
 		if self._context.get('lines_to_return'):
-			print('la ptm ', self._context['lines_to_return'])
 			for item in self._context['lines_to_return']:
-				print('item ', item)
-				line = self.env['glass.order.line'].browse(87)
-				print('line ', line)
+				line = self.env['glass.order.line'].browse(item['line'])
 				data = {
 					'user_id':self.env.uid,
 					'date':datetime.now(),
