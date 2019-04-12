@@ -9,13 +9,14 @@
             <form string="Detalles de Seguimiento">
             <sheet>
             <group> 
-                <group string="Informacion General">
+                <group string="Información General">
                     <field name="display_name_product" readonly="1" string="Producto" />
                     <field name="lot_name" string="Lote" readonly="1"/>
                     <field name="order_id" string="Orden de Produccion" readonly="1"/>
                     <field name="op_date_production" readonly="1" string="Fecha de Produccion"/>
-                    <field name="op_date_generate" readonly="1" string="Fecha de emision OP"/>
+                    <field name="op_date_generate" readonly="1" string="Fecha de Emision OP"/>
                     <field name="op_date_send" readonly="1" string="Fecha de Despacho"/>
+                    <field name="op_date_delivery" readonly="1" string="Fecha de Entrega"/>
                     <field name="invoice" readonly="1" />
                     <field name="invoice_number" readonly="1"/>
                 </group>
@@ -35,7 +36,7 @@
                                 <field name="user_id" string="Usuario Responsable"/>
                                 <field name="date" string= "Fecha"/>
                                 <field name="time" string="Hora"/>
-                                <field name="date_fisical" string="Fecha de rotura"/>
+                                <!-- <field name="date_fisical" string="Fecha de rotura"/> -->
                             </tree>
                         </field>
                     </page>

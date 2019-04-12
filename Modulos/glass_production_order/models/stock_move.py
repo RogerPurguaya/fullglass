@@ -113,7 +113,6 @@ class StockMove(models.Model):
         sm.product_qty as cantidad,
         sm.picking_id as picking_id,
         sm.id as sm_id,
-        --sol.product_uom_qty as venta,
         scpl.base1 as base1,
         scpl.base2 as base2,
         scpl.altura1 as altura1,
@@ -166,7 +165,3 @@ class StockMove(models.Model):
 			'context': {'mode':'view_origin'}
 		}
 
-class StockPicking(models.Model):
-	_inherit='stock.picking'
-
-	driver_delivery=fields.Char('Conductor')

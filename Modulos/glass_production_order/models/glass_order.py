@@ -39,11 +39,13 @@ class GlassOrder(models.Model):
 	seller_id = fields.Many2one('res.users','Vendedor',related='sale_order_id.user_id')
 	validated = fields.Boolean('Revisado')
 	observ = fields.Text('Observaciones')
-	state = fields.Selection([('draft','Generada'),
+	state = fields.Selection([
+		('draft','Generada'),
 		('confirmed','Emitida'),
 		('process','En Proceso'),
 		('ended','Finalizada'),
-		('delivered','Despachada')], 'Estado',default='draft',track_visibility='always')
+		('delivered','Despachada'),
+		('returned','Devuelta'),], 'Estado',default='draft',track_visibility='always')
 
 	sale_lines = fields.One2many(related='sale_order_id.order_line')
 	line_ids = fields.One2many('glass.order.line','order_id',u'Líneas a producir')
@@ -51,16 +53,11 @@ class GlassOrder(models.Model):
 	total_area = fields.Float(u'Metros',compute="_gettotals",digits=(20,4))
 	total_peso = fields.Float("Peso",compute="_gettotals",digits=(20,4))
 	total_pzs = fields.Float("Total Pzs",compute="_gettotals")
-
 	sketch = fields.Binary('Croquis')
 	file2 = fields.Binary('aaaa')
 	file_name = fields.Char("File Name")
 	reference_order = fields.Char('Referencia OP')
-
-
 	editable_croquis = fields.Boolean('editar croquis',default=True)
-
-
 	invoice_count = fields.Integer(string='# of Invoices', related='sale_order_id.invoice_count', readonly=True)
 	invoice_ids = fields.Many2many("account.invoice", string='Invoices', related="sale_order_id.invoice_ids", readonly=True,track_visibility='always')
 	invoice_status = fields.Selection([
@@ -69,7 +66,6 @@ class GlassOrder(models.Model):
 		('to invoice', 'To Invoice'),
 		('no', 'Nothing to Invoice')
 		], string='Invoice Status', related='sale_order_id.invoice_status', store=True, readonly=True)
-
 	destinity_order = fields.Selection([('local','En la ciudad'),('external','En otra ciudad')],u'Lugar de entrega',default="local")
 	send2partner=fields.Boolean('Entregar en ubicacion del cliente',default=False)
 	in_obra = fields.Boolean('Entregar en Obra')
@@ -141,7 +137,7 @@ class GlassOrder(models.Model):
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.glass_remove_order_form_view' % module)
 		data = {
-			'name': _('Remover Orden'),
+			'name': _('Devolver Orden de Produccion'),
 			'context': self._context,
 			'view_type': 'form',
 			'view_mode': 'form',
@@ -188,7 +184,6 @@ class GlassOrder(models.Model):
 		f.close()
 		pdf_path=tf.name		
 		tdir = tempfile.mkdtemp()
-		#print 'convitiendo las páginas'
 		
 		opened_pdf = PyPDF2.PdfFileReader(open(pdf_path,"rb"))
 		for i in range(opened_pdf.numPages):
@@ -211,7 +206,6 @@ class GlassOrder(models.Model):
 							else:
 								nini = int(acadnro[0])
 								nend = int(acadnro[0])+1
-							#print nini,nend
 
 							for x in range(nini,nend):
 								area = float(0.00000)
@@ -223,7 +217,7 @@ class GlassOrder(models.Model):
 									maxaltura = calcline.altura1
 								area= float(maxaltura*maxbase)/1000000
 								peso = saleline.product_id.weight*area
-
+								path = direccion + self.name + "-%s.pdf" % (calcline.page_number) if calcline.page_number else False
 								vals ={
 									'order_id':self.id,
 									'product_id':saleline.product_id.id,
@@ -231,7 +225,7 @@ class GlassOrder(models.Model):
 									'crystal_number':x,
 									'area':area,
 									'peso':peso,
-									'image_page_number':direccion + self.name + "-%s.pdf" % (calcline.page_number),
+									'image_page_number':path,
 								}
 								self.env['glass.order.line'].create(vals)
 						else:
@@ -247,7 +241,7 @@ class GlassOrder(models.Model):
 										maxaltura = calcline.altura1
 									area= float(maxaltura*maxbase)/1000000
 									peso = saleline.product_id.weight*area
-
+									path = direccion + self.name + "-%s.pdf" % (calcline.page_number) if calcline.page_number else False
 									vals ={
 										'order_id':self.id,
 										'product_id':saleline.product_id.id,
@@ -255,7 +249,7 @@ class GlassOrder(models.Model):
 										'crystal_number':a,
 										'area':area,
 										'peso':peso,
-										'image_page_number':direccion + self.name + "-%s.pdf" % (calcline.page_number),
+										'image_page_number':path,
 									}
 									self.env['glass.order.line'].create(vals)
 		self.state="confirmed"
@@ -305,12 +299,8 @@ class GlassOrderLine(models.Model):
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
 	canceled = fields.Boolean('Anulado')
 
-	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	#locacion temporal
+	#locacion temporal como auxiliar para agregar un location a locations
 	location_tmp = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	#warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
-	
-
 	# modelo a consultar
 	locations =  fields.Many2many('custom.glass.location','glass_line_custom_location_rel','glass_line_id','custom_location_id',string='Ubicaciones')
 	

@@ -42,6 +42,8 @@ class GlassOrderConfig(models.Model):
 	nro_cristales_guia = fields.Integer(string='Nro. de Cristales por guia', default=100)
 	compare_attribute = fields.Many2one('product.atributo',string=u'Atributo de Comparación')
 
+	motive_event_send_email_ids = fields.One2many('motive.event.send.email','config_id',string='Motivos de Envio de Emails')
+
 	requisition_materials_ids = fields.One2many('requisition.material','config_id',string='Materiales de Requisicion')
 
 	@api.constrains('nro_cristales_guia')

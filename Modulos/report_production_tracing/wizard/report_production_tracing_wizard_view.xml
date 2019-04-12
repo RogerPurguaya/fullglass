@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="report_production_tracing_wizard_form"> 
+			<field name="name">report.production.tracing.wizard.form</field>
+			<field name="model">report.production.tracing.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Reporte Seguimiento Global de la Produccion" version="8.0">
+						<group string="Fechas:">
+							<group>
+								<field name="start_date"  required="0"/>
+							</group>
+							<group>
+								<field name="end_date"  required="0"/>
+							</group>
+						</group>
+						<group string="Filtros">
+								<field name="search_param" required="1"/>
+								<field name="glass_order_id" attrs="{'invisible': [('search_param','!=','glass_order')],'required':[('search_param','=','glass_order')]}"/>
+								<field name="product_id" attrs="{'invisible': [('search_param','!=','product')],'required':[('search_param','=','product')]}"/>
+								<field name="filters" required="1"/>
+								<field name="customer_id" domain="[('customer','=',True)]" attrs="{'invisible':[('search_param','=','glass_order')]}"/>
+								<field name="show_breaks"/>
+						</group>
+						<footer>
+							<button string="Exportar" name="do_rebuild" type="object" class="oe_highlight"/>
+							O
+							<button string="Cancelar" class="oe_link" special="cancel"/>
+						</footer>
+				</form>
+			</field>
+		</record>
+
+
+		<record id="report_production_tracing_action" model="ir.actions.act_window">
+			<field name="name">Reporte seguimiento de la produccion</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">report.production.tracing.wizard</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+	
+		<menuitem name="Reporte Seguimiento de Producccion" id="report_production_tracing_menu" 
+				parent="glass_production_order.glass_order_control_menu"
+		 		action="report_production_tracing_action" 
+		 		sequence="3" />
+	</data>
+</openerp>

@@ -134,14 +134,21 @@ class GlassProductionControlWizard(models.Model):
 				self.nro_cristal=existe_act.nro_cristal
 
 				data = existe_act
-				file = open(data.order_line_id.image_page_number,'rb')
-				cont_t = file.read()
-				file.close()
+				file = None
 				direccion = self.env['main.parameter'].search([])[0].download_directory
-				
-				file_new = open(direccion + 'previsualizacion_op.pdf','wb')
-				file_new.write(cont_t)
-				file_new.close()
+				if data.order_line_id.image_page_number:
+					file = open(data.order_line_id.image_page_number,'rb')
+					cont_t = file.read()
+					file.close()
+					file_new = open(direccion + 'previsualizacion_op.pdf','wb')
+					file_new.write(cont_t)
+					file_new.close()
+				else:
+					import PyPDF2
+					writer = PyPDF2.PdfFileWriter()
+					writer.insertBlankPage(width=500, height=500, index=0)
+					with open(direccion+'previsualizacion_op.pdf', "wb") as outputStream: 
+						writer.write(outputStream) #write pages to new PDF
 
 				self.messageline=''
 				stage_obj = self.env['glass.stage.record']

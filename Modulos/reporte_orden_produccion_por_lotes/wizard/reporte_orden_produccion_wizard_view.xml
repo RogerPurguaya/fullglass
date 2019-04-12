@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<record id="reporte_orden_produccion_wizard_form" model="ir.ui.view"> 
+			<field name="name">reporte.orden.produccion.wizard.form</field>
+			<field name="model">reporte.orden.produccion.wizard</field>
+			<field name="arch" type="xml">
+				<form string="Reporte de Orden de Produccion">
+						<group string="Orden de Producción:">
+                            <field name="order_id" string="Orden de Producción" required="1"/>
+						</group>
+						<footer>
+							<button string="Exportar a PDF" name="print_report_op" type="object" class="oe_highlight"/>
+							O
+							<button string="Cancelar" class="oe_link" special="cancel"/>
+						</footer>
+				</form>
+			</field>
+		</record>
+
+        <record id="reporte_orden_produccion_wizard_action_view" model="ir.actions.act_window">
+            <field name="name">Reporte de Orden de Produccion</field>
+            <field name="res_model">reporte.orden.produccion.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="reporte_orden_produccion_wizard_menu" action="reporte_orden_produccion_wizard_action_view" parent="stock.menu_warehouse_report" sequence="2"/>
+
+	</data>
+</odoo>

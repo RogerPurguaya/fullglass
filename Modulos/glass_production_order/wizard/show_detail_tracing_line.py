@@ -15,6 +15,7 @@ class Show_Detail_Tracing_Line_Wizard(models.TransientModel):
 	op_date_production = fields.Date(related='order_id.date_production')
 	op_date_generate = fields.Datetime(related='order_id.date_order')
 	op_date_send = fields.Date(related='order_id.date_send')
+	op_date_delivery = fields.Date(related='order_id.date_delivery')
 	invoice = fields.Many2one('account.invoice',string='Factura',compute='_get_invoice')
 	invoice_number = fields.Char(string='Numero Factura',compute='_get_invoice')
 	stages_lines_ids = fields.One2many(related='lot_line_id.stages_ids',string='Etapas de lote')

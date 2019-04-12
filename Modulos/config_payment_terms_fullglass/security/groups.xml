@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_modify_conditions_payment_terms" model="res.groups">
+            <field name="name">Modificar Condiciones de términos de pago</field>
+        </record>
+    </data>
+</odoo>
+

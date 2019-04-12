@@ -194,7 +194,7 @@ class GlassFurnaceOut(models.Model):
 	@api.one
 	def send_to_process(self):
 		if len(self.line_ids) == 0:
-			raise exceptions.Warning('No ha ingresado productos.')
+			raise exceptions.Warning('No ha ingresado Cristales.')
 		bad_lines = self.line_ids.filtered(lambda x: x.lot_line_id.is_break or x.lot_line_id.horno)
 		if len(bad_lines) > 0:
 			msg = ''

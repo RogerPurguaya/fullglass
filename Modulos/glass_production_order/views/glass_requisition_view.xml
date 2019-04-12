@@ -112,7 +112,7 @@
 							<button class="btn btn-primary" name="create_glass_picking_drt" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
 							</group>
 							<group>
-							<button name="call_units" string="Crear Unidad de Retazo" type="object" class="btn-success oe_edit_only"/> 		
+							<button name="call_units" string="Crear Unidad de Retazo" type="object" class="btn-success"/> 		
 							</group>
 							<field name="picking_drt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_drt,'default_einvoice_12':traslate_motive_drt,'default_origin':name}"  attrs="{'readonly':1}">
 								<tree >

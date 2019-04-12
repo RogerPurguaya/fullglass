@@ -12,7 +12,8 @@
     'depends': ['base', 'stock'],
     'auto_install': False,
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/groups.xml',
+        'security/ir.model.access.csv',
         'views/custom_glass_location_view.xml',
     ],
     'installable': True

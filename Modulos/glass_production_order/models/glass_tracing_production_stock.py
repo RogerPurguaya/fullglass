@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# Aegumiento a la produccion en almacen
 from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 from datetime import datetime
 from functools import reduce
 
+# Seguimiento a la produccion en almacen
 class Glass_tracing_Production_Stock(models.Model):
 	_name='glass.tracing.production.stock'
 	_rec_name = 'titulo'
@@ -18,14 +18,43 @@ class Glass_tracing_Production_Stock(models.Model):
 	filter_field = fields.Selection([('all','Todos'),('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar'),('expired','Vencidos')],string='Filtro',default='all')
 	search_param = fields.Selection([('glass_order','Orden de Produccion'),('invoice','Factura'),('customer','Cliente')],default='glass_order',string='Busqueda por')
 	show_breaks = fields.Boolean('Mostrar Rotos')
-	count_total_crystals = fields.Integer('Nro total de cristales')
-	total_area = fields.Float('Total M2',compute='_get_total_area')
-	total_area_breaks = fields.Float('Total Rotos M2',compute='_get_total_area_breaks')
+	total_area = fields.Float('Total M2',compute='_get_total_area',digits=(12,4))
+	count_total_crystals = fields.Integer('Nro Cristales', compute='_get_count_crystals')
+	show_customer = fields.Many2one('res.partner',string='Cliente', compute='_get_show_customer')
+	show_invoice = fields.Many2one('account.invoice',string='Factura', compute='_get_show_invoice')
+
+	total_area_breaks = fields.Float('Total Rotos M2',compute='_get_total_area_breaks',digits=(12,4))
+	count_total_breaks = fields.Integer('Nro Rotos',compute='_get_count_breaks')
 	percentage_breaks = fields.Float('Porcentage de rotos',compute='_get_percentage_breaks') 
 	tot_templado=fields.Integer('Templado')
 	tot_arenado=fields.Integer('Arenado')
 	tot_ingresado=fields.Integer('Ingresado')
 	tot_entregado=fields.Integer('Entregado')
+	for_delivery = fields.Integer('Cristales por entregar',compute='_get_for_delivery')
+
+	@api.depends('search_param','customer_id','invoice_id','order_id')
+	def _get_show_customer(self):
+		for record in self:
+			if record.search_param == 'glass_order' and record.order_id:
+				record.show_customer = record.order_id.partner_id.id
+			elif record.search_param == 'invoice' and record.invoice_id:
+				record.show_customer = record.invoice_id.partner_id.id
+			elif record.search_param == 'customer' and record.customer_id:
+				record.show_customer = record.customer_id.id
+			else:
+				record.show_customer = False
+
+	@api.depends('search_param','customer_id','invoice_id','order_id')
+	def _get_show_invoice(self):
+		for record in self:
+			if record.search_param == 'glass_order' and record.order_id:
+				record.show_invoice = record.order_id.invoice_ids[0].id
+			elif record.search_param == 'invoice' and record.invoice_id:
+				record.show_invoice = record.invoice_id.id
+			elif record.search_param == 'customer' and record.customer_id:
+				record.show_invoice = False
+			else:
+				record.show_invoice = False
 
 	@api.depends('line_ids')
 	def _get_total_area(self):
@@ -35,6 +64,11 @@ class Glass_tracing_Production_Stock(models.Model):
 				record.total_area = reduce(lambda x,y: x+y,areas)
 			else:
 				record.total_area = 0
+	
+	@api.depends('line_ids')
+	def _get_count_crystals(self):
+		for record in self:
+			record.count_total_crystals = len(record.line_ids.mapped('lot_line_id').filtered(lambda x:not x.is_break))
 
 	@api.depends('line_ids')
 	def _get_total_area_breaks(self):
@@ -44,7 +78,12 @@ class Glass_tracing_Production_Stock(models.Model):
 				record.total_area_breaks=reduce(lambda x,y: x+y,line_ids.mapped('area'))
 			else:
 				record.total_area_breaks = 0
-	
+
+	@api.depends('line_ids')
+	def _get_count_breaks(self):
+		for record in self:
+			record.count_total_breaks = len(record.line_ids.mapped('lot_line_id').filtered(lambda x: x.is_break))
+
 	@api.depends('total_area','total_area_breaks')
 	def _get_percentage_breaks(self):
 		for record in self:
@@ -52,6 +91,11 @@ class Glass_tracing_Production_Stock(models.Model):
 				record.percentage_breaks=(record.total_area_breaks/record.total_area)*100
 			else:
 				record.percentage_breaks=0
+	
+	@api.depends('line_ids')
+	def _get_for_delivery(self):
+		for record in self:
+			record.for_delivery = len(record.line_ids.mapped('lot_line_id').filtered(lambda x: not x.entregado and not x.is_break))
 
 	@api.multi
 	def makelist(self):
@@ -89,7 +133,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				lines += glass_breaks
 
 		if len(lines)==0:
-			raise exceptions.Warning('No se ha encontrado informacion.\nEs posible que los cristales aun no hayan iniciado el proceso de produccion')
+			raise exceptions.Warning('NO SE HA ENCONTRADO INFORMACION.\nEs posible que los cristales aun no hayan iniciado el proceso de produccion')
 
 		for line in lines:
 			self.env['tracing.production.stock.line.lot'].create({
@@ -108,9 +152,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				'decorator':'break' if line.is_break else 'default',
 				'parent_id':self.id,
 				'lot_line_id':line.id,
-				'lot_name': line.lot_id.name,
-				#'custom_location': line.location.id,
-				'is_break': line.is_break
+				'is_break': line.is_break,
 				})
 		self.write({
 		'tot_templado':len(list(filter(lambda x:x.templado and not x.is_break,lines))),
@@ -135,7 +177,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				lot_lines = lot_lines.filtered(lambda x:x.ingresado==True and x.entregado==False)
 			elif self.filter_field == 'expired':
 				now = datetime.now().date()
-				lot_lines = lot_lines.filtered(lambda x: datetime.strptime(x.order_prod_id.date_delivery.replace('-',''),"%Y%m%d").date() < now and x.templado == False)
+				lot_lines = lot_lines.filtered(lambda x: self._str2date(x.order_prod_id.date_delivery) < now and x.templado == False)
 		if self.date_ini and self.date_end and self.search_param == 'customer':
 			start = self._str2date(self.date_ini)
 			end = self._str2date(self.date_end)
@@ -153,29 +195,20 @@ class Tracing_Production_Stock_Line_Lot(models.Model):
 	parent_id = fields.Many2one('glass.tracing.production.stock','Main')
 	order_id = fields.Many2one('glass.order','Orden produccion')
 	lot_line_id = fields.Many2one('glass.lot.line','Linea de lote')
-	lot_name = fields.Char('Lote')
 	product_name = fields.Char('Producto',related='lot_line_id.order_line_id.product_id.name')
 	customer_id = fields.Many2one('res.partner','Cliente')
 	crystal_number = fields.Integer('Nro. cristal')
-	base1=fields.Float('Base1',digist=(12,2))
-	base2=fields.Float('Base2',digist=(12,2))
-	altura1=fields.Float('Altura1',digist=(12,2))
-	altura2=fields.Float('Altura2',digist=(12,2))
-	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	#warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
+	base1=fields.Integer('Base1')
+	base2=fields.Integer('Base2')
+	altura1=fields.Integer('Altura1')
+	altura2=fields.Integer('Altura2')
 	arenado = fields.Boolean('Arena')
 	embalado = fields.Boolean('Embalado')
 	templado=fields.Boolean('Templado')
 	ingresado=fields.Boolean('Ingresado') 
 	entregado=fields.Boolean('Entregado')  
-	display_name_partner=fields.Char(string='Cliente',compute='_get_display_name_partner')
 	decorator = fields.Selection([('default','default'),('break','break'),('without_lot','without_lot')],default='default')
 	is_break = fields.Boolean('Roto')
-
-	@api.depends('customer_id')
-	def _get_display_name_partner(self):
-		for record in self:
-			record.display_name_partner = record.customer_id.name[:14] if record.customer_id.name else ''
 
 	@api.multi
 	def show_detail_tracing_line(self):

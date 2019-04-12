@@ -2,14 +2,18 @@
 
 from odoo import fields, models,api, _
 from odoo.exceptions import UserError
-from datetime import datetime
+from datetime import datetime,timedelta
 from functools import reduce
 
 class GlassInProductionWizard(models.TransientModel):
 	_name='glass.in.production.wizard'
+	
+	# def get_now_date(self):
+	# 	now = datetime.now() - timedelta(hours=5) # hora peruana
+	# 	return now.date()
 
 	stock_type_id = fields.Many2one('stock.picking.type',u'Operación de almacén') 
-	date_in = fields.Date('Fecha ingreso',default=datetime.now())
+	date_in = fields.Date('Fecha ingreso',default=datetime.now().date())
 	order_ids = fields.One2many('glass.in.order','mainid','order_id')
 	line_ids = fields.Many2many('glass.order.line','glass_in_lineorder_rel','in_id','line_id',string="Lineas")
 	order_id = fields.Many2one('glass.order','Filtrar OP')
@@ -32,8 +36,17 @@ class GlassInProductionWizard(models.TransientModel):
 		}
 
 	@api.multi
+	def get_all_available(self):
+		self.ensure_one()
+		lines = self.env['glass.order.line'].search([('state','=','ended')])
+		for item in lines.ids:
+			if item not in self.line_ids.ids:
+				self.write({'line_ids':[(4,item)]})
+		return {"type": "ir.actions.do_nothing",}
+
+
+	@api.multi
 	def refresh_selected_lines(self):
-		# otro boton q no hace ni m xD
 		will_removed = self.line_ids.filtered(lambda x: x.order_id.id not in self.order_ids.mapped('order_id').ids)
 		for item in will_removed.ids:
 			self.write({'line_ids':[(3,item)]})
@@ -58,16 +71,6 @@ class GlassInProductionWizard(models.TransientModel):
 				if line not in this_obj.line_ids:
 					line.location_tmp = self.location_id.id
 					this_obj.write({'line_ids':[(4,line.id)]})
-					# if line.order_id.id not in this_obj.order_ids.mapped('order_id').ids:
-					# 	vals={
-					# 		'selected':True,
-					# 		'order_id':line.order_id.id,
-					# 		'partner_id':line.order_id.partner_id.id,
-					# 		'date_production':line.order_id.date_production,
-					# 		'total_pzs':line.order_id.total_pzs,
-					# 		'total_area':line.order_id.total_area,
-					# 		}
-					# 	this_obj.write({'order_ids': [(0,0,vals)]})
 					self.search_code=""
 					return {'value':{'line_ids':this_obj.line_ids.ids,'order_ids':this_obj.order_ids.ids}}
 				else:
@@ -127,22 +130,6 @@ class GlassInProductionWizard(models.TransientModel):
 		config_data = self.env['glass.order.config'].search([])[0]
 		res.update({'stock_type_id':config_data.picking_type_pt.id})
 		return res
-
-	@api.one
-	def _prepare_picking(self,pt,motive):
-		useract = self.env.user
-		data= {
-			'picking_type_id': pt.id,
-			'partner_id': None,
-			'date': datetime.now(),
-			'origin': '',
-			'location_dest_id': pt.default_location_dest_id.id,
-			'location_id': pt.default_location_src_id.id,
-			'company_id': useract.company_id.id,
-			'einvoice12': motive.id,
-		}
-
-		return data
 
 	@api.multi
 	def makeingreso(self):
@@ -262,10 +249,27 @@ class GlassInProductionWizard(models.TransientModel):
 		return move_list
 
 #Metodo que verifica los tipos de cambio y moneda para la fecha de kardex, se realiza en 
-# el proceso futuro, pero es necesario para evitar crear stock.moves incorrectos
+# el proceso futuro, pero es necesario para evitar crear stock.moves incorrectos, ademas se verifican las condiciones de pago en las facturas de cristales
 	@api.multi
 	def verify_constrains_for_process(self,date):
-		
+		# validando restricciones de terminos de pago:
+		with_pay_terms = self.line_ids.filtered(lambda x: x.order_id.sale_order_id.payment_term_id)
+		if len(with_pay_terms) > 0:
+			conf=self.env['config.payment.term'].search([('operation','=','enter_apt')])
+			if len(conf) == 1: # solo puede estar en una conf
+				msg =''
+				for item in with_pay_terms:
+					sale = item.order_id.sale_order_id
+					if sale.payment_term_id.id in conf[0].payment_term_ids.ids:
+						invoice = sale.invoice_ids[0]
+						payed = invoice.amount_total - invoice.residual
+						percentage = (payed/invoice.amount_total) * 100
+						if percentage < conf[0].minimal:
+							msg += '-> '+item.crystal_number+' '+item.product_id.name+'\n'
+							raise exceptions.Warning('Las facturas de los siguientes cristales no fueron pagadas al '+str(conf[0].minimal)+' %.:\n'+msg)
+			else:
+				raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al Ingresar a APT')
+
 		currency_obj = self.env['res.currency'].search([('name','=','USD')])
 		if len(currency_obj)>0:
 			currency_obj = currency_obj[0]
@@ -279,12 +283,12 @@ class GlassInProductionWizard(models.TransientModel):
 		else:
 			raise UserError( u'Error!\nNo existe el tipo de cambio para la fecha: '+ str(date) + u'\n Debe actualizar sus tipos de cambio para realizar esta operación')
 
-		bad_lines = self.line_ids.mapped('lot_line_id').mapped('lot_id').filtered(lambda x: not x.requisition_id)
+		bad_lines = self.line_ids.mapped('lot_line_id').filtered(lambda x: not x.requisicion)
 		if len(bad_lines) > 0:
 			msg = ''
 			for item in bad_lines:
-				msg += '-> Lote: ' + item.name +'.\n'
-			raise UserError(u'Los siguientes Lotes no tienen order de Requisicion:\n'+msg+'Recuerde: Los lotes de los cristales a ingresar deben tener Orden de requisicion')
+				msg += '-> Lote: ' + item.lot_id.name + '-> Cristal Nro: ' +item.nro_cristal+'.\n'
+			raise UserError(u'Los siguientes Cristales no tienen order de Requisicion:\n'+msg+'Recuerde: Los lotes de los cristales a ingresar deben tener Orden de requisicion')
 
 
 class GlassInOrder(models.TransientModel):

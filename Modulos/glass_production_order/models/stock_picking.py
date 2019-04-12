@@ -7,6 +7,7 @@ class StockPicking(models.Model):
 
 	identificador_glass = fields.Integer(index=True)
 	identifier = fields.Char(index=True)
+	driver_delivery=fields.Char('Conductor')
 	#campo para almacenar la op origen de un albaran de ingreso a apt
 	order_source_id = fields.Many2one('glass.order','OP origen')
 

@@ -277,17 +277,17 @@ class GlassRequisition(models.Model):
 						lote[2]['m2']=lote_act.total_area
 						lote[2]['user_id']=lote_act.create_uid.id
 						lote[2]['crystal_count']=len(lote_act.line_ids)
-						for line in lote_act.line_ids:
-							data = {
-								'user_id':self.env.uid,
-								'date':datetime.now(),
-								'time':datetime.now().time(),
-								'stage':'requisicion',
-								'lot_line_id':line.id,
-							}
-							stage_obj = self.env['glass.stage.record']
-							stage_obj.create(data)
-							line.requisicion=True
+						# for line in lote_act.line_ids:
+						# 	data = {
+						# 		'user_id':self.env.uid,
+						# 		'date':datetime.now(),
+						# 		'time':datetime.now().time(),
+						# 		'stage':'requisicion',
+						# 		'lot_line_id':line.id,
+						# 	}
+						# 	stage_obj = self.env['glass.stage.record']
+						# 	stage_obj.create(data)
+						# 	line.requisicion=True
 
 		if 'table_number' in vals:
 			vals['table_number']=self.get_table_name(vals['table_number'])		
@@ -366,6 +366,11 @@ class GlassRequisition(models.Model):
 			line.action_cancel()
 		for lot in self.lot_ids.mapped('lot_id'):
 			lot.requisition_id = False
+			for line in lot.line_ids.filtered(lambda x:x.requisicion and not x.is_break):
+				line.write({'requisicion':False})
+				stages = line.stages_ids.filtered(lambda x: x.stage == 'requisicion')
+				for i in stages:
+					i.unlink()
 		return True 
 
 	@api.onchange('lot_ids')
@@ -454,7 +459,6 @@ class GlassRequisition(models.Model):
 				msg += '-> Lote: ' + item.name + ' con Requisicion: '+ item.requisition_id.name+'.\n'
 			raise exceptions.Warning('Los siguientes lotes ya tienen orden de requisicion:\n'+msg)
 		
-
 		if len(self.mapped('picking_mp_ids'))==0 and len(self.mapped('picking_rt_ids'))==0:
 			raise exceptions.Warning('Error:\nLa Orden de requisicion debe tener por lo menos un albaran de Materias primas o de Retazos')
 
@@ -476,6 +480,18 @@ class GlassRequisition(models.Model):
 				g = (sl.area*100)/l.lot_id.total_area
 				mermaline = mermaequi*(g/100)
 				sl.merma=mermaline
+
+
+		for line in self.lot_ids.mapped('lot_id').mapped('line_ids').filtered(lambda x: not x.is_break):
+			data = {
+				'user_id':self.env.uid,
+				'date':datetime.now(),
+				'time':datetime.now().time(),
+				'stage':'requisicion',
+				'lot_line_id':line.id,
+			}
+			stage_obj = self.env['glass.stage.record'].create(data)
+			line.requisicion=True
 
 	@api.one
 	def transfer_pickings(self,pickings):

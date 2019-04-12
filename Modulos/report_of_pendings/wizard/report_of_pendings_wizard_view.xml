@@ -5,25 +5,22 @@
 			<field name="name">report.pending.wizard.form</field>
 			<field name="model">report.pending.wizard</field>
 			<field name="arch" type="xml">
-				<form string="Reporte de Pendientes" version="8.0">
+				<form string="Reporte de Seguimiento General a la Produccion" version="8.0">
 						<group string="Fechas:">
-						<!-- <span> Ordenes generadas entre:
-								al
-						</span> -->
 							<group>
-								<field name="start_date"  required="0"/>
+								<field name="start_date" attrs="{'required':[('all_items','=',True)]}"/>
 							</group>
 							<group>
-								<field name="end_date"  required="0"/>
+								<field name="end_date" attrs="{'required':[('all_items','=',True)]}"/>
 							</group>
 						</group>
 						<group string="Filtros">
-								<field name="search_param" required="1"/>
-								<field name="glass_order_id" attrs="{'invisible': [('search_param','!=','glass_order')],'required':[('search_param','=','glass_order')]}"/>
-								<field name="product_id" attrs="{'invisible': [('search_param','!=','product')],'required':[('search_param','=','product')]}"/>
-								<field name="filters" required="1"/>
-								<field name="customer_id" domain="[('customer','=',True)]" attrs="{'invisible':[('search_param','=','glass_order')]}"/>
-								<field name="show_breaks"/>
+								<field name="search_param" attrs="{'invisible':[('all_items','=',True)],'required':[('all_items','=',False)]}"/>
+								<field name="glass_order_id" attrs="{'invisible': ['|',('search_param','!=','glass_order'),('all_items','=',True)],'required':[('search_param','=','glass_order'),('all_items','=',False)]}" domain="[('state','!=','returned')]"/>
+								<field name="product_id" attrs="{'invisible': ['|',('search_param','!=','product'),('all_items','=',True)],'required':[('search_param','=','product'),('all_items','=',False)]}"/>
+								<!-- <field name="filters" required="1"/> -->
+								<field name="customer_id" domain="[('customer','=',True)]" attrs="{'invisible':['|',('search_param','=','glass_order'),('all_items','=',True)]}"/>
+								<field name="all_items" string="Mostrar Todos"/>
 						</group>
 						<footer>
 							<button string="Exportar" name="do_rebuild" type="object" class="oe_highlight"/>
@@ -36,7 +33,7 @@
 
 
 		<record id="report_or_pendings_wizard_action" model="ir.actions.act_window">
-			<field name="name">Reporte de seguimiento global de la produccion</field>
+			<field name="name">Reporte de Pendientes</field>
 			<field name="type">ir.actions.act_window</field>
 			<field name="res_model">report.pending.wizard</field>
 			<field name="view_type">form</field>
@@ -45,10 +42,10 @@
 		</record>
 
 	
-		<menuitem name="Reporte de Seguimiento de Producccion" id="report_of_pendings_wizard_menu" 
+		<menuitem name="Reporte de Pendientes" id="report_of_pendings_wizard_menu" 
 				parent="glass_production_order.glass_order_control_menu"
 		 		action="report_or_pendings_wizard_action" 
-		 		sequence="3" />
+		 		sequence="4" />
 
 
 	</data>

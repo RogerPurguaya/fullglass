@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_remove_op" model="res.groups">
+            <field name="name">Retirar OP</field>
+            <field name="category_id" ref="glass_production_order.module_production_glass"/>
+        </record>
+    </data>
+</odoo>
+

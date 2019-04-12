@@ -5,16 +5,16 @@
             <field name="name">glass.remove.order.form.view</field>
             <field name="model">glass.remove.order</field>
             <field name="arch" type="xml">
-                <form string="Retirar orden">
+                <form string="Devolver Orden de Producción">
                     <group>
                         <field name="order_name" readonly="1"/>
                         <field name="date_remove"/>
                         <field name="motive_remove"/>
                     </group>
                     <footer>
-                        <button string="Retirar Orden" type="object" name="remove_order" class="oe_highlight"/>
-                        or
-                        <button string="Cancel" class="oe_link" special="cancel"/>
+                        <button string="Devolver Orden" type="object" name="remove_order" class="oe_highlight"/>
+                        O
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
                     </footer>
                 </form>
             </field>

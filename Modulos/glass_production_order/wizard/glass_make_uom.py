@@ -26,7 +26,8 @@ class GlassMakeUom(models.TransientModel):
 			'is_retazo':True,
 			'ancho':self.ancho,
 			'alto':self.alto,
-			'category_id':config_data.uom_categ_id.id
+			'category_id':config_data.uom_categ_id.id,
+			'rounding':0.00001,
 		}
 		self.env['product.uom'].create(vals)
 		

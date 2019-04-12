@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_stock_warehouse_it_stock_warehouse_it,stock_warehouse_it.stock_warehouse_it,model_stock_warehouse_it_stock_warehouse_it,,1,0,0,0
+access_custom_glass_locations,custom.glass.location,model_custom_glass_location,custom_glass_locations.group_custom_glass_locations,1,1,1,1

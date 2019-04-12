@@ -10,7 +10,7 @@
                         <field name="stock_type_id"/>
                         <field name="date_in"/>
                         <field name="search_param" required="1"/>
-                        <field name="order_id"  attrs="{'invisible':[('search_param','!=','glass_order')]}" domain="[('state','=','process')]"/>
+                        <field name="order_id"  attrs="{'invisible':[('search_param','!=','glass_order')]}" domain="[('state','=','process'),('state','!=','returned')]"/>
                         <field name="search_code" attrs="{'invisible':[('search_param','!=','search_code')]}"/>
                     </group>
                     <group>
@@ -19,6 +19,7 @@
                     </group>
                     <group>
                     <button name="refresh_selected_lines" type="object" string="Refrescar Lineas" class="btn-warning"/>
+                    <button name="get_all_available" type="object" string="Obtener Todos" class="btn-success"/>
                     </group>
                 </group>
                 <notebook>
@@ -33,15 +34,16 @@
                                 <field name="total_area" readonly="1"/>
                             </tree>
                         </field>
-                        <field name="line_ids" widget="many2many">
+                        <field name="line_ids" widget="many2many" options="{'reload_on_button': true}">
                             <tree editable='bottom' create="false" delete="false">
-                                <field name="order_id" readonly="1"/>
+                                <field name="order_id" string="OP" readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
                                 <field name="product_id" readonly="1"/>
                                 <field name="crystal_number" readonly="1"/>
-                                <field name="base1" readonly="1"/>
-                                <field name="base2" readonly="1"/>
-                                <field name="altura1" readonly="1"/>
-                                <field name="altura2" readonly="1"/>
+                                <field name="base1" string="Base1" readonly="1"/>
+                                <field name="base2" string="Base2" readonly="1"/>
+                                <field name="altura1" string="Altura1" readonly="1"/>
+                                <field name="altura2" string="Altura2" readonly="1"/>
                                 <field name="location_tmp" readonly="1"/>
                             </tree>
                         </field>

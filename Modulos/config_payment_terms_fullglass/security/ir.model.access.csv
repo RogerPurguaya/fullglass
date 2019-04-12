@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+allow_modify_conditions_payment_terms,config.payment.term,model_config_payment_term,config_payment_terms_fullglass.group_modify_conditions_payment_terms,1,1,1,1

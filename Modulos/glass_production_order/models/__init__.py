@@ -17,3 +17,4 @@ import stock_return_picking
 import stock_picking
 import requisition_material
 import account_invoice
+import send_email_event

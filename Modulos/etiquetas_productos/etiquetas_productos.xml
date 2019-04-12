@@ -11,14 +11,11 @@
 
             <field name="state" position="before">
                     
-                <button string="Etiqueta" name="impresion_etiquetas" type="object" class="oe_highlight" groups="glass_production_order.group_furnace_out"/>
+                <button string="Etiqueta" name="impresion_etiquetas" type="object" class="oe_highlight" groups="glass_production_order.group_furnace_out" states="done"/>
             
             </field>
         </field>
         </record>
-
-
-
     </data>
 </openerp>
 

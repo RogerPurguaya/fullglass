@@ -1,0 +1,68 @@
+<odoo>
+    <data>
+        <!-- config.payment.term form view -->
+        <record id="config_payment_term_view_form" model="ir.ui.view">
+            <field name="name">config.payment.term.view.form</field>
+            <field name="model">config.payment.term</field>
+            <field name="arch" type="xml">
+                <form string="Condiciones de Términos de Pago">
+                    <sheet>
+                        <group>
+                            <field name="date" string="Fecha" required="1"/>
+                            <field name="operation" string="Operación" required="1"/>
+                            <field name="minimal" string="Minimo a Pagar" required="1"/>
+                            <field name="description" string="Descripción" />
+                        </group>
+                        <group>
+                            <notebook>
+                                <page string="Términos de Pago" name="payment_terms">
+                                    <group>
+                                        <field name="payment_term_ids" required="1">
+                                            <tree>
+                                                <field name="name"/>
+                                                <field name="note"/>
+                                            </tree>
+                                        </field>
+                                    </group>
+                                </page>
+                            </notebook>
+                     </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- config.payment.term tree view -->
+        <record id="config_payment_term_view_tree" model="ir.ui.view">
+            <field name="name">config.payment.term.view.tree</field>
+            <field name="model">config.payment.term</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date"/>
+                    <field name="minimal"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="config_payment_term_action" model="ir.actions.act_window">
+            <field name="name">Condiciones Terminos de Pago</field>
+            <field name="res_model">config.payment.term</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click aquí para configurar su primera condición de términos de pago.
+                </p><p>
+                    Use este menu para determinar las condiciones en un conjunto de terminos de pago.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Condiciones de Términos de Pago"
+            id="config_payment_term_menu"
+            parent="sales_team.menu_sale_config"
+            action="config_payment_term_action"/>
+    </data>
+</odoo>

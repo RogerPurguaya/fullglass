@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <!-- glass.order inherit form view -->
+    <record id="view_glass_order_config_form_inherit" model="ir.ui.view">
+        <field name="name">glass.order.config.inherit.view.form</field>
+        <field name="model">glass.order.config</field>
+        <field name="inherit_id" ref="glass_production_order.view_glass_order_config_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Envio de emails">
+                    <field name="motive_event_send_email_ids"> 
+                        <tree>
+                            <field name="motive"/>
+                            <field name="description"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- motive.event.send.email form view -->
+    <record id="motive_event_send_email_view_form" model="ir.ui.view">
+        <field name="name">motive.event.send.email.view.form</field>
+        <field name="model">motive.event.send.email</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <field name="motive" required="1" string="Motivo"/>
+                    </group>
+                    <group>
+                        <field name="description" string="Descripcion"/>
+                    </group>
+                    <field name="users_ids" domain="[('email','!=',False),('customer','=',False),('supplier','=',False)]">
+                        <tree editable="bottom">
+                            <field name="name" required="1"/>
+                            <field name="email" required="1"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- motive.event.send.email action window -->
+    <record id="motive_event_send_email_action" model="ir.actions.act_window">
+        <field name="name">Motivo de Envio de Emails</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motive.event.send.email</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_type">form</field>
+    </record>
+
+</data>
+</odoo>

@@ -77,7 +77,7 @@ class SaleCalculatorProformaLine(models.Model):
 	def _medidas(self):
 		return False
 		for prof in self:
-			print 2222
+			#print 2222
 			
 			t_area=0.0
 			t_per =0.0
@@ -143,26 +143,32 @@ class SaleCalculatorProformaLine(models.Model):
 	is_service = fields.Boolean('Es servicio')
 	type_prod = fields.Char('tipoproducto')
 
-	
-
-
-
-	# _sql_constraints = [
-	# 		('crystalnumber_uniq', 'unique(proforma_id,nro_cristal)', u'El número de cristal está repetido'),
-	# 	]
-
-
-
-
 
 	@api.model
 	def create(self,vals):
-		t = super(SaleCalculatorProformaLine,self).create(vals)
-		return t
+		if vals.get('page_number'):
+			val = str(vals['page_number']).strip()
+			try:
+				val = int(val)
+			except Exception as e:
+				raise UserError('Debe ingresar un valor numerico en el Nro de Pagina\nValor ingresado: "'+str(val)+'"')
+			vals['page_number'] = str(val)
+		return super(SaleCalculatorProformaLine,self).create(vals)
+
+	@api.one
+	def write(self,vals):
+		if 'page_number' in vals:
+			val = str(vals['page_number']).strip()
+			try:
+				val = int(val)
+			except Exception as e:
+				raise UserError('Debe ingresar un valor numerico en el Nro de Pagina\nValor ingresado: "'+str(val)+'"')
+			vals['page_number'] = str(val)
+		return super(SaleCalculatorProformaLine,self).write(vals)
 
 	@api.multi
 	def showimage(self):
-		print "showimage"
+		#print "showimage"
 		self.ensure_one()
 		self._grafico()
 		self.proforma_id.image = self.image
@@ -193,7 +199,7 @@ class SaleCalculatorProformaLine(models.Model):
 		return data
 	@api.multi
 	def reshowcalc(self):
-		print "reshowcalc"
+		#print "reshowcalc"
 		lineref = self.env['sale.order.line'].browse(self._context.get('active_id'))
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_calculadora_presupuesto_linea_wizard_form' % module)
@@ -222,7 +228,7 @@ class SaleCalculatorProformaLine(models.Model):
 	@api.multi
 	@api.onchange('nro_cristal','cantidad')
 	def validate_crystal_number(self):
-		print "validate_crystal_number"
+		#print "validate_crystal_number"
 		self.ensure_one()
 		cadnro = self.nro_cristal
 		ncant=0
@@ -260,7 +266,7 @@ class SaleCalculatorProformaLine(models.Model):
 
 	@api.onchange('descuadre')
 	def desonchange(self):
-		print "desonchange"
+		#print "desonchange"
 		self.ensure_one()
 		if self.descuadre:
 			self.lavado = True
@@ -317,7 +323,7 @@ class SaleCalculatorProformaLine(models.Model):
 		import PIL.ImageDraw as ImageDraw
 		import PIL.Image as Image
 		from PIL import ImageFont
-		print "_grafico"
+		#print "_grafico"
 		for prof in self:
 			is_product = True
 			if self.proforma_id.type_line == 'service':
@@ -831,7 +837,7 @@ class SaleCalculatorProforma(models.Model):
 
 	@api.multi
 	def cantidad(self):
-		print "cantidad"
+		#print "cantidad"
 		ini = 1
 		fin = 0
 		for prof in self:
@@ -850,8 +856,8 @@ class SaleCalculatorProforma(models.Model):
 	@api.depends('id_line.cantidad','id_line.area','id_line.perimetro','id_line.area_vendida',)
 	def _totales(self):
 		import pprint
-		print "_totales"
-		# pprint.pprint(self._context)
+		#print "_totales"
+		#pprint.pprint(self._context)
 		prof = self
 		t_area=0.0
 		t_area_vendida=0.0
@@ -924,7 +930,7 @@ class SaleLineCalculadora(models.Model):
 
 	@api.multi
 	def showcalc(self):
-		print "showcalc"
+		#print "showcalc"
 		self.ensure_one()
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_calculadora_presupuesto_linea_wizard_form' % module)

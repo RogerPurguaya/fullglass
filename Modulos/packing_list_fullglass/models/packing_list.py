@@ -204,7 +204,7 @@ class Packing_List(models.Model):
 			lines = record.selected_line_ids.mapped('order_line_id')				
 			for prod in set(lines.mapped('product_id')):
 				fil_list = lines.filtered(lambda x:x.product_id.id == prod.id)
-				total_area = reduce(lambda x,y:x+y,fil_list.mapped('lot_line_id').mapped('area'))
+				total_area = reduce(lambda x,y:x+y,fil_list.mapped('area'))#changed
 				total_weight = reduce(lambda x,y: x+y,fil_list.mapped('peso'))
 				new = self.env['packing.list.grouped.line'].create({
 				'parent_id':self.id, 
@@ -295,7 +295,7 @@ class Glass_Order_Line_Packing_List(models.Model):
 	origin  = fields.Char(related='picking_id.origin')
 	crystal_number = fields.Integer(related='order_line_id.crystal_number',string='Nro Cristal')
 	lot_id = fields.Many2one(related='order_line_id.lot_line_id.lot_id',string='Lote')
-	requisition_id = fields.Many2one(related='lot_id.requisition_id',string='Requisicion',store=True)
+	requisition_id = fields.Many2one(related='lot_id.requisition_id',string='Requisicion')
 	partner_id = fields.Many2one(related='order_line_id.partner_id',string='Cliente')
 	location_tmp = fields.Many2one('custom.glass.location',string='Ubicacion')
 	warehouse_tmp = fields.Many2one(related='location_tmp.location_code',string='Almacen')

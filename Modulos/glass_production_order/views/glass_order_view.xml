@@ -25,9 +25,6 @@
                 </notebook>
                 <footer>
                     <button string ="Guardar" name="savecroquis" type="object" attrs="{'invisible':[('editable_croquis','=',False)]}"/>
-
-                    
-
                     <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
                 </footer>
             </form>
@@ -94,7 +91,6 @@
                             </field>
                         </page>
                         <page name="detail" string ="Detalle">
-                            <button name="remove_order" string="Retirar orden" type="object" attrs="{'invisible':[('state','!=','draft')]}" />
                             <field name = "line_ids" readonly="1">
                                 <tree decoration-danger="glass_break == True">
                                     <field name="product_id"/>
@@ -148,7 +144,9 @@
         <field name="name">glass.order.tree.view</field>
         <field name="model">glass.order</field>
         <field name="arch" type="xml">
-            <tree string="Orden de producción">
+            <tree string="Orden de producción" 
+             decoration-danger="state == 'returned'"
+             decoration-success="state == 'ended'">
                 <field name="name"/>
                 <field name="sale_order_id"/>
                 <field name="reference_order"/>
@@ -239,14 +237,6 @@
         </field>
     </record>
 
-
-
-
-    
-
-
-
-
     <record id="view_glass_order_line_filter" model="ir.ui.view">
             <field name="name">glass.order.line.search</field>
             <field name="model">glass.order.line</field>
@@ -269,7 +259,6 @@
                     <field name="plantilla"/>
                     <field name="page_number"/>
                     <field name="embalado"/>
-
                     <separator />
                     <group expand="0" string="Group By">
                         <filter string="Orden de producción" name="groupby_op" domain="[]" context="{'group_by':'order_id'}"/>
@@ -280,9 +269,4 @@
                 </search>
             </field>
         </record>
-
- 
-
-
-
 </odoo>

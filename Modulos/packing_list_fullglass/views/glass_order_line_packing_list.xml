@@ -20,7 +20,7 @@
                     <group>
                         <field name="crystal_number" readonly="1" string="Nro de Cristal"/>
                         <field name="lot_id" readonly="1" string="Lote"/>
-                        <field name="requisition_id" readonly="1" string="Requisición"/>
+                        <!-- <field name="requisition_id" readonly="1" string="Requisición"/> -->
                         <field name="location_tmp" readonly="1" string="Ubicación PL"/>
                         <field name="warehouse_tmp" readonly="1" string="Almacén PL"/>
                         <field name="measures" readonly="1" string="Medidas"/> 

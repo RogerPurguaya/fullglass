@@ -30,7 +30,7 @@
                     </group>
                     <group> 
                     <field name="show_button" invisible="1"/>
-                     <button string="Limpiar" name="remove_bad_lines" type="object" class="btn-primary" attrs="{'invisible':['|',('show_button','!=',True),('state','=','done'),('state','=','process')]}"/>
+                     <button string="Limpiar" name="remove_bad_lines" type="object" class="btn-primary" attrs="{'invisible':['|','|',('show_button','!=',True),('state','=','done'),('state','=','process')]}"/>
                     </group>
                     <notebook>
                     <!-- -->
