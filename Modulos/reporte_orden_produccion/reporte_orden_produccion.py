@@ -16,7 +16,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, Table
 from reportlab.lib.units import  cm,mm
-from reportlab.lib.utils import simpleSplit,ImageReader
+from reportlab.lib.utils import simpleSplit
 from cgi import escape
 from reportlab.lib.units import inch, cm
 import decimal
@@ -24,14 +24,13 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph, Frame
 from reportlab.lib.units import mm
 from reportlab.graphics.barcode import code128
-import StringIO
 
 class GlassOrder(models.Model):
 	_inherit='glass.order'
 
 	@api.multi
 	def ordenprod_buttom(self):
-		self.reporteador_op()
+		self.reporteador()
 		import sys
 		reload(sys)
 		sys.setdefaultencoding('iso-8859-1')
@@ -53,7 +52,7 @@ class GlassOrder(models.Model):
 		}
 
 	@api.multi
-	def reporteador_op(self):
+	def reporteador(self):
 		import sys
 		reload(sys)
 		sys.setdefaultencoding('iso-8859-1')
@@ -74,22 +73,23 @@ class GlassOrder(models.Model):
 		qty_cristales = 0
 		pagina = 1
 		textPos = 0
-		self.cabezera_op(c,wReal,hReal,start_pos_left)
+		
+		self.cabezera(c,wReal,hReal,start_pos_left)
 		glass_order_lines = self.sale_lines
 		
-		pagina, pos_inicial = self.verify_linea_op(c,wReal,hReal,pos_inicial,12,pagina,start_pos_left)
+		pagina, pos_inicial = self.verify_linea(c,wReal,hReal,pos_inicial,12,pagina,start_pos_left)
 
 		for item in glass_order_lines:
 			#weight = self.env['product.product'].search([('id','=',item.product_id[0].id)])
 			c.setFont("Calibri-Bold", 8)
-			pagina, pos_inicial = self.verify_linea_op(c,wReal,hReal,pos_inicial,40,pagina,start_pos_left)
+			pagina, pos_inicial = self.verify_linea(c,wReal,hReal,pos_inicial,40,pagina,start_pos_left)
 			weight_pro = item.product_id.weight if item.product_id.weight else 0
 			c.drawString(start_pos_left, pos_inicial, item.name if item.name else '')
 			c.line(start_pos_left,pos_inicial-2,552,pos_inicial-2)
 			
 			for line in item.id_type_line:
 				c.setFont("Calibri", 8)
-				pagina, pos_inicial = self.verify_linea_op(c,wReal,hReal,pos_inicial,12,pagina,start_pos_left)
+				pagina, pos_inicial = self.verify_linea(c,wReal,hReal,pos_inicial,12,pagina,start_pos_left)
 
 				tmp_pos = start_pos_left + 60 #para que sea mas a la derecha
 				c.drawString(tmp_pos+2, pos_inicial, line.nro_cristal if line.nro_cristal else '')
@@ -144,29 +144,25 @@ class GlassOrder(models.Model):
 		c.drawString(start_pos_left+10, pos_inicial-48, 'Usuario: '+str(self.env.user.partner_id.name) +' '+ str(now)[:19])
 		c.save()
 
-	# cabezera_op para el segundo reporte
+	# Cabezera para el segundo reporte
 	@api.multi
-	def cabezera_op(self,c,wReal,hReal,start_pos_left,size_widths=None):
+	def cabezera(self,c,wReal,hReal,start_pos_left,size_widths=None):
 		
 		company = self.env['res.company'].search([])[0]
 		if len(company) == 0:
 			raise exceptions.Warning(u"No se creado compañía alguna.\n Configure los datos de su compañía para poder mostrarlos en este reporte.")
 		
-
-		if company.logo:
-			file = base64.b64decode(company.logo)
-			c.drawImage(ImageReader(StringIO.StringIO(file)),start_pos_left,792,width=75,height=40,mask=None)
-		else:
-			c.setFont("Calibri", 12)
-			c.drawString(start_pos_left,800,company.name if company.name else 'Company')
-
+		#c.drawImage(company.logo,20,300,width=40,height=30,mask=None) 
+		## Codigo temporal:
 		invoice = ''
 		if len(self.invoice_ids) > 0:
 			invoice = self.invoice_ids[0].reference if self.invoice_ids[0].reference else ''
 
 		# Datos de Conpañía para la cabecera
+		c.setFont("Calibri", 12)
+		c.drawString(start_pos_left,800,company.name if company.name else 'Company')
 		c.setFont("Calibri", 6)
-		c.drawString(start_pos_left,784,company.street if company.street else u'Address')
+		c.drawString(start_pos_left,786,company.street if company.street else u'Address')
 		c.drawString(start_pos_left,778,(u'Teféfono: '+str(company.phone)) if company.phone else 'no disponible')
 		c.drawString(start_pos_left+70,778,(u'Fax: '+str(company.fax))if company.fax else 'no disponible')
 		c.drawString(start_pos_left,770,company.website if company.website else 'Fax')
@@ -176,6 +172,8 @@ class GlassOrder(models.Model):
 		
 		pos_inicial = hReal-83
 		posicion_indice = 1
+		#c.setFont("Calibri", 10)
+		#pagina, pos_inicial = self.verify_linea(c,wReal,hReal,pos_inicial,12,pagina,start_pos_left)
 		c.line(375,800,580,800)
 		c.line(375,750,580,750)
 		c.line(375,800,375,750)
@@ -197,7 +195,9 @@ class GlassOrder(models.Model):
 		c.drawString(start_pos_left+70,706,self.partner_id.street if self.partner_id.street else '')
 		c.drawString(start_pos_left,698,'Pto.Llegada:')
 		llegada = self.sale_order_id.partner_shipping_id.street if self.sale_order_id.partner_shipping_id.street else ''
-		c.drawString(start_pos_left+70,698,llegada)	
+		c.drawString(start_pos_left+70,698,llegada)
+		# c.line(360,735,550,735)
+		# c.line(370,740,370,700)		
 		c.drawString( 380 ,722,'Fecha Emision:')
 		c.drawString( 450 ,722, str(self.sale_order_id.date_order))
 		c.drawString( 380 ,714,'Fecha Entrega:')
@@ -216,13 +216,13 @@ class GlassOrder(models.Model):
 		c.line(410,680,410,600)
 		c.line(480,680,480,600)
 		c.line(550,680,550,600)
-		c.drawString( 90 ,640,'Nro. Cristal')
-		c.drawString( 175 ,640,'Medidas (mm)')
-		c.drawString( 300 ,640,'Nro.')
-		c.drawString( 300 ,630,'Pag.')
-		c.drawString( 430 ,640,'Metros')
-		c.drawString( 427 ,630,'Cuadrados')
-		c.drawString( 495 ,640,'Peso (Kg.)')
+		c.drawString( 90 ,640,self.particionar_text( 'Nro. Cristal' ,50) )
+		c.drawString( 175 ,640,self.particionar_text( 'Medidas (mm)' ,50) )
+		c.drawString( 300 ,640,self.particionar_text( 'Nro.' ,50) )
+		c.drawString( 300 ,630,self.particionar_text( 'Pag.' ,50) )
+		c.drawString( 430 ,640,self.particionar_text( 'Metros' ,50) )
+		c.drawString( 427 ,630,self.particionar_text( 'Cuadrados' ,50) )
+		c.drawString( 495 ,640,self.particionar_text( 'Peso (Kg.)' ,50) )
 		c.rotate(90)
    		c.drawString(22*cm, -10*cm, "Descuadre")
    		c.drawString(22*cm, -12.3*cm, "Pulido")
@@ -233,16 +233,38 @@ class GlassOrder(models.Model):
 		c.rotate(-90)
 
 	@api.multi
-	def verify_linea_op(self,c,wReal,hReal,posactual,valor,pagina,start_pos_left):
+	def particionar_text(self,c,tam):
+		tet = ""
+		for i in range(len(c)):
+			tet += c[i]
+			lines = simpleSplit(tet,'Calibri',8,tam)
+			if len(lines)>1:
+				return tet[:-1]
+		return tet
+
+	@api.multi
+	def verify_linea(self,c,wReal,hReal,posactual,valor,pagina,start_pos_left):
 		if posactual <40:
 			c.showPage()
-			self.cabezera_op(c,wReal,hReal,start_pos_left)
+			self.cabezera(c,wReal,hReal,start_pos_left)
 
 			c.setFont("Calibri-Bold", 8)
 			#c.drawCentredString(300,25,'Pág. ' + str(pagina+1))
 			return pagina+1,hReal-205
 		else:
 			return pagina,posactual-valor
+
+	@api.multi
+	def sum_array(self,array):
+		if len(array) == 1:
+			return array[0]
+		else:
+			try:
+				return array[0] + self.sum_array(array[1:])
+			except ValueError as e:
+				print('Error: ', e)
+				raise exceptions.Warning('Value in array parameter is not numeric.')
+				return
 	
 	# obtener las medidas a mostrar
 	@api.multi

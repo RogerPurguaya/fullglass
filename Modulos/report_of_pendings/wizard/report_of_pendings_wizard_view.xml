@@ -16,7 +16,7 @@
 						</group>
 						<group string="Filtros">
 								<field name="search_param" attrs="{'invisible':[('all_items','=',True)],'required':[('all_items','=',False)]}"/>
-								<field name="glass_order_id" attrs="{'invisible': ['|',('search_param','!=','glass_order'),('all_items','=',True)],'required':[('search_param','=','glass_order'),('all_items','=',False)]}" domain="[('state','!=','returned')]"/>
+								<field name="glass_order_id" attrs="{'invisible': ['|',('search_param','!=','glass_order'),('all_items','=',True)],'required':[('search_param','=','glass_order'),('all_items','=',False)]}"/>
 								<field name="product_id" attrs="{'invisible': ['|',('search_param','!=','product'),('all_items','=',True)],'required':[('search_param','=','product'),('all_items','=',False)]}"/>
 								<!-- <field name="filters" required="1"/> -->
 								<field name="customer_id" domain="[('customer','=',True)]" attrs="{'invisible':['|',('search_param','=','glass_order'),('all_items','=',True)]}"/>

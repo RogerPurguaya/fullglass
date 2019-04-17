@@ -3,7 +3,7 @@
 	'name': 'Recalcular Fechas de OP',
 	'category': 'production',
 	'author': 'ITGRUPO-POLIGLASS',
-	'depends': ['base','glass_production_order'],
+	'depends': ['base','glass_production_order','send_events_to_users_emails'],
 	'version':'1',
 	'description':"""
 		Modulo para recalcular las fechas de una orden de produccion (OP)

@@ -17,13 +17,10 @@
 							</group>
 						</group>
 
-						<group col='2' attrs="{'invisible':[('show_all','=',True)]}">	
+						<group col='2'>	
 							<group col='2' colspan='1'>
-								<field name="stage" attrs="{'required':[('show_all','=',False)]}"/>
+								<field name="stage" />
 							</group>							
-						</group>
-						<group>
-							<field name="show_all" string="Mostrar todos"/>
 						</group>	
 
 						<footer>

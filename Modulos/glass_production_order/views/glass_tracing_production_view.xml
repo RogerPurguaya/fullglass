@@ -11,24 +11,8 @@
         <field name="name">glass.list.image.form.view</field>
         <field name="model">glass.list.wizard</field>
         <field name="arch" type="xml">
-            <form string="Croquis" edit="false" create="false"> 
-                <sheet>
-            	<notebook>
-            		<page name="pdf" string="Croquis">
-                        <div id="pdfDoc">
-                            <iframe id="myCroquis" src="/import_base_it/static/croquis.pdf?t=666" width="100%" height="750px"></iframe>
-                        </div>
-            		</page>
-            	</notebook>
-                </sheet>
-                    <script>
-                    $(document).ready(function(){
-                            setTimeout(function (){
-                                random = Math.floor(Math.random() * 100000);
-                                $('#myCroquis').attr('src','/import_base_it/static/croquis.pdf?t='+random);
-                            },800);
-                        });
-                </script>
+            <form string="Croquis">     
+                <field name="croquis" widget="image"/>
             </form>
         </field>
     </record>
@@ -92,13 +76,11 @@
                     </notebook>
                     <group>
                         <group string="Totales">
-                            <field name="total_area" string="Area (M2)" readonly="1"/>
-                            <field name="count_total_crystals" string="Nro de Cristales" readonly="1"/>
-                            <field name="total_area_breaks" string="Area total Rotos (M2)" readonly="1"/>
-                            <field name="count_total_breaks" string="Nro de cristales Rotos"/>
-                            <field name="percentage_breaks" string="Porcentage rotos (%)" readonly="1"/>
+                            <field name="total_area" string="Area Total"/>
+                            <field name="total_with_production" string="Area con produccion"/>
+                            <field name="total_area_breaks" string="Area total Rotos"/>
+                            <field name="percentage_breaks" string="Porcentage rotos (%)"/>
                         </group>
-
                         <group string="Totales por Proceso">
                             <group>
                                 <field name="tot_optimizado" readonly="1"/>
@@ -173,18 +155,31 @@
         </field>
     </record>
 
-    <!-- Roturas de Cristales para el seguimiento de producción -->
+
+
+
+
+
+
+
     <record id="view_glass_respos_wizard_form" model="ir.ui.view">
         <field name="name">glass.respos.wizard.form.view</field>
         <field name="model">glass.respos.wizard</field>
         <field name="arch" type="xml">
-            <form string="Rotura de Cristal">
+            <form string="Cristales Rotos">
                 <group>
-                    <field name="motive" string="Motivo" required="1"/>
-                    <field name="stage" string="Etapa" required="1"/>
+                    <group>
+                        <field name="motive" required="1"/>
+                        <field name="stage" required="1"/>
+
+                    </group>
+                    <group>
+                        <field name="date_fisical"/>
+                        <field name="date_record"/>
+                    </group>
                 </group>
                 <footer>
-                    <button name="makerepo" type="object" string="Registrar Rotura" class="btn-primary"/>
+                    <button name="makerepo" type="object" string="Reporta rotura"/>
                     <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
                 </footer>
             </form>
@@ -201,9 +196,12 @@
                 <field name="time"/>
                 <field name="stage"/>
                 <field name="lot_line_id"/>
+                <field name="date_fisical"/>
             </tree>
         </field>
     </record>
+
+
 
     <act_window name="Reposición – Roto"
         res_model="glass.respos.wizard"

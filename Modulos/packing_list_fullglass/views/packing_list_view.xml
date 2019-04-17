@@ -26,7 +26,7 @@
                         <group>
                             <field name="stock_location_id" string="Almacén" attrs="{'readonly': ['|',('state','=','done'),('state','=','process')]}"/>
                             <field name="date" string="Fecha Packing List" attrs="{'readonly': ['|',('state','=','done'),('state','=','process')]}"/>
-                            <field name="order_filter" attrs="{'invisible': ['|',('state','=','done'),('state','=','process')]}" domain="[('state','!=','returned')]" string="Filtro OP"/>
+                            <field name="order_filter" attrs="{'invisible': ['|',('state','=','done'),('state','=','process')]}" string="Filtro OP"/>
                         </group>
                         <group>
                             <field name="location" attrs="{'readonly': ['|',('state','=','done'),('state','=','process')]}"/>

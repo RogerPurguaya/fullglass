@@ -137,7 +137,7 @@ class GlassOrder(models.Model):
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.glass_remove_order_form_view' % module)
 		data = {
-			'name': _('Devolver Orden de Produccion'),
+			'name': _('Remover Orden'),
 			'context': self._context,
 			'view_type': 'form',
 			'view_mode': 'form',
@@ -184,6 +184,7 @@ class GlassOrder(models.Model):
 		f.close()
 		pdf_path=tf.name		
 		tdir = tempfile.mkdtemp()
+		#print 'convitiendo las páginas'
 		
 		opened_pdf = PyPDF2.PdfFileReader(open(pdf_path,"rb"))
 		for i in range(opened_pdf.numPages):
@@ -206,6 +207,7 @@ class GlassOrder(models.Model):
 							else:
 								nini = int(acadnro[0])
 								nend = int(acadnro[0])+1
+							#print nini,nend
 
 							for x in range(nini,nend):
 								area = float(0.00000)
@@ -299,8 +301,12 @@ class GlassOrderLine(models.Model):
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
 	canceled = fields.Boolean('Anulado')
 
-	#locacion temporal como auxiliar para agregar un location a locations
+	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
+	#locacion temporal
 	location_tmp = fields.Many2one('custom.glass.location',string='Ubicacion') 
+	#warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
+	
+
 	# modelo a consultar
 	locations =  fields.Many2many('custom.glass.location','glass_line_custom_location_rel','glass_line_id','custom_location_id',string='Ubicaciones')
 	

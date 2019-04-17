@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models,api,exceptions, _
+from odoo import fields, models,api, _
 from odoo.exceptions import UserError
 from datetime import datetime
 from datetime import timedelta
@@ -92,20 +92,6 @@ class SaleOrder(models.Model):
 		self.ensure_one()
 		if self.invoice_count==0:
 			raise UserError(u"No se puede generar OP cuando no se tiene una factura")
-		
-		# validando restricciones de terminos de pago:
-		if self.payment_term_id:
-			configs=self.env['config.payment.term'].search([('operation','=','generate_op')])
-			if len(configs) == 1: # solo puede estar en una conf
-				if self.payment_term_id.id in configs[0].payment_term_ids.ids:
-					invoice = self.invoice_ids[0]
-					payed = invoice.amount_total - invoice.residual
-					percentage = (payed/invoice.amount_total) * 100
-					if percentage < configs[0].minimal:
-						raise exceptions.Warning('No puede emitirse la Orden de Produccion\nEl porcentage minimo para el plazo de pago elegido es del '+str(configs[0].minimal)+' %.')
-			else:
-				raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al generar OP')
-
 		lsta=[]
 		generar = False
 		for line in self.order_line:
@@ -126,6 +112,8 @@ class SaleOrder(models.Model):
 			newname = newname+"."+str(nextnumber)
 
 		if generar:
+			
+
 			area = 0
 			tieneentalle = False
 			for line in self.order_line:

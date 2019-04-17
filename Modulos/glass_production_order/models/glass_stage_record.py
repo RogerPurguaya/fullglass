@@ -26,8 +26,8 @@ class GlassStageRecord(models.Model):
 		('retirado','Retirado'),
 		],'Etapa')
 	lot_line_id = fields.Many2one('glass.lot.line',u'Línea de lote')
+	date_fisical=fields.Date('Fecha de Rotura')
 	break_motive = fields.Char('Motivo de rotura')
-	date_fisical=fields.Date('Fecha de Rotura') # campo en desuso (no tomarlo en cuenta)
 
 
 

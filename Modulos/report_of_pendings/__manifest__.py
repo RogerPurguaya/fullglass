@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'Reporte de Pendientes - Fullglass',
+    'name': 'Reporte de seguimiento global de la produccion',
     'category': 'report',
     'author': 'ITGRUPO-POLIGLASS',
     'depends': ['import_base_it','glass_production_order'],

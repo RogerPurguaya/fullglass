@@ -8,7 +8,7 @@
         <field name="inherit_id" ref="glass_production_order.view_glass_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header/button[@name='remove_order']" position="after">
-                <button string="Reprogramar OP" name="get_form_postpone" type="object" states="process,confirmed" groups="glass_production_order.group_reprograming_op"/>
+                <button string="Reprogramar OP" name="get_form_postpone" type="object" states="process,confirmed"/>
             </xpath>
         </field>
     </record>

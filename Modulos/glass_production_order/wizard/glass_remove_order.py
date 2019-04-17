@@ -21,27 +21,28 @@ class GlassRemoveOrder(models.TransientModel):
 	@api.one
 	def remove_order(self):
 		active_obj = self.env['glass.order'].browse(self._context['active_id'])
-		used_lines = active_obj.line_ids.filtered(lambda x: x.is_used or x.lot_line_id)
+		used_lines = active_obj.line_ids.filtered(lambda x: x.is_used)
 		if len(used_lines) > 0:
-			raise UserError(u'No se puede retirar la OP.\nUno o varios elementos de esta orden de producción ya se encuentran en los lotes de producción.')		
+			raise UserError(u'Uno o varios elementos de esta orden de producción ya se encuentran en los lotes de producción')		
 
+
+		# active_obj.message_post(body="Retirada<br/>Fecha: "+self.date_remove+"<br/>Motivo: "+self.motive_remove+"<br/>")
+		# active_obj.sale_order_id.message_post(body="OP retirada: <br/>Fecha: "+self.date_remove+"<br/>Motivo: "+self.motive_remove+"<br/>")
+		
 		active_obj.sale_order_id.action_cancel()
 		active_obj.sale_order_id.action_draft()
 		
 		for line in active_obj.line_ids:
 			line.unlink()
-		
 		active_obj.write({'state':'returned'})
 		
 		msg = 'El usuario '+self.env.user.name+' ha retirado la Orden de Produccion: ' + active_obj.name
 		if self.motive_remove:
 			msg += ' por el motivo: "'+ str(self.motive_remove).strip() + '"'
-		if self.date_remove:
-			msg += ', asignando la fecha: '+ str(self.date_remove) + '.'
 
 		data = {
-			'subject': 'Retiro de Orden de Produccion: ' + str(active_obj.name),
-			'message': msg
+			'subject': 'Reprogramacion de OP: ' + str(order.name),
+			'message': 'Se ha reprogramado la fecha de produccion de la OP '+str(order.name)+' del '+str(old_date)+' al ' + str(dateprod) + '.'
 		}
 
 		sender = self.env['send.email.event'].create(data)

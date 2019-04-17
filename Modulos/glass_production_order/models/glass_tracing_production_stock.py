@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+# Aegumiento a la produccion en almacen
 from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 from datetime import datetime
 from functools import reduce
 
-# Seguimiento a la produccion en almacen
 class Glass_tracing_Production_Stock(models.Model):
 	_name='glass.tracing.production.stock'
 	_rec_name = 'titulo'
@@ -24,7 +24,7 @@ class Glass_tracing_Production_Stock(models.Model):
 	show_invoice = fields.Many2one('account.invoice',string='Factura', compute='_get_show_invoice')
 
 	total_area_breaks = fields.Float('Total Rotos M2',compute='_get_total_area_breaks',digits=(12,4))
-	count_total_breaks = fields.Integer('Nro Rotos',compute='_get_count_breaks')
+	count_total_breaks = fields.Integer('Nro Rotos',compute='_get_count_beaks')
 	percentage_breaks = fields.Float('Porcentage de rotos',compute='_get_percentage_breaks') 
 	tot_templado=fields.Integer('Templado')
 	tot_arenado=fields.Integer('Arenado')
@@ -80,7 +80,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				record.total_area_breaks = 0
 
 	@api.depends('line_ids')
-	def _get_count_breaks(self):
+	def _get_count_beaks(self):
 		for record in self:
 			record.count_total_breaks = len(record.line_ids.mapped('lot_line_id').filtered(lambda x: x.is_break))
 
@@ -177,7 +177,7 @@ class Glass_tracing_Production_Stock(models.Model):
 				lot_lines = lot_lines.filtered(lambda x:x.ingresado==True and x.entregado==False)
 			elif self.filter_field == 'expired':
 				now = datetime.now().date()
-				lot_lines = lot_lines.filtered(lambda x: self._str2date(x.order_prod_id.date_delivery) < now and x.templado == False)
+				lot_lines = lot_lines.filtered(lambda x: datetime.strptime(x.order_prod_id.date_delivery.replace('-',''),"%Y%m%d").date() < now and x.templado == False)
 		if self.date_ini and self.date_end and self.search_param == 'customer':
 			start = self._str2date(self.date_ini)
 			end = self._str2date(self.date_end)

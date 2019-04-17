@@ -204,7 +204,7 @@ class Packing_List(models.Model):
 			lines = record.selected_line_ids.mapped('order_line_id')				
 			for prod in set(lines.mapped('product_id')):
 				fil_list = lines.filtered(lambda x:x.product_id.id == prod.id)
-				total_area = reduce(lambda x,y:x+y,fil_list.mapped('area'))#changed
+				total_area = reduce(lambda x,y:x+y,fil_list.mapped('lot_line_id').mapped('area'))
 				total_weight = reduce(lambda x,y: x+y,fil_list.mapped('peso'))
 				new = self.env['packing.list.grouped.line'].create({
 				'parent_id':self.id, 

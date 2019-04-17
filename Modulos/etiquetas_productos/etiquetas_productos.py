@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import osv
 import base64
-from openerp import models, fields, api, exceptions
+from openerp import models, fields, api
 import codecs
 import pprint
 
@@ -94,18 +94,23 @@ class GlassFurnaceOut(models.Model):
 
 		c.setFont("Calibri", 8)
 		pagina, pos_inicial = self.verify_linea(c,wReal,hReal,pos_inicial,12,pagina)
+
+				
+		for line in self.line_ids:
 		
-		lines = self.line_ids.filtered(lambda x: not x.lot_line_id.is_break) # filter list		
-		if len(lines) == 0:
-			raise exceptions.Warning('No hay cristales aptos para etiquetar')
-		for line in lines:
-			c.setFont("Calibri", 12)
-			c.drawString(15,100,'O/P: '+line.lot_line_id.order_prod_id.name if line.lot_line_id.order_prod_id else '')
-			c.setFont("Calibri-Bold", 9)
-			c.drawRightString(200,100,self._process_measures_item(line.base1,line.base2,line.altura1,line.altura2))
+
 			c.setFont("Calibri", 10)
-			nro_crystal = line.crystal_number + '/' + str(len(line.lot_line_id.order_prod_id.line_ids))
-			c.drawString( 15 ,90,'Cristal Nro. '+nro_crystal)
+			#c.drawString( 15 ,90,self.particionar_text( 'O/P',20) )
+			c.drawString( 15 ,100,self.particionar_text( 'O/P',20) )
+			c.setFont("Calibri-Bold", 9)
+			for linelot in line.lot_id.line_ids:
+				if linelot.nro_cristal == line.crystal_number and not linelot.order_line_id.glass_break:
+					c.drawString( 35 ,100,self.particionar_text( linelot.order_prod_id.name if linelot.order_prod_id.name  else '',75))
+			
+			c.drawString( 165 ,100,self.particionar_text( (str(line.base1) +'x'+ str(line.altura1)) if (str(line.base1) +'x'+ str(line.altura1)) else '' ,0) )
+			c.setFont("Calibri", 10)
+			c.drawString( 15 ,90,self.particionar_text( 'Cristal Nro.',43) )
+			c.drawString( 58 ,90,self.particionar_text( line.crystal_number if line.crystal_number else '',0) )
 			c.setFont("Calibri", 7)
 			c.drawString( 15 ,84,self.particionar_text(  line.lot_id.product_id.name if line.lot_id.product_id.name else '',180) )
 			c.setFont("Calibri-Bold", 10)
@@ -113,8 +118,10 @@ class GlassFurnaceOut(models.Model):
 			c.setFont("Calibri", 10)
 			c.drawString( 15 ,68,self.particionar_text( line.partner_id.street if line.partner_id.street else '',0) )
 
+
 			c.line(15,65,195,65)
 			c.line(15,55,195,55)
+
 			#las lineas verticales
 			c.line(15,65,15,55)
 			c.line(45,65,45,55)
@@ -144,11 +151,19 @@ class GlassFurnaceOut(models.Model):
 				c.drawString( 190 ,58,self.particionar_text( 'EM' ,10) )
 			else:
 				pass
+
+			story=[]
+
 			string = line.lot_line_id.search_code
 			st = code128.Code128(string,barHeight=.3*inch,barWidth=1.2)
+			story.append(st)
+			#f = Frame(0*mm, 0*mm, 10*mm, 15*mm, showBoundary=0)
+			#f = Frame(18*mm, -2*mm, 10*mm, 15*mm, showBoundary=0)
+			#f = Frame(18*mm, -2*mm,10*mm, 20*mm, showBoundary=0)
+			#f.addFromList(story, c)
 			st.drawOn(c,10,15)
-			line.etiqueta = True
 			c.showPage()
+
 		c.save()
 
 
@@ -173,22 +188,6 @@ class GlassFurnaceOut(models.Model):
 			return pagina+1,hReal-95
 		else:
 			return pagina,posactual-valor
-
-	# obtener las medidas a mostrar
-	@api.multi
-	def _process_measures_item(self,base1,base2,height1,height2):
-		label = ''
-		base1,base2,height1,height2 = str(base1),str(base2),str(height1),str(height2)
-		if base1 == base2:
-			label += base1
-		else:
-			label += base1 + '/' + base2
-		label += 'X'
-		if height1 == height2:
-			label += height1
-		else:
-			label += height1 + '/' + height2
-		return label
 
 
 
