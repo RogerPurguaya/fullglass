@@ -135,7 +135,11 @@ class product_template(models.Model):
 				namet += '.000'
 			
 			self.refresh()
-			new_n = self.codigo_inicial.name + ' '
+			if self.codigo_inicial.name:
+				new_n = self.codigo_inicial.name + ' '
+			else:
+				new_n = ''
+
 
 			for i in self.atributo_ids:
 				new_n += i.valor_id.name + ','
