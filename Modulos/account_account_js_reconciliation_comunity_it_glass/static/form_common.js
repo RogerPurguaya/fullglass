@@ -1112,7 +1112,7 @@ var SelectCreateDialog = ViewDialog.extend({
             ];
             if(!self.options.no_create) {
                 buttons.splice(0, 0, {text: _t("Create"), classes: "btn-primary", click: function() {
-                    if (self.session.uid == 1 || self.session.uid == 35 )
+                    if (self.session.uid == 1 || self.session.uid == 18 )
                     {
                         self.create_edit_record();
                     }
