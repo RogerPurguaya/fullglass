@@ -17,9 +17,9 @@ class GlassListMainWizard(models.Model):
 	filter_field = fields.Selection([('all','Todos'),('pending','Pendientes'),('produced','Producidos'),('to inter','Por ingresar'),('to deliver','Por Entregar'),('expired','Vencidos')],string='Filtro',default='all')
 	search_param = fields.Selection([('glass_order','Orden de Produccion'),('requisition','Mesa'),('lot','Lote')],default='glass_order',string='Busqueda por')
 	show_breaks = fields.Boolean('Mostrar Rotos')
-	count_total_crystals = fields.Integer('Nro total de cristales')
-	total_with_production=fields.Float('Total M2 con produccion',compute='_get_in_production_area',digits=(20,4))
+	count_total_crystals = fields.Integer('Nro cristales',compute='_get_count_crystals')
 	total_area_breaks = fields.Float('Total Rotos M2',compute='_get_total_area_breaks',digits=(20,4))
+	count_total_breaks = fields.Integer('Nro Rotos',compute='_get_count_breaks')
 	percentage_breaks = fields.Float('Porcentage de rotos',compute='_get_percentage_breaks',digits=(20,4)) 
 	total_area = fields.Float('Total M2',compute='_get_total_area', digits=(20,4))
 	tot_optimizado=fields.Integer('Optimizado')
@@ -35,27 +35,19 @@ class GlassListMainWizard(models.Model):
 	tot_entregado=fields.Integer('Entregado')
 	tot_requisicion=fields.Integer(u'Requisición')
 
-	@api.depends('line_ids','total_with_production')
+	@api.depends('line_ids','total_area_breaks')
 	def _get_total_area(self):
 		for record in self:
-			areas = []
-			lines = record.line_ids.mapped('order_line').filtered(lambda x: not x.lot_line_id)
-			for line in lines:
-				area = self._get_area(line.altura1,line.altura2,line.base1,line.base2)
-				areas.append(area)
+			areas = record.line_ids.mapped('area')
 			if len(areas) > 0:
-				record.total_area = reduce(lambda x,y: x+y,areas) + record.total_with_production
+				record.total_area = reduce(lambda x,y: x+y,areas) - record.total_area_breaks
 			else:
-				record.total_area = record.total_with_production
+				record.total_area = 0
 
-	@api.depends('line_ids')
-	def _get_in_production_area(self):
+	@api.depends('line_ids','count_total_breaks')
+	def _get_count_crystals(self):
 		for record in self:
-			areas = record.line_ids.mapped('lot_line_id').filtered(lambda x: not x.is_break).mapped('area')
-			if len(areas) > 0:
-				record.total_with_production = reduce(lambda x,y: x+y,areas)
-			else:
-				record.total_with_production = 0
+			record.count_total_crystals = len(record.line_ids) - record.count_total_breaks
 
 	@api.depends('line_ids')
 	def _get_total_area_breaks(self):
@@ -65,6 +57,12 @@ class GlassListMainWizard(models.Model):
 				record.total_area_breaks=reduce(lambda x,y: x+y,line_ids.mapped('area'))
 			else:
 				record.total_area_breaks = 0
+
+	@api.depends('line_ids')
+	def _get_count_breaks(self):
+		for record in self:
+			record.count_total_breaks = len(record.line_ids.filtered(lambda x: x.glass_break))
+
 	@api.depends('total_area','total_area_breaks')
 	def _get_percentage_breaks(self):
 		for record in self:
@@ -72,24 +70,7 @@ class GlassListMainWizard(models.Model):
 				record.percentage_breaks=(record.total_area_breaks/record.total_area)*100
 			else:
 				record.percentage_breaks=0
-				
-
-	@api.multi
-	def callbreakcrystal(self):
-		form_view_ref = self.env.ref('glass_production_order.view_glass_respos_wizard_form', False)
-		module = __name__.split('addons.')[1].split('.')[0]
-		view = self.env.ref('%s.view_glass_respos_wizard_form' % module)
-		data = {
-			'name': _('Registrar Rotura de Cristales'),
-			'view_type': 'form',
-			'view_mode': 'form',
-			'res_model': 'glass.respos.wizard',
-			'view_id': view.id,
-			'type': 'ir.actions.act_window',
-			'target': 'new',
-		} 
-		return data
-	
+					
 	@api.multi
 	def makelist(self):
 		self.ensure_one()
@@ -169,24 +150,24 @@ class GlassListMainWizard(models.Model):
 				'repos':line.order_line_id.glass_repo,
 				'order_line':line.order_line_id.id,
 				'main_id':self.id,
-				'lot_line_id':line.order_line_id.lot_line_id.id if line.order_line_id.lot_line_id.id else line.order_line_id.last_lot_line.id,
-				'lot_id': line.order_line_id.lot_line_id.lot_id.id if line.order_line_id.lot_line_id.id else False,
-				'croquis':line.order_line_id.image_page,
+				'lot_line_id':line.id,
+				'lot_id': line.lot_id.id,
+				'croquis':line.order_line_id.image_page_number,
 				})
 
 		vals={
-			'tot_optimizado':len(list(filter(lambda x:x.templado and not x.is_break,orders))),
-			'tot_corte':len(list(filter(lambda x:x.corte and not x.is_break,orders))),
-			'tot_pulido':len(list(filter(lambda x:x.pulido and not x.is_break,orders))),
-			'tot_entalle':len(list(filter(lambda x:x.entalle and not x.is_break,orders))),
-			'tot_lavado':len(list(filter(lambda x:x.lavado and not x.is_break,orders))),
-			'tot_horno':len(list(filter(lambda x:x.horno and not x.is_break,orders))),
-			'tot_templado':len(list(filter(lambda x:x.templado and not x.is_break,orders))),
-			'tot_insulado':len(list(filter(lambda x:x.insulado and not x.is_break,orders))),
-			'tot_comprado':len(list(filter(lambda x:x.comprado and not x.is_break,orders))),
-			'tot_ingresado':len(list(filter(lambda x:x.ingresado and not x.is_break,orders))),
-			'tot_entregado':len(list(filter(lambda x:x.entregado and not x.is_break,orders))),
-			'tot_requisicion':len(list(filter(lambda x:x.requisicion and not x.is_break,orders))),
+		'tot_optimizado':len(list(filter(lambda x:x.templado and not x.is_break,orders))),
+		'tot_corte':len(list(filter(lambda x:x.corte and not x.is_break,orders))),
+		'tot_pulido':len(list(filter(lambda x:x.pulido and not x.is_break,orders))),
+		'tot_entalle':len(list(filter(lambda x:x.entalle and not x.is_break,orders))),
+		'tot_lavado':len(list(filter(lambda x:x.lavado and not x.is_break,orders))),
+		'tot_horno':len(list(filter(lambda x:x.horno and not x.is_break,orders))),
+		'tot_templado':len(list(filter(lambda x:x.templado and not x.is_break,orders))),
+		'tot_insulado':len(list(filter(lambda x:x.insulado and not x.is_break,orders))),
+		'tot_comprado':len(list(filter(lambda x:x.comprado and not x.is_break,orders))),
+		'tot_ingresado':len(list(filter(lambda x:x.ingresado and not x.is_break,orders))),
+		'tot_entregado':len(list(filter(lambda x:x.entregado and not x.is_break,orders))),
+		'tot_requisicion':len(list(filter(lambda x:x.requisicion and not x.is_break,orders))),
 		} 
 		self.write(vals)
 		return True
@@ -211,18 +192,6 @@ class GlassListMainWizard(models.Model):
 		if not self.show_breaks:
 			lot_lines = lot_lines.filtered(lambda x: not x.is_break)
 		return list(set(lot_lines))
-
-	@api.multi
-	def _get_area(self,altura1,altura2,base1,base2):
-		area=Decimal(0.0000)
-		l1 = Decimal(float(base1))
-		if base2>base1:
-			l1=Decimal(float(base2))
-		l2 = Decimal(float(altura1))
-		if altura2>altura1:
-			l2=Decimal(float(altura2))
-		area = round(float(float(l1)*float(l2))/float(1000000.0000),4)
-		return area
 
 class GlassListWizard(models.Model):
 	_name='glass.list.wizard'
@@ -256,11 +225,12 @@ class GlassListWizard(models.Model):
 	order_line = fields.Many2one('glass.order.line','Lineapedido')
 	lot_line_id = fields.Many2one('glass.lot.line','Linealote')
 	lot_id = fields.Many2one('glass.lot','Lote')
-	croquis=fields.Binary('Croquis')
-	# nombre corto original:
+	croquis=fields.Char('Croquis')
+	area = fields.Float('Area',related='order_line.area',digits=(20,4))
+	
+	# nombre corto:
 	display_name_lot = fields.Char(string='Lote', related='lot_id.name')
 	display_name_partner=fields.Char(string='Cliente',compute='_get_display_name_partner')
-	# campo par mostrar la info del prod:
 	product_name = fields.Char('Producto',related='order_line.product_id.name')
 	# Campo auxiliar para mostrar las lineas que no tienen lote de produccion:
 	decorator = fields.Selection([('default','default'),('break','break'),('without_lot','without_lot')],default='default')
@@ -272,7 +242,8 @@ class GlassListWizard(models.Model):
 
 	@api.multi
 	def show_detail_tracing_line(self):
-		view = self.env.ref('glass_production_order.show_detail_tracing_line_wizard_form', False)
+		module = __name__.split('addons.')[1].split('.')[0]
+		view = self.env.ref('%s.show_detail_tracing_line_wizard_form' % module, False)
 		wizard = self.env['show.detail.tracing.line.wizard'].create({'lot_line_id':self.lot_line_id.id})
 		return{
 			'name': 'Detalle de Seguimiento',
@@ -304,7 +275,24 @@ class GlassListWizard(models.Model):
 	def show_croquis(self):
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_glass_list_image_form' % module)
-		data = {
+		path = self.env['main.parameter'].search([])[0].download_directory
+		
+		file = None
+		if self.croquis:
+			file = open(self.croquis,'rb')
+			cont_t = file.read()
+			file.close()
+			file_new = open(path + 'croquis.pdf','wb')
+			file_new.write(cont_t)
+			file_new.close()
+		else:
+			import PyPDF2
+			writer = PyPDF2.PdfFileWriter()
+			writer.insertBlankPage(width=500, height=500, index=0)
+			with open(path+'croquis.pdf', "wb") as outputStream: 
+				writer.write(outputStream) #write pages to new PDF
+
+		return {
 			'name': _('Croquis'),
 			'view_type': 'form',
 			'view_mode': 'form',
@@ -314,7 +302,6 @@ class GlassListWizard(models.Model):
 			'target': 'new',
 			'res_id':self.id,
 		} 
-		return data
 
 class GlassReposWizard(models.TransientModel):
 	_name='glass.respos.wizard'
@@ -332,44 +319,26 @@ class GlassReposWizard(models.TransientModel):
 		('entalle','Entalle'), 
 		('lavado','Lavado'), 
 		('templado','Templado'),
-		('insulado','Insulado'),
-		('produccion',u'Producción')],'Etapa') 
-	date_fisical=fields.Date('Fecha de Rotura',default=fields.Date.today())
-	date_record=fields.Date('Fecha de Registro',default=fields.Date.today())
+		('horno','Horno'),
+		('insulado','Insulado')],'Etapa') 
 	
 	@api.one
 	def makerepo(self):
 		active_ids = self._context['active_ids']
 		line = self.env['glass.list.wizard'].browse(active_ids)
-		paso = False
-		if self.stage=='corte':
-			if line.lot_line_id.corte:
-				paso = True
-		if self.stage=='pulido':
-			if line.lot_line_id.pulido:
-				paso = True
-		if self.stage=='entalle':
-			if line.lot_line_id.entalle:
-				paso = True
-		if self.stage=='lavado':
-			if line.lot_line_id.lavado:
-				paso = True
-		if self.stage=='templado':
-			if line.lot_line_id.templado:
-				paso = True
-		if not paso:		
-			raise UserError(u'No se puede registrar debido a que uno de los cristales no se encuentra en la etapa seleccionada')							
-		data = {
+		
+		stage = line.lot_line_id.stages_ids.filtered(lambda x: x.stage == self.stage)
+		if len(stage) == 0:
+			raise UserError(u'El cristal a no ha pasado por la etapa seleccionada!\nSeleccione la ultima etapa exitosa del cristal')	
+						
+		stage_obj = self.env['glass.stage.record'].create({
 			'user_id':self.env.uid,
-			'date':datetime.now().date(),
-			'time':datetime.now().time(),
+			'date':stage[0].date, #registrar rotura con la fecha y hora de la etapa sel.
+			'time':stage[0].time,
 			'stage':'roto',
 			'lot_line_id':line.lot_line_id.id,
-			'date_fisical':self.date_fisical,
 			'break_motive':self.motive
-		}
-		stage_obj = self.env['glass.stage.record']
-		stage_obj.create(data)
+		})
 		line.order_line.last_lot_line=line.lot_line_id.id
 		line.order_line.glass_break=True
 		line.order_line.lot_line_id=False

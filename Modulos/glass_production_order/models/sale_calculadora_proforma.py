@@ -6,8 +6,8 @@ from datetime import datetime
 class SaleCalculatorProformaLine(models.Model):
 	_inherit = 'sale.calculadora.proforma.line'
 
-	production_id = fields.Many2one('glass.order')
-	croquis = fields.Binary('Croquis')
+	production_id = fields.Many2one('glass.order',copy=False)
+	croquis = fields.Binary('Croquis',copy=False)
 
 	@api.multi
 	def unlink(self):

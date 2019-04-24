@@ -1,10 +1,10 @@
 from odoo import api, fields, models,exceptions
+from datetime import datetime
 
 class RequisitionMaterial(models.Model):
 	_name = 'requisition.material'
 
-	identifier = fields.Char(string='Identificador')
-	date = fields.Date(string='Fecha', default=fields.Date.today)
+	date = fields.Date(string='Fecha', default=datetime.now().date())
 	config_id = fields.Many2one('glass.order.config',string='Config')
 	product_id = fields.Many2one('product.product',string='Producto')
 	type_operation = fields.Selection([('raw_materials','Materias Primas'),('pieces','Retazos'),('return_pieces','Devolucion de Retazos')])

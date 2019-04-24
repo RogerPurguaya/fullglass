@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models,api, _
+from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 from datetime import datetime
 from datetime import timedelta
+import base64
 
 class glass_pdf_file(models.Model):
 	_name='glass.pdf.file'
@@ -15,20 +16,19 @@ class glass_pdf_file(models.Model):
 	op_id = fields.Many2one('glass.order',u'Orden de Producción')
 	sale_id = fields.Many2one('sale.order','Pedido de venta')
 	is_editable = fields.Boolean('Es editable',default=True)
+	path_pdf = fields.Char(string='Ruta del Pdf')
 	_rec_name="pdf_name"
 
-	@api.model
-	def create(self,vals):
-		if 'file_name' in vals:
-			vals.update({'pdf_name':vals['file_name']})
-		super(glass_pdf_file,self).create(vals)
-
-	@api.one
-	def write(self,vals):
-		if 'file_name' in vals:
-			vals.update({'pdf_name':vals['file_name']})
-		super(glass_pdf_file,self).write(vals)
-
+	@api.multi
+	def unlink(self):
+		import os
+		if self.op_id:
+			raise UserError('No es posible eliminar\nUna Orden de produccion usa este archivo')
+		if self.path_pdf and os.path.exists(self.path_pdf):
+			os.remove(self.path_pdf)
+		else:
+			print('Path file does not exist !')	
+		return super(glass_pdf_file,self).unlink()
 
 	@api.one
 	def save_pdf(self):
@@ -38,13 +38,26 @@ class glass_pdf_file(models.Model):
 class SaleOrder(models.Model):
 	_inherit = 'sale.order'
 
-	op_count = fields.Integer(u'Ordenes de producción',compute="getops")
+	op_count = fields.Integer(u'Ordenes de producción',compute="getops",copy=False)
 	op_control = fields.Char('Control de OP',default="NO APLICA")
-	op_ids = fields.One2many('glass.order',string=u'Ordenes de producción',compute="getops")
-	files_ids = fields.One2many('glass.pdf.file','sale_id','Croquis')
-	reference_order = fields.Char(string='Referencia OP')
+	op_ids = fields.One2many('glass.order',string=u'Ordenes de producción',compute="getops", copy=False)
+	files_ids = fields.One2many('glass.pdf.file','sale_id','Croquis',copy=False)
+	reference_order = fields.Char(string='Referencia OP',copy=False)
 
-
+	@api.multi
+	def add_sketch_file(self):
+		module = __name__.split('addons.')[1].split('.')[0]
+		view = self.env.ref('%s.add_sketch_file_view_form' % module)
+		return {
+			'name':'Agregar Archivo Croquis',
+			'view_id':view.id,
+			'type': 'ir.actions.act_window',
+			'res_model': 'add.sketch.file',
+			'view_mode': 'form',
+			'view_type': 'form',
+			'target': 'new',
+		}
+	
 	@api.one
 	def getstateop(self):
 		lsta=[]
@@ -92,6 +105,20 @@ class SaleOrder(models.Model):
 		self.ensure_one()
 		if self.invoice_count==0:
 			raise UserError(u"No se puede generar OP cuando no se tiene una factura")
+		
+		# validando restricciones de terminos de pago:
+		if self.payment_term_id:
+			configs=self.env['config.payment.term'].search([('operation','=','generate_op')])
+			if len(configs) == 1: # solo puede estar en una conf
+				if self.payment_term_id.id in configs[0].payment_term_ids.ids:
+					invoice = self.invoice_ids[0]
+					payed = invoice.amount_total - invoice.residual
+					percentage = (payed/invoice.amount_total) * 100
+					if percentage < configs[0].minimal:
+						raise exceptions.Warning('No puede emitirse la Orden de Produccion\nEl porcentage minimo para el plazo de pago elegido es del '+str(configs[0].minimal)+' %.')
+			else:
+				raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al generar OP')
+
 		lsta=[]
 		generar = False
 		for line in self.order_line:
@@ -112,8 +139,6 @@ class SaleOrder(models.Model):
 			newname = newname+"."+str(nextnumber)
 
 		if generar:
-			
-
 			area = 0
 			tieneentalle = False
 			for line in self.order_line:
@@ -126,14 +151,14 @@ class SaleOrder(models.Model):
 
 			config=self.env['glass.order.config'].search([])
 			if len(config)==0:
-			    raise UserError(u'No se encontraron los valores de configuración de produccion')
+				raise UserError(u'No se encontraron los valores de configuración de produccion')
 			config=self.env['glass.order.config'].search([])[0]
 			limite = False
 			for linec in config.limit_ids:
 				if linec.motive_limit=='templado':
 					limite = linec
 			if not limite:
-				raise UserError(u"No se ha encontra la configuración de plazos de producción")
+				raise UserError(u"No se ha encontrado la configuración de plazos de producción")
 			dias_prod = 0
 			if area<51:
 				dias_prod = limite.zero_2_50
@@ -144,21 +169,13 @@ class SaleOrder(models.Model):
 			if area>200:
 				dias_prod = limite.more_2_200
 
-			# 'selected_file':self.selected_file,
-			# 'file_crokis':self.file_crokis,
-			# 'file_name':self.file_name,
-			# 'destinity_order':self.destinity_order,
-			# 'send2partner':self.send2partner,
-			# 'in_obra':self.in_obra,
-			# 'obra_text':self.obra_text,
 			if vals_wizard['in_obra']:
 				dias_prod = dias_prod+limite.obras
 					
 			if tieneentalle:
 				dias_prod = dias_prod+limite.entalle
 				
-
-			dateprod = datetime.now()+timedelta(days=dias_prod)
+			dateprod = datetime.now().date()+timedelta(days=dias_prod)
 			
 			if dateprod.weekday()==6:
 				dateprod = dateprod+timedelta(days=1)
@@ -179,21 +196,21 @@ class SaleOrder(models.Model):
 			if aux: # si la entrega es en la ciudad, delivery_date es igual a la send_date
 				datedeli = datesend
 			else:
-				datedeli = datesend+timedelta(days=dias_send)
-				
-		 	vals = {
+				datedeli = datesend+timedelta(days=dias_send)	
+			vals = {
 				'sale_order_id':self.id,
 				'name':newname,
 				'date_production':dateprod,
 				'date_send':datesend,
 				'date_delivery':datedeli,
-				'sketch':vals_wizard['selected_file'].pdf_file,
+				#'sketch':vals_wizard['selected_file'].pdf_file,
 				'file_name':vals_wizard['selected_file'].file_name,
 				'obra':vals_wizard['obra_text'],
 				'destinity_order':vals_wizard['destinity_order'],
 				'send2partner':vals_wizard['send2partner'],
 				'in_obra':vals_wizard['in_obra'],
-				'sketch':vals_wizard['file_crokis'],
+				#'sketch':vals_wizard['file_crokis'],
+				'croquis_path':vals_wizard['croquis_path'],
 				'comercial_area':vals_wizard['comercial_area'],
 				'reference_order': self.reference_order if self.reference_order else ''
 			}
@@ -219,27 +236,20 @@ class SaleOrder(models.Model):
 		self.getstateop()
 		return neworder
 
-		
-
-
 	@api.multi
 	def loadproductionwizard(self):
 		self.ensure_one()
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.saleorder_makeorder_view' % module)
-
-
-		data = {
-					
-				'name':u'Generar Órdenes de Producción',
-				'view_type':'form',
-				'view_mode':'form',
-				'res_model':'sale.order.make.order',
-				'type':'ir.actions.act_window',
-				'target': 'new',
-				'view_id': view.id,
+		return {
+			'name':u'Generar Órdenes de Producción',
+			'view_type':'form',
+			'view_mode':'form',
+			'res_model':'sale.order.make.order',
+			'type':'ir.actions.act_window',
+			'target': 'new',
+			'view_id': view.id,
 		}
-		return data	
 
 	@api.multi
 	def show_po_list(self):
@@ -248,13 +258,13 @@ class SaleOrder(models.Model):
 		view = self.env.ref('%s.view_glass_order_tree' % module)
 		idact=False
 		data = {
-					
-				'name':u'Órdenes de producción',
-				'view_type':'form',
-				'view_mode':'tree,form',
-				'res_model':'glass.order',
-				'type':'ir.actions.act_window',
-				'domain':[('sale_order_id','=',self.id)]
+			
+			'name':u'Órdenes de producción',
+			'view_type':'form',
+			'view_mode':'tree,form',
+			'res_model':'glass.order',
+			'type':'ir.actions.act_window',
+			'domain':[('sale_order_id','=',self.id)]
 		}
 		return data		
 
@@ -263,17 +273,13 @@ class SaleOrder(models.Model):
 		form_view_ref = self.env.ref('glass_production_order.view_glass_croquis_sale_wizard_form', False)
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_glass_croquis_sale_wizard_form' % module)
-		data = {
-			'name': _('Croquis'),
-			'context': self._context,
-			'view_type': 'form',
-			'view_mode': 'form',
-			'res_model': 'glass.croquis.sale.wizard',
-			'view_id': view.id,
-			'type': 'ir.actions.act_window',
-			'target': 'new',
+		return {
+		'name': _('Croquis'),
+		'context': self._context,
+		'view_type': 'form',
+		'view_mode': 'form',
+		'res_model': 'glass.croquis.sale.wizard',
+		'view_id': view.id,
+		'type': 'ir.actions.act_window',
+		'target': 'new',
 		} 
-		return data
-
-	
-	

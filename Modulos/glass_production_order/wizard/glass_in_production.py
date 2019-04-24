@@ -8,10 +8,6 @@ from functools import reduce
 class GlassInProductionWizard(models.TransientModel):
 	_name='glass.in.production.wizard'
 	
-	# def get_now_date(self):
-	# 	now = datetime.now() - timedelta(hours=5) # hora peruana
-	# 	return now.date()
-
 	stock_type_id = fields.Many2one('stock.picking.type',u'Operación de almacén') 
 	date_in = fields.Date('Fecha ingreso',default=datetime.now().date())
 	order_ids = fields.One2many('glass.in.order','mainid','order_id')
@@ -138,18 +134,17 @@ class GlassInProductionWizard(models.TransientModel):
 			raise UserError(u'No se encontraron los valores de configuración de producción')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		#Es necesario verificar el tipo de cambio y la moneda 
-		#para crear correctamente el picking y evitar crear stock moves erroneos, ya tambien verificar que todos los cristales tengan un orden de requisicion
+		#para crear correctamente el picking y evitar crear stock moves erroneos,
+		#tambien verificar que todos los cristales tengan un orden de requisicion
 		self.verify_constrains_for_process(self.date_in)
 		
 		grouped_lines = []
 		picking_ids=[]
 		useract = self.env.user
 		grouped_ids =  set(self.line_ids.mapped('order_id').ids)
-		#print('el primer agrupado : ', grouped_ids)
 		for i in grouped_ids:
 			sub = self.line_ids.filtered(lambda x: x.order_id.id == i)
 			grouped_lines.append(list(sub))
-		#print('el agrupado : ', grouped_lines)
 		for lines in grouped_lines:
 			order = lines[0].order_id
 			data= {
@@ -182,23 +177,19 @@ class GlassInProductionWizard(models.TransientModel):
 			
 			for line in lines:
 				if line.location_tmp:
-					line.write({
-						'locations': [(4,line.location_tmp.id)],
-						'state' : 'instock',
-						})
-				else:
-					line.write({'state' : 'instock',})
+					line.write({'locations': [(4,line.location_tmp.id)]})
+				line.write({
+					'state' : 'instock',
+					'location_tmp':False,
+					})
 				line.lot_line_id.ingresado = True
-				line.location_tmp = False
-				vals = {
+				stage_obj = self.env['glass.stage.record'].create({
 					'user_id':self.env.uid,
-					'date':datetime.now(),
+					'date':datetime.now().date(),
 					'time':datetime.now().time(),
 					'stage':'ingresado',
 					'lot_line_id':line.lot_line_id.id,
-				}
-				self.env['glass.stage.record'].create(vals)
-
+				})
 			not_ended = order.line_ids.filtered(lambda x: x.state != 'instock')
 			if len(not_ended) == 0:
 				order.state='ended'
@@ -210,7 +201,7 @@ class GlassInProductionWizard(models.TransientModel):
 				'res_model':'stock.picking',
 				'type':'ir.actions.act_window',
 				'domain':[('id','in',picking_ids)]
-		}
+				}
 # procesar las lineas del picking
 	@api.multi
 	def _processing_stock_move_lines(self,lines,picking,useract,order):
@@ -249,10 +240,27 @@ class GlassInProductionWizard(models.TransientModel):
 		return move_list
 
 #Metodo que verifica los tipos de cambio y moneda para la fecha de kardex, se realiza en 
-# el proceso futuro, pero es necesario para evitar crear stock.moves incorrectos
+# el proceso futuro, pero es necesario para evitar crear stock.moves incorrectos, ademas se verifican las condiciones de pago en las facturas de cristales
 	@api.multi
 	def verify_constrains_for_process(self,date):
-		
+		# validando restricciones de terminos de pago:
+		with_pay_terms = self.line_ids.filtered(lambda x: x.order_id.sale_order_id.payment_term_id)
+		if len(with_pay_terms) > 0:
+			conf=self.env['config.payment.term'].search([('operation','=','enter_apt')])
+			if len(conf) == 1: # solo puede estar en una conf
+				msg =''
+				for item in with_pay_terms:
+					sale = item.order_id.sale_order_id
+					if sale.payment_term_id.id in conf[0].payment_term_ids.ids:
+						invoice = sale.invoice_ids[0]
+						payed = invoice.amount_total - invoice.residual
+						percentage = (payed/invoice.amount_total) * 100
+						if percentage < conf[0].minimal:
+							msg += '-> '+item.crystal_number+' '+item.product_id.name+'\n'
+							raise exceptions.Warning('Las facturas de los siguientes cristales no fueron pagadas al '+str(conf[0].minimal)+' %.:\n'+msg)
+			else:
+				raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al Ingresar a APT')
+
 		currency_obj = self.env['res.currency'].search([('name','=','USD')])
 		if len(currency_obj)>0:
 			currency_obj = currency_obj[0]
@@ -266,12 +274,12 @@ class GlassInProductionWizard(models.TransientModel):
 		else:
 			raise UserError( u'Error!\nNo existe el tipo de cambio para la fecha: '+ str(date) + u'\n Debe actualizar sus tipos de cambio para realizar esta operación')
 
-		bad_lines = self.line_ids.mapped('lot_line_id').mapped('lot_id').filtered(lambda x: not x.requisition_id)
+		bad_lines = self.line_ids.mapped('lot_line_id').filtered(lambda x: not x.requisicion)
 		if len(bad_lines) > 0:
 			msg = ''
 			for item in bad_lines:
-				msg += '-> Lote: ' + item.name +'.\n'
-			raise UserError(u'Los siguientes Lotes no tienen order de Requisicion:\n'+msg+'Recuerde: Los lotes de los cristales a ingresar deben tener Orden de requisicion')
+				msg += '-> Lote: ' + item.lot_id.name + '-> Cristal Nro: ' +item.nro_cristal+'.\n'
+			raise UserError(u'Los siguientes Cristales no tienen order de Requisicion:\n'+msg+'Recuerde: Los lotes de los cristales a ingresar deben tener Orden de requisicion')
 
 
 class GlassInOrder(models.TransientModel):

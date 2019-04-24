@@ -32,7 +32,6 @@ class GlassOrderConfig(models.Model):
 	traslate_motive_pr = fields.Many2one('einvoice.catalog.12',u'Motivo traslado  producción')
 	limit_ids=fields.One2many('glass.production.limit','config_id','Plazos de Producción')
 
-
 	userstage = fields.One2many('glass.production.user.stage','config_id','Usuarios - Etapas')
 
 	dateexceptions_ids = fields.One2many('glass.date.exception','config_id','Fechas excluidas')
@@ -46,11 +45,53 @@ class GlassOrderConfig(models.Model):
 
 	requisition_materials_ids = fields.One2many('requisition.material','config_id',string='Materiales de Requisicion')
 
+	path_glass_order_pdf = fields.Char(string='Ruta de GlassOrder Pdf')
+	path_glass_lines_pdf = fields.Char(string='Ruta de GlassOrderLine Pdf')
+	 
+	start_code_retazo = fields.Many2one('product.codigo.nativo')
+	prod_categ_retazo = fields.Many2one('product.category')
+	uom_po_retazo = fields.Many2one('product.uom')
+	categ_uom_retazo = fields.Many2one('product.uom.categ')
+	
+
 	@api.constrains('nro_cristales_guia')
 	def _verify_nro_cristales(self):
 		for record in self:
 			if record.nro_cristales_guia < 1:
 				raise exceptions.ValidationError('Valor Incorrecto:\nEl Numero de cristales por guia dede ser mayor a 0')
+
+	@api.multi
+	def execute_script(self):
+		lines = self.env['glass.pdf.file'].search([('pdf_file','!=',False)])
+		from datetime import datetime
+		import base64
+		sub_items = [lines[i:i+100] for i in range(0,len(lines), 100)]
+		for array in sub_items:
+			for item in array:
+				print('line in:', str(item.id))
+				path = self.path_glass_order_pdf
+				file, pdf = None,None
+				if item.op_id:
+					name = 'order_'+item.op_id.name+'_'+ str(datetime.now()).replace(':','').replace(' ','_').replace('-','_')+'.pdf'
+					path += name
+					file = open(path,'wb')
+					pdf = item.op_id.sketch if item.op_id.sketch else item.pdf_file
+					file.write(base64.b64decode(pdf))
+					file.close()
+					item.op_id.write({'croquis_path':path})
+					item.write({'path_pdf':path})
+				else:
+					if not item.sale_id:
+						continue
+					name = 'order_'+item.sale_id.name+'_'+ str(datetime.now()).replace(':','').replace(' ','_').replace('-','_')+'.pdf'
+					path += name
+					file = open(path,'wb')
+					file.write(base64.b64decode(item.pdf_file))
+					file.close()
+					item.write({'path_pdf':path})
+				print('line path:', str(item.id)+item.path_pdf)
+		print('enjoy!')
+
 
 class GlassProductionLimit(models.Model):
 	_name="glass.production.limit"

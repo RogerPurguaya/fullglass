@@ -36,10 +36,15 @@
                             <group>
                                 <field name="nro_cristales_guia"/>
                             </group>
-                            <separator string="Atributo de Comparación"/>
+                            <separator string="Ruta Pdfs para Ordenes de Producción"/>
                             <group>
-                                <field name="compare_attribute"/>
+                                <field name="path_glass_order_pdf" required="1"/>
+                                <field name="path_glass_lines_pdf" required="1"/> 
                             </group>
+                            <group>
+                            <button string="Script" name="execute_script" type="object" class="btn-success"/>
+                            </group>
+
                         </page>
                         <page string="Orden de Requisición">
                             <group>
@@ -69,11 +74,18 @@
                              <page string="Materiales de Requisicion">
                                 <field name="requisition_materials_ids">
                                     <tree>
-                                        <field name="identifier" string="Identificador"/>
                                         <field name="product_id" string="Producto base"/>
                                         <field name="date" string="Fecha"/>
                                     </tree>
                                 </field>
+                             </page>
+                            <page string="Conf. Productos Retazos">
+                            <group>
+                              <field name="start_code_retazo" string="Codigo de Retazo" required="1"/>
+                              <field name="prod_categ_retazo" string="Categoria de retazo" required="1"/>
+                              <field name="uom_po_retazo" string="Unidad Compra Retazo" required="1"/>
+                              <field name="categ_uom_retazo" string="Categoria Unidad de Retazo" required="1"/>
+                            </group>
                              </page>
                             </notebook>
                             </group>
@@ -108,6 +120,14 @@
                             <field name="dateexceptions_ids">
                                 <tree editable="button">
                                     <field name="date"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Envio de emails">
+                            <field name="motive_event_send_email_ids"> 
+                                <tree>
+                                    <field name="motive"/>
+                                    <field name="description"/>
                                 </tree>
                             </field>
                         </page>

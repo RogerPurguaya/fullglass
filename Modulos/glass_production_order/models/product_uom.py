@@ -12,10 +12,8 @@ class ProductUom(models.Model):
 	@api.onchange('is_retazo','ancho','alto')
 	def onchangeisretazo(self):
 		newfactor=self.factor_inv
-		if self.is_retazo:
-			if self.ancho:
-				if self.alto:
-					newfactor = float(self.ancho*self.alto)/1000000
+		if self.is_retazo and self.ancho and self.alto:
+			newfactor = float(self.ancho*self.alto)/1000000
 		#print newfactor,self.ancho,self.alto
 		return {'value':{'factor_inv':newfactor}}
 

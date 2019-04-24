@@ -151,22 +151,25 @@
                         <tree>
                             <field name="name"/>
                             <field name="sketch" widget="pdf_viewer"/>
-                            <button name="show_pdf" string="Ver/Editar Croquis" type="object"/>
+                            <!-- <button name="show_pdf" string="Ver/Editar Croquis" type="object"/> -->
                             <button name="save_pdf" string="Confirmar Croquis" confirm="Se grabará de manera permanete el croquis seleccionado ¿Desea continuar?" type="object"/>
                             <button string="Imprimir Reporte" name="ordenprod_buttom" type="object" class="oe_highlight"/>
                         </tree>
                     </field>
                 </page>
                 <page name="files" string="Archivos Croquis">
-                    <field name="files_ids"  >
-                        <tree editable ="button">
-                            <field name="pdf_file" widget="binary" attrs="{'readonly':[('op_id','!=',False)]}" filename="file_name"  required="1"/>
-                            <field name="file_name" readonly="0" required="1"/>
-                            
+                    <group>
+                        <button string="Agregar PDF" name="add_sketch_file" type="object" class="btn-primary"/>
+                    </group>
+                    <field name="files_ids">
+                        <tree editable ="button" create="false" edit="false">
+                            <!-- <field name="pdf_file" widget="binary" attrs="{'readonly':[('op_id','!=',False)]}" filename="file_name"  required="0"/>
+                            <field name="file_name"/> -->
+                            <field name="pdf_name" readonly="1" required="0" string="Archivo origen"/>
+                            <field name="path_pdf" readonly="1"/>
                             <field name="op_id" readonly="1" invisible="1"/>
-                            <button name="save_pdf" string="Confirmar Croquis" confirm="Se grabará de manera permanente el croquis seleccionado ¿Desea continuar?" type="object" invisible="1"/>
-                            <field name="is_used" invisible="1"/>
-                            <field name="is_editable" invisible="1"/>   
+                            <!-- <button name="save_pdf" string="Confirmar Croquis" confirm="Se grabará de manera permanente el croquis seleccionado ¿Desea continuar?" type="object" invisible="1"/> -->
+                            <!-- <field name="is_editable" invisible="1"/>    -->
                         </tree>
                     </field>
                 </page>
@@ -180,6 +183,10 @@
                     <field name="confirmation_date"/>
                 </group>
             </xpath>
+
+             <field name="product_id" position="attributes">
+                 <attribute name="domain">[('retazo','=',False)]</attribute>
+             </field>
 
       </field>
     </record>

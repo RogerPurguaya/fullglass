@@ -106,7 +106,7 @@
                 <field name="altura1" required='1'/>
                 <field name="altura2" required='1'/>
                 <field name="descuadre" string="Descd."/>
-                <field name="page_number"/>
+                <field name="page_number" required="1"/>
                 <field name="pulido1" string="            Pulido            "/>
                 <field name="entalle" string="Ent."/>
                 <field name="lavado" string="Desc."/>
@@ -158,11 +158,10 @@
             <field name="model">sale.calculadora.proforma.line</field>
             <field name="arch" type="xml">
                 <form create="false" edit="false" versio="7.0">
-                    <sheet >
+                    <sheet>
                         <div style="border-style:solid;width:500px;height:450px;float:left;">
                             <field name="image" widget="image" height="300" width="400" />
                         </div>
-
                     </sheet>
                     <footer>
                         <button name="reshowcalc" string="Regresar" type="object"/>

@@ -18,25 +18,28 @@ class SaleorderMakeOrder(models.TransientModel):
 	is_editable = fields.Boolean('Es editable',related="selected_file.is_editable")
 	comercial_area=fields.Selection([('distribucion',u'Distribución'),('obra','Obra'),('proyecto','Proyecto')],u'Área Comercial',default="distribucion" )
 
-	# @api.onchange('selected_file')
-	# def onchange_selected_file(self):
-	# 	if self.selected_file:
-	# 		self.file_crokis = self.selected_file.pdf_file
 
-
+	@api.onchange('selected_file')
+	def onchange_selected_file(self):
+		if self.selected_file:
+			res = {}
+			ids = self.env['glass.pdf.file'].search([('sale_id','=',self.sale_id.id)]).ids
+			res['domain'] = {'selected_file':[('id','in',ids)]}
+			return res
 
 	@api.multi
 	def create_production(self):
 		self.ensure_one()
 		vals={
+				#'file_crokis':self.file_crokis,
 				'selected_file':self.selected_file,
-				'file_crokis':self.file_crokis,
 				'file_name':self.file_name,
 				'destinity_order':self.destinity_order,
 				'send2partner':self.send2partner,
 				'in_obra':self.in_obra,
 				'obra_text':self.obra_text,
 				'comercial_area':self.comercial_area,
+				'croquis_path':self.selected_file.path_pdf,
 			}
 		neworder = self.sale_id.makeproduction(vals)
 		self.selected_file.write(
@@ -48,20 +51,26 @@ class SaleorderMakeOrder(models.TransientModel):
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_glass_order_tree' % module)
 		idact=False
-		ctx = self._context.copy()
-		ctx.update({'domain':[('sale_order_id','=',self._context['active_id'])]})		
-		
-		data = {
-				'name':u'Órdenes de producción',
-				'view_type':'form',
-				'view_mode':'tree,form',
-				'res_model':'glass.order',
-				'type':'ir.actions.act_window',
-				'domain':[('sale_order_id','=',self._context['active_id'])]
+		return {
+			'name':neworder.name,
+			'type': 'ir.actions.act_window',
+			'res_id':neworder.id,
+			'res_model': 'glass.order',
+			'view_mode': 'form',
+			'view_type': 'form',
 		}
+		# ctx = self._context.copy()
+		# ctx.update({'domain':[('sale_order_id','=',self._context['active_id'])]})		
+		# data = {
+		# 		'name':u'Órdenes de producción',
+		# 		'view_type':'form',
+		# 		'view_mode':'tree,form',
+		# 		'res_model':'glass.order',
+		# 		'type':'ir.actions.act_window',
+		# 		'domain':[('sale_order_id','=',self._context['active_id'])]
+		# }
 		
-		return data		
-
+		# return data		
 
 	@api.one
 	def savecroquis(self):

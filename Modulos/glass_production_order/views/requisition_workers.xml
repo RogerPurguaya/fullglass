@@ -1,0 +1,82 @@
+<odoo>
+<data>
+    <!-- requisition.worker.material.wizard form view (Materias Primas)-->
+    <record id="requisition_worker_material_wizard_view_form" model="ir.ui.view">
+        <field name="name">requisition.worker.material.wizard.view.form</field>
+        <field name="model">requisition.worker.material.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Materia Prima">
+                <sheet>
+                    <group>
+                        <field name="lines_ids" string="Materias Primas Disponibles">
+                            <tree create="false" delete="false" editable="bottom" decoration-success="quantity&gt;0">
+                                <field name="product_id" readonly="1"/>
+                                <field name="quantity" string="Cantidad(Planchas)"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button name="add_items" type="object" string="Agregar Seleccionados" class="btn-primary"/>O
+                        <button string ="Cancelar" name="cancel" special="cancel" class="btn-warning"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- requisition.worker.scraps.wizard form view (Retazos)-->
+    <record id="requisition_worker_scraps_wizard_view_form" model="ir.ui.view">
+        <field name="name">requisition.worker.scraps.wizard.view.form</field>
+        <field name="model">requisition.worker.scraps.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Retazos">
+                <sheet>
+                    <group>
+                        <field name="lines_ids" string="Retazos Disponibles">
+                            <tree create="false" delete="false" editable="bottom" decoration-success="quantity&gt;0">
+                                <field name="product_id" readonly="1"/>
+                                <field name="quantity" string="Cantidad"/>
+                                <field name="width" string="Ancho(mm)" readonly="1"/>
+                                <field name="height" string="Alto(mm)" readonly="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button name="add_items" type="object" string="Agregar Seleccionados" class="btn-primary"/>O
+                        <button string ="Cancelar" name="cancel" special="cancel" class="btn-warning"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <!-- requisition.worker.scraps.return.wizard form view (Devolución de Retazos)-->
+    <record id="requisition_worker_scraps_return_wizard_view_form" model="ir.ui.view">
+        <field name="name">requisition.worker.scraps.return.wizard.view.form</field>
+        <field name="model">requisition.worker.scraps.return.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Devolución de Retazos">
+                <sheet>
+                    <group>
+                        <field name="lines_ids" string="Materiales disponibles">
+                            <tree create="false" delete="false" editable="bottom" decoration-success="quantity&gt;0 and width&gt;0 and height&gt;0">
+                                <field name="product_id" readonly="1"/>
+                                <field name="quantity" string="Cantidad"/>
+                                <field name="width" string="Ancho(mm)"/>
+                                <field name="height" string="Alto(mm)"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button name="add_items" type="object" string="Agregar Seleccionados" class="btn-primary"/>O
+                        <button string ="Cancelar" name="cancel" special="cancel" class="btn-warning"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</data>
+</odoo>

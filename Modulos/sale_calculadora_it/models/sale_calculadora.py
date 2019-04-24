@@ -176,14 +176,11 @@ class SaleCalculatorProformaLine(models.Model):
 			{
 				'image':self.image
 			})
-	
-
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_image_wizard_form' % module)
 		ctx = self._context.copy()
 		ctx.update({'id_calc':self.proforma_id.id})
 		data = {
-					
 				'name':'Imagen',
 				'view_type':'form',
 				'view_mode':'form',
@@ -194,7 +191,6 @@ class SaleCalculatorProformaLine(models.Model):
 				'nodestroy':True,
 				'target':'new',
 				'context':ctx,
-
 		}
 		return data
 	@api.multi
@@ -329,12 +325,12 @@ class SaleCalculatorProformaLine(models.Model):
 			if self.proforma_id.type_line == 'service':
 				is_product=False
 
-			w=1000
-			h=1000
+			w=850 #original size 1000X1000 changed
+			h=650 
 			image = Image.new("RGB", (w, h),color=(255,255,255))
 			draw = ImageDraw.Draw(image)
-			left= 300
-			top=150
+			left= 170 # original: 300
+			top = 250 # original: 150
 			h1=prof.altura1
 			h2=prof.altura2
 			b1=prof.base1
@@ -475,9 +471,11 @@ class SaleCalculatorProformaLine(models.Model):
 				moreboot=p3[1]
 
 
-
-			draw.text((moreleft-300,(moreboot-(maxheight/2))), "LADO 1",font=font,fill=(255, 43, 0,128))
-			draw.text((moreleft-300,((moreboot-(maxheight/2))+30)), str(h1)+" mm",font=font,fill=(51, 123, 164))
+			# original
+			# draw.text((moreleft-300,(moreboot-(maxheight/2))), "LADO 1",font=font,fill=(255, 43, 0,128))
+			# draw.text((moreleft-300,((moreboot-(maxheight/2))+30)), str(h1)+" mm",font=font,fill=(51, 123, 164))
+			draw.text((moreleft-155,(moreboot-(maxheight/2))), "LADO 1",font=font,fill=(255, 43, 0,128))
+			draw.text((moreleft-155,((moreboot-(maxheight/2))+30)), str(h1)+" mm",font=font,fill=(51, 123, 164))
 
 			draw.text((moreleft+((maxwidth/2)-120),moretop-80), "LADO 2",font=font,fill=(255, 43, 0,128))
 			draw.text((moreleft+((maxwidth/2)-120),moretop-50), str(b2)+" mm",font=font,fill=(51, 123, 164))
@@ -486,9 +484,11 @@ class SaleCalculatorProformaLine(models.Model):
 			draw.text((moreright+20,(moreboot-(maxheight/2))+30), str(h2)+" mm",font=font,fill=(51, 123, 164))
 
 			
-
-			draw.text((moreleft+((maxwidth/2)-120),moreboot+30), "LADO 4",font=font,fill=(255, 43, 0,128))
-			draw.text((moreleft+((maxwidth/2)-120),moreboot+60), str(b1)+" mm",font=font,fill=(51, 123, 164))
+			#original
+			#draw.text((moreleft+((maxwidth/2)-120),moreboot+30), "LADO 4",font=font,fill=(255, 43, 0,128))
+			#draw.text((moreleft+((maxwidth/2)-120),moreboot+60), str(b1)+" mm",font=font,fill=(51, 123, 164))
+			draw.text((moreleft+((maxwidth/2)-120),moreboot+10), "LADO 4",font=font,fill=(255, 43, 0,128))
+			draw.text((moreleft+((maxwidth/2)-120),moreboot+40), str(b1)+" mm",font=font,fill=(51, 123, 164))
 
 			draw.polygon((points), fill=(105,238,113))
 
@@ -837,7 +837,6 @@ class SaleCalculatorProforma(models.Model):
 
 	@api.multi
 	def cantidad(self):
-		#print "cantidad"
 		ini = 1
 		fin = 0
 		for prof in self:
@@ -856,8 +855,6 @@ class SaleCalculatorProforma(models.Model):
 	@api.depends('id_line.cantidad','id_line.area','id_line.perimetro','id_line.area_vendida',)
 	def _totales(self):
 		import pprint
-		#print "_totales"
-		#pprint.pprint(self._context)
 		prof = self
 		t_area=0.0
 		t_area_vendida=0.0

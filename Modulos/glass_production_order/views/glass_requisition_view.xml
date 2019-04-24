@@ -8,8 +8,7 @@
 				<header>
 					<button name="confirm" string="Confirmar" states='draft' type="object" class="btn-primary"/>
 					<button name="process" string="Procesar" states='confirm' type="object" class="btn-primary"/>
-					<button name="cancel" string="Cancelar" states='process,confirm' type="object"/>
-					<button name="reopen" string="Re-abrir" states='cancel' type="object"/>
+					<button name="cancel" string="Cancelar Requisicion" states='process,confirm' type="object" class='btn-danger' confirm="¿Está seguro de cancelar esta Requisición? Recuerde: Esta operación es irreversible"/>
 					<field name="state" widget="statusbar" nolabel="1" />
 				</header>
 				<sheet>
@@ -24,139 +23,82 @@
 					</div>
 					<group>
 						<field name="name" readonly="1"/>
-						<field name="table_number" required="1"/>
-						<field name="date_order" required="1"/>
+						<field name="table_number" required="1" attrs="{'readonly':[('state','!=','draft')]}"/>
+						<field name="date_order" required="1" attrs="{'readonly':[('state','!=','draft')]}"/>
 						<field name="required_area" readonly="1"/>
 						<field name="required_mp" readonly="1"/>
-					</group>
-					<group>
 						<field name="product_id" invisible="0" readonly="1"/>
 						<field name="lot_id" invisible="1"/>
-						<field name="picking_type_mp" invisible="1"/>
-						<field name="picking_type_rt" invisible="1"/>
-						<field name="picking_type_drt" invisible="1"/>
-						<field name="picking_type_pr" invisible="1"/>
-						<field name="traslate_motive_mp" invisible="1"/>
-						<field name="traslate_motive_rt" invisible="1"/>
-						<field name="traslate_motive_drt" invisible="1"/>
-						<field name="traslate_motive_pr" invisible="1"/>
 					</group>
+					
 					<notebook>
 						<page string="Lotes de Producción">
-							<field name="lot_ids" attrs="{'readonly':[('state','not in',['confirm'])]}" context="{'lot_id':lot_id}">
-
-								<tree name="lotestree" editable="button">
-									<field name="lot_id" domain="[('state','=','done'),('requisition_id','=',False)]"/>
-									<field name="date" readonly="1"/>
-									<field name="user_id" readonly="1"/>
-									<field name="m2" readonly="1" sum=""/>
-									<field name="crystal_count" readonly="1" sum=""/>
+							<field name="lot_ids" attrs="{'readonly':[('state','not in',['draft'])]}">
+								<tree name="Lotes" editable="bottom">
+									<field name="lot_id" domain="[('state','=','done'),('requisition_id','=',False)]" string="Lote/Producto"/>
+									<field name="date" readonly="1" string="Fecha"/>
+									<field name="user_id" readonly="1" string="Usuario"/>
+									<field name="m2" readonly="1" sum="" string="Area(M2)"/>
+									<field name="crystal_count" readonly="1" sum="" string="Nro Cristales"/>
 								</tree>
 							</field>
 
 							<field name="production_order_ids" readonly="1"/>
 						</page>
-						<page string="Materia Prima">
-							<group>
-							<button class="btn btn-primary" name="create_glass_picking" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>	
-							</group>
-							<field name="picking_mp_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_mp,'default_einvoice_12':traslate_motive_mp,'default_origin':name}"  attrs="{'readonly':1}">
-								
-								<tree >
-									<field name="name"/>
-									<field name="fecha_kardex"/>
-									<field name="einvoice_12"/>
-									<field name="picking_type_id"/>
-									<field name="origin"/>
-									<field name="state"/>
-								</tree>
-							</field>
-							<group class="oe_subtotal_footer oe_left" name="tpmp">
-								<field name="total_picking_mp"/>
 
-							</group>
-							
-		
-						</page>
-						<page string="Materia Prima - Retazos">
+						<!-- Materias Primas -->
+						<page string="Materia Prima" attrs="{'invisible':[('state','=','draft')]}">
 							<group>
-							<button class="btn btn-primary" name="create_glass_picking_rt" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
+							<button class="btn btn-primary" name="add_material" string="Agregar Materiales" type="object" attrs="{'invisible':[('state','!=','confirm')]}"/>	
 							</group>
-							<!-- <field name="picking_rt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_rt,'default_einvoice_12':traslate_motive_rt,'default_origin':name}"  attrs="{'readonly':1}">
-								<tree >
-									<field name="name"/>
-									<field name="fecha_kardex"/>
-									<field name="einvoice_12"/>
-									<field name="picking_type_id"/>
-									<field name="origin"/>
-									<field name="state"/>
-								</tree>
-							</field> -->
-							<field name="picking_rt_ids" attrs="{'readonly':1}">
-								<tree >
-									<field name="name"/>
-									<field name="fecha_kardex"/>
-									<field name="einvoice_12"/>
-									<field name="picking_type_id"/>
-									<field name="origin"/>
-									<field name="state"/>
+							<field name="raw_materials">
+								<tree create="false" editable="bottom">
+									<field name="product_id" string="Producto" readonly="1"/>
+									<field name="quantity" string="Cantidad (Planchas)" required="1"/>
 								</tree>
 							</field>
+						</page>
+
+						<!-- Retazos -->
+						<page string="Retazos MP" attrs="{'invisible':[('state','=','draft')]}">
+							<group>
+							<button class="btn btn-primary" name="add_scraps" string="Agregar Retazos" type="object" attrs="{'invisible':[('state','!=','confirm')]}"/>	
+							</group>
+							<field name="scraps">
+								<tree create="false" editable="bottom">
+									<field name="product_id" string="Producto" readonly="1"/>
+									<field name="quantity" string="Cantidad" required="1"/>
+									<field name="width" string="Ancho" required="1"/>
+									<field name="height" string="Alto" required="1"/>
+								</tree>
+							</field>
+						</page>
+
+						<!-- Devolución de Retazos -->
+						<page string="Devolución de Retazos" attrs="{'invisible':[('state','=','draft')]}">
+							<group>
+							<button class="btn-primary" name="add_return_scraps" string="Agregar Retazos a Devolver" type="object" attrs="{'invisible':[('state','!=','confirm')]}"/>
+							</group>
+							<field name="return_scraps">
+								<tree create="false" editable="bottom">
+									<field name="product_id" string="Producto" readonly="1"/>
+									<field name="quantity" string="Cantidad" required="1"/>
+									<field name="width" string="Ancho" required="1"/>
+									<field name="height" string="Alto" required="1"/>
+								</tree>
+							</field>
+
 							<group class="oe_subtotal_footer oe_left" name="tprt">
 								<field name="total_picking_rt"/>
 							</group>
 						</page>
 
-						<page string="Devolución Retazos">
-							<group>
-							<button class="btn btn-primary" name="create_glass_picking_drt" string="Generar Albarán" type="object" attrs="{'invisible':[('state','not in',['confirm'])]}"/>
-							</group>
-							<group>
-							<button name="call_units" string="Crear Unidad de Retazo" type="object" class="btn-success oe_edit_only"/> 		
-							</group>
-							<field name="picking_drt_ids" context="{'origin':name,'default_fecha_kardex':date_order,'default_picking_type_id':picking_type_drt,'default_einvoice_12':traslate_motive_drt,'default_origin':name}"  attrs="{'readonly':1}">
-								<tree >
-									<field name="name"/>
-									<field name="fecha_kardex"/>
-									<field name="einvoice_12"/>
-									<field name="picking_type_id"/>
-									<field name="origin"/>
-									<field name="state"/>
-								</tree>
-							</field>
-							<group class="oe_subtotal_footer oe_left" name="tpdrt">
-								<field name="total_picking_drt"/>
-							</group>
-							
-						</page>
-						<!--<page string="Productos Terminados">
-							<field name="picking_pt_ids">
-								<tree >
-									<field name="name"/>
-									<field name="fecha_kardex"/>
-									<field name="einvoice_12"/>
-									<field name="picking_type_id"/>
-									<field name="origin"/>
-									<field name="state"/>
-								</tree>
-							</field>
-						</page>-->
 					</notebook>
 				</sheet>
 			</form>
 		</field>
 	</record>
-	<record id="view_picking_form_custom" model="ir.ui.view">
-		<field name="name">glass.stock.picking.form</field>
-		<field name="model">stock.picking</field>
-		<field name="inherit_id" ref="stock.view_picking_form" />
-		<field name="arch" type="xml">
-			<xpath expr="//field[@name='origin']" position="after">
-				<field name="identificador_glass" invisible="1"/>
-				<field name="identifier" invisible="1"/>
-			</xpath>
-		</field>
-	</record>
+
 	<record id="view_glass_requisition_tree" model="ir.ui.view">
 		<field name="name">glass.requisition.tree.view</field>
 		<field name="model">glass.requisition</field>

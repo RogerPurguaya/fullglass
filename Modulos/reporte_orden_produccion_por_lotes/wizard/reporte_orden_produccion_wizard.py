@@ -118,8 +118,8 @@ class ReporteOrdenProduccionAlmacen(models.TransientModel):
 			totals[1] += peso
 			aux_array[2] = tmp_pos+size_widths[7]-2
 			tmp_pos += size_widths[7]
-			location = pos_inicial,line.order_id.warehouse_id.name if line.order_id.warehouse_id and line.lot_line_id.ingresado else ''
-			c.drawString(tmp_pos+2,location)
+			location = line.order_id.warehouse_id.name if line.order_id.warehouse_id and line.lot_line_id.ingresado else ''
+			c.drawString(tmp_pos+10,pos_inicial,location)
 			
 		c.line(start_pos_left,pos_inicial-2,start_pos_left+total_width_size,pos_inicial-2)
 		c.drawString(start_pos_left, pos_inicial-12,'Nro Pzs.'+str(len(glass_order_lines)))

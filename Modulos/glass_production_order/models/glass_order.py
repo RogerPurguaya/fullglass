@@ -54,7 +54,9 @@ class GlassOrder(models.Model):
 	total_peso = fields.Float("Peso",compute="_gettotals",digits=(20,4))
 	total_pzs = fields.Float("Total Pzs",compute="_gettotals")
 	sketch = fields.Binary('Croquis')
-	file2 = fields.Binary('aaaa')
+	#file2 = fields.Binary('aaaa')
+	croquis_path = fields.Char(string='Ruta de Croquis')
+
 	file_name = fields.Char("File Name")
 	reference_order = fields.Char('Referencia OP')
 	editable_croquis = fields.Boolean('editar croquis',default=True)
@@ -99,23 +101,22 @@ class GlassOrder(models.Model):
 		self.editable_croquis=False
 		return True		
 
-	@api.multi
-	def show_pdf(self):
-		form_view_ref = self.env.ref('glass_production_order.view_glass_croquis_form', False)
-		module = __name__.split('addons.')[1].split('.')[0]
-		view = self.env.ref('%s.view_glass_croquis_form' % module)
-		data = {
-			'name': _('Croquis'),
-			'context': self._context,
-			'view_type': 'form',
-			'view_mode': 'form',
-			'res_model': 'glass.order',
-			'view_id': view.id,
-			'res_id':self.id,
-			'type': 'ir.actions.act_window',
-			'target': 'new',
-		} 
-		return data
+	# @api.multi
+	# def show_pdf(self):
+	# 	module = __name__.split('addons.')[1].split('.')[0]
+	# 	view = self.env.ref('%s.view_glass_croquis_form' % module)
+	# 	data = {
+	# 		'name': _('Croquis'),
+	# 		'context': self._context,
+	# 		'view_type': 'form',
+	# 		'view_mode': 'form',
+	# 		'res_model': 'glass.order',
+	# 		'view_id': view.id,
+	# 		'res_id':self.id,
+	# 		'type': 'ir.actions.act_window',
+	# 		'target': 'new',
+	# 	} 
+	# 	return data
 
 
 	@api.multi
@@ -137,7 +138,7 @@ class GlassOrder(models.Model):
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.glass_remove_order_form_view' % module)
 		data = {
-			'name': _('Remover Orden'),
+			'name': _('Devolver Orden de Produccion'),
 			'context': self._context,
 			'view_type': 'form',
 			'view_mode': 'form',
@@ -155,43 +156,39 @@ class GlassOrder(models.Model):
 
 	@api.one
 	def _gettotals(self):
-		ta =0
-		tp =0
-		n=0
+		ta,tp,n = 0,0,0
 		for line in self.line_ids:
 			ta = ta+line.area
 			tp=tp+line.peso
 			n=n+1
-		self.total_area=ta
+		self.total_area = ta
 		self.total_peso = tp
-		self.total_pzs=n
+		self.total_pzs  = n
 
 	@api.one
 	def validate_order(self):
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
 			raise UserError(u'No se encontraron los valores de configuración de producción')		
-		config_data = self.env['glass.order.config'].search([])[0]
 		
+		config_data = self.env['glass.order.config'].search([])[0]
+		# ruta donde se almacenan los pdf de cada glass order line:
+		path_lines = config_data.path_glass_lines_pdf
+
 		for line in self.line_ids:
 			line.unlink()
-		tf = tempfile.NamedTemporaryFile()
-		tf.close()
 
-		direccion = self.env['main.parameter'].search([])[0].dir_create_file
-		f= open(tf.name, 'wb')
-		f.write(base64.b64decode(self.sketch))
-		f.close()
-		pdf_path=tf.name		
-		tdir = tempfile.mkdtemp()
-		#print 'convitiendo las páginas'
-		
-		opened_pdf = PyPDF2.PdfFileReader(open(pdf_path,"rb"))
+		try:
+			file = open(self.croquis_path,"rb")
+		except IOError as e:
+			raise UserError(u'Pdf file not found!')
+
+		# particionar pdf para cada linea de orden
+		opened_pdf = PyPDF2.PdfFileReader(file)
 		for i in range(opened_pdf.numPages):
 			output = PyPDF2.PdfFileWriter()
 			output.addPage(opened_pdf.getPage(i))
-			print('el path asign : ', direccion + self.name + "-%s.pdf" % (i+1))
-			with open(direccion + self.name + "-%s.pdf" % (i+1), "wb") as output_pdf:
+			with open(path_lines + self.name + "-%s.pdf" % (i+1), "wb") as output_pdf:
 				output.write(output_pdf)
 
 		for saleline in self.sale_lines:
@@ -207,7 +204,6 @@ class GlassOrder(models.Model):
 							else:
 								nini = int(acadnro[0])
 								nend = int(acadnro[0])+1
-							#print nini,nend
 
 							for x in range(nini,nend):
 								area = float(0.00000)
@@ -219,7 +215,7 @@ class GlassOrder(models.Model):
 									maxaltura = calcline.altura1
 								area= float(maxaltura*maxbase)/1000000
 								peso = saleline.product_id.weight*area
-								path = direccion + self.name + "-%s.pdf" % (calcline.page_number) if calcline.page_number else False
+								path = path_lines + self.name + "-%s.pdf" % (calcline.page_number) if calcline.page_number else False
 								vals ={
 									'order_id':self.id,
 									'product_id':saleline.product_id.id,
@@ -243,7 +239,7 @@ class GlassOrder(models.Model):
 										maxaltura = calcline.altura1
 									area= float(maxaltura*maxbase)/1000000
 									peso = saleline.product_id.weight*area
-									path = direccion + self.name + "-%s.pdf" % (calcline.page_number) if calcline.page_number else False
+									path = path_lines + self.name + "-%s.pdf" % (calcline.page_number) if calcline.page_number else False
 									vals ={
 										'order_id':self.id,
 										'product_id':saleline.product_id.id,
@@ -257,6 +253,40 @@ class GlassOrder(models.Model):
 		self.state="confirmed"
 		return True
 
+	@api.multi
+	def show_sketch(self):
+		wizard,err = None,None
+		try:
+			pdf_file = open(self.croquis_path,"rb").read().encode("base64")
+		except TypeError as e:
+			print(u'Path does not exist!')
+			err = True
+		except IOError as e:
+			print(u'Pdf file not found or not available!')
+			err = True
+		if err:
+			wizard = self.env['add.sketch.file'].create({
+				'message': 'Archivo Croquis removido o no encontrado!',
+			})
+		else:
+			wizard = self.env['add.sketch.file'].create({
+				'sketch': pdf_file,
+			})
+		
+		module = __name__.split('addons.')[1].split('.')[0]
+		view = self.env.ref('%s.change_sketch_file_view_form' % module)
+		return {
+			'name':'Ver Croquis',
+			'res_id':wizard.id,
+			'type': 'ir.actions.act_window',
+			'res_model': 'add.sketch.file',
+			'view_id':view.id,
+			'view_mode': 'form',
+			'view_type': 'form',
+			'target': 'new',
+		}
+		
+		
 
 class GlassOrderLine(models.Model):
 	_name="glass.order.line"
@@ -301,12 +331,8 @@ class GlassOrderLine(models.Model):
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
 	canceled = fields.Boolean('Anulado')
 
-	#custom_location = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	#locacion temporal
+	#locacion temporal como auxiliar para agregar un location a locations
 	location_tmp = fields.Many2one('custom.glass.location',string='Ubicacion') 
-	#warehouse = fields.Char(related='custom_location.location_code.display_name',string='Almacen')
-	
-
 	# modelo a consultar
 	locations =  fields.Many2many('custom.glass.location','glass_line_custom_location_rel','glass_line_id','custom_location_id',string='Ubicaciones')
 	
@@ -327,7 +353,7 @@ class GlassOrderLine(models.Model):
 
 	@api.multi
 	def showimg(self):
-		form_view_ref = self.env.ref('glass_production_order.view_glass_order_line_image', False)
+		# form_view_ref = self.env.ref('glass_production_order.view_glass_order_line_image', False)
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.view_glass_order_line_image' % module)
 		data = {
@@ -342,8 +368,3 @@ class GlassOrderLine(models.Model):
 			'target': 'new',
 		} 
 		return data
-
-	@api.multi
-	def return_wizard(self):
-		#print self._context
-		pass

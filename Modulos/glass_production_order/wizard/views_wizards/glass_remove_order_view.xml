@@ -5,7 +5,7 @@
             <field name="name">glass.remove.order.form.view</field>
             <field name="model">glass.remove.order</field>
             <field name="arch" type="xml">
-                <form string="Devolver orden">
+                <form string="Devolver Orden de Producción">
                     <group>
                         <field name="order_name" readonly="1"/>
                         <field name="date_remove"/>

@@ -9,7 +9,6 @@
             <form string="Materiales para Requisición">
                 <sheet>
                     <group>
-                        <field name="identifier" string="Identificador" required="1"/>
                         <field name="product_id" string="Producto" required="1" />
                         <field name="type_operation" string="Tipo de Operacion" required="1"/>
                     </group>
@@ -36,7 +35,6 @@
         <field name="model">requisition.material</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="identifier"/>
                 <field name="product_id"/>
                 <field name="date"/>
             </tree>

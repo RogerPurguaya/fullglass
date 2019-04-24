@@ -124,6 +124,7 @@ class GlassProductionControlWizard(models.Model):
 					'image_glass':existe_act.image_glass,
 					'nro_cristal':existe_act.nro_cristal,
 				})
+				# cambio pendiente de verificacion
 				self.lot_line_id=existe_act.id
 				self.production_order=existe_act.order_prod_id.id
 				self.partner_id=existe_act.order_prod_id.partner_id.id
@@ -138,8 +139,9 @@ class GlassProductionControlWizard(models.Model):
 				direccion = self.env['main.parameter'].search([])[0].download_directory
 				if data.order_line_id.image_page_number:
 					file = open(data.order_line_id.image_page_number,'rb')
-					cont_t = file.read()
+					cont_t = file.write(base64.b64decode(open(self.croquis_path).read()))
 					file.close()
+					
 					file_new = open(direccion + 'previsualizacion_op.pdf','wb')
 					file_new.write(cont_t)
 					file_new.close()
@@ -213,11 +215,8 @@ class GlassProductionControlWizard(models.Model):
 					return
 					# raise UserError(u'El cristal seleccionado ya fue registrado en la etapa seleccionada')		
 				self.lot_line_id=existe_act.id
-			#print 1
 			if self.lot_line_id:
-				#print 2
 				if self.stage=='lavado':
-					#print 3
 					# Queda pendiente que el cristal deba estar con entalle antes de entrar a la etapa de lavado, po ahora no habra restricciones.
 					pass
 					# if self.lot_line_id.calc_line_id.entalle:
