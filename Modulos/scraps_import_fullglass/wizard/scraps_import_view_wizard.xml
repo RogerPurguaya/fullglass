@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <data>
+    <record id="sii_import_view_form" model="ir.ui.view">
+      <field name="name">sii.import.form</field>
+      <field name="model">sii.import</field>
+      <field name="priority">1</field>
+      <field name="arch" type="xml">
+        <form string="Import File">
+          <group col="4">
+            <separator string="Selecionar el archivo :" colspan="4"/>
+            <field name="sii_data" string="Archivo" filename="sii_fname"/>
+            <field name="sii_fname" string="Nombre de Archivo" readonly="1"/>
+            <newline/>
+            <field name="csv_separator" string="Separador CSV"/>
+            <field name="decimal_separator" string="Separador Decimal" />
+            <field name="codepage" string="Codificación de Página" />
+          </group>
+          <group>
+              <field name="traslate_motive" required="1"/>
+              <field name="picking_type" required="1"/>
+          </group>
+          <footer>
+            <button name="sii_import" string="Importar" type="object" class="oe_highlight"/>
+            <button string="Cancelar" class="oe_link" special="cancel"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+    <record id="sii_import_view_form_result" model="ir.ui.view">
+      <field name="name">sii.import.form.result</field>
+      <field name="model">sii.import</field>
+      <field name="priority">2</field>
+      <field name="arch" type="xml">
+        <form string="Archivo a Importar">
+          <separator colspan="4" string="Resultados :"/>
+          <field name="note" colspan="4" nolabel="1" width="850" height="400"/>
+          <footer>
+            <button string="Cerrar" class="oe_link" special="cancel"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+      <!-- ssi_import action server -->
+      <record id="sii_import_action" model="ir.actions.server">
+        <field name="name">Importacion de Retazos</field>
+        <field name="model_id" ref="model_sii_import" />
+        <field name="code">
+            action = model.get_element()
+        </field>
+      </record>
+
+      <menuitem name="Importación de retazos"
+                id="sii_import_menu"
+                parent="stock.menu_stock_config_settings"
+                sequence="3"
+                action="sii_import_action"/>
+
+  </data>
+</odoo>
