@@ -9,7 +9,6 @@
                 <field name="existe" invisible="1"/>
                 <field name="rotate" invisible="1"/>
              	<group col="5">
-
                             <div col="2" style='margin: 0px 10px 0px 10px' >
                                 <b>Etapa</b>
                                 <field name="stage" required="1" readonly="1"/>

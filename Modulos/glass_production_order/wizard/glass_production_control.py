@@ -24,14 +24,14 @@ class GlassProductionControlWizard(models.Model):
 	product_id = fields.Many2one('product.product',string='Cristal')
 	lot_id = fields.Many2one('glass.lot')
 	obra = fields.Char(string='Obra')
-
 	image_glass = fields.Binary("imagen")
-	image_page = fields.Binary("Page")
-	image_page_r90 = fields.Binary("Page")
-	image_page_r180 = fields.Binary("Page")
-	image_page_r270 = fields.Binary("Page")
-	sketch = fields.Binary("Croquis")
-	sketch_page = fields.Binary("Croquis")
+	#image_path = self.fields.Char('Image Path') # ruta de croquis
+	#image_page = fields.Binary("Page")
+	#image_page_r90 = fields.Binary("Page")
+	#image_page_r180 = fields.Binary("Page")
+	#image_page_r270 = fields.Binary("Page")
+	#sketch = fields.Binary("Croquis")
+	#sketch_page = fields.Binary("Croquis")
 	nro_cristal = fields.Char("Nro. Cristal",related="lot_line_id.nro_cristal")
 	is_used = fields.Boolean('usado',default=False)
 	existe = fields.Integer('existe')
@@ -57,15 +57,13 @@ class GlassProductionControlWizard(models.Model):
 			'target': 'new',
 		}
 
-	@api.one
-	def get_asf(self):
-		self.sketch_page = False
+	# @api.one
+	# def get_asf(self):
+	# 	self.sketch_page = False
 
-
-	@api.one
-	def setrotate(self):
-		self.rotate= not self.rotate
-
+	# @api.one
+	# def setrotate(self):
+	# 	self.rotate= not self.rotate
 
 	@api.model
 	def default_get(self,fields):
@@ -84,8 +82,6 @@ class GlassProductionControlWizard(models.Model):
 			raise UserError(u'El usuario actual no tiene permisos para acceder a esta funcionalidad')		
 		return res
 
-
-
 	@api.onchange('search_code')
 	def onchangecode(self):
 		self.ensure_one()
@@ -98,8 +94,6 @@ class GlassProductionControlWizard(models.Model):
 			existe = self.env['glass.lot.line'].search([('search_code','=',self.search_code)])
 
 			if len(existe)>0:
-				lsttmp=[]
-				page_one=False
 				existe_act = existe[0]
 				self.is_used=False
 				self.lot_line_id=False
@@ -108,8 +102,7 @@ class GlassProductionControlWizard(models.Model):
 				self.product_id=False
 				self.lot_id=False
 				self.obra=False
-				self.image_glass=False
-				self.sketch=False
+				#self.sketch=False
 				self.search_code=False
 
 				vals={}
@@ -139,11 +132,10 @@ class GlassProductionControlWizard(models.Model):
 				direccion = self.env['main.parameter'].search([])[0].download_directory
 				if data.order_line_id.image_page_number:
 					file = open(data.order_line_id.image_page_number,'rb')
-					cont_t = file.write(base64.b64decode(open(self.croquis_path).read()))
-					file.close()
-					
+					content = file.read()
 					file_new = open(direccion + 'previsualizacion_op.pdf','wb')
-					file_new.write(cont_t)
+					file_new.write(content)
+					file.close()
 					file_new.close()
 				else:
 					import PyPDF2
@@ -182,8 +174,8 @@ class GlassProductionControlWizard(models.Model):
 					'lot_id':False,
 					'obra':False,
 					'image_glass':False,
-					'sketch':False,
-					'sketch_page':False,
+					#'sketch':False,
+					#'sketch_page':False,
 					'search_code':False,
 				})
 				
@@ -193,7 +185,7 @@ class GlassProductionControlWizard(models.Model):
 				writer.insertBlankPage(width=500, height=500, index=0)
 				with open(direccion+'previsualizacion_op.pdf', "wb") as outputStream: 
 					writer.write(outputStream) 
-				self.image_page=False
+				#self.image_page=False
 
 		self.search_code=''
 		self.write(vals)

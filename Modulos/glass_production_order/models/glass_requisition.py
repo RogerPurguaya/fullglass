@@ -217,6 +217,21 @@ class GlassRequisition(models.Model):
 		})
 
 	@api.one
+	def get_picking(self,type_pick,motive):
+		picking = self.env['stock.picking'].create({
+				'picking_type_id': type_pick.id,
+				'partner_id': None,
+				'date': datetime.now().date(),
+				'fecha_kardex':datetime.now().date(),
+				'origin': self.name,
+				'location_dest_id': type_pick.default_location_dest_id.id,
+				'location_id': type_pick.default_location_src_id.id,
+				'company_id': self.env.user.company_id.id,
+				'einvoice_12': motive.id,
+				})
+		return picking
+
+	@api.one
 	def process(self):
 		used_lots = self.lot_ids.mapped('lot_id').filtered(lambda x: x.requisition_id)
 		if len(used_lots) > 0:
@@ -227,23 +242,12 @@ class GlassRequisition(models.Model):
 		
 		if len(self.raw_materials) == 0 and len(self.scraps) == 0:
 			raise exceptions.Warning('Error:\nLa Orden de requisicion debe tener por lo menos una linea de Materias primas o de Retazos')
-
+		
 		conf = self.env['glass.order.config'].search([])[0]
 		
 		# MATERIAS PRIMAS:
-		type_mp     = conf.picking_type_mp
-		raw_materials_picking = self.env['stock.picking'].create({
-				'picking_type_id': type_mp.id,
-				'partner_id': None,
-				'date': datetime.now().date(),
-				'fecha_kardex':datetime.now().date(),
-				'origin': self.name,
-				'location_dest_id': type_mp.default_location_dest_id.id,
-				'location_id': type_mp.default_location_src_id.id,
-				'company_id': self.env.user.company_id.id,
-				'einvoice_12': conf.traslate_motive_mp.id,
-			})
-
+		type_mp = conf.picking_type_mp
+		raw_materials_picking = self.get_picking(type_mp,conf.traslate_motive_mp)[0]
 		for item in self.raw_materials:
 			self.create_move(raw_materials_picking,type_mp,item.product_id,item.quantity)
 		self.transfer_picking(raw_materials_picking)
@@ -252,18 +256,7 @@ class GlassRequisition(models.Model):
 		# RETAZOS:
 		if len(self.scraps) > 0:
 			type_rt     = conf.picking_type_rt
-			scraps_picking = self.env['stock.picking'].create({
-					'picking_type_id': type_rt.id,
-					'partner_id': None,
-					'date': datetime.now().date(),
-					'fecha_kardex':datetime.now().date(),
-					'origin': self.name,
-					'location_dest_id': type_rt.default_location_dest_id.id,
-					'location_id': type_rt.default_location_src_id.id,
-					'company_id': self.env.user.company_id.id,
-					'einvoice_12': conf.traslate_motive_rt.id,
-				})
-
+			scraps_picking = self.get_picking(type_rt,conf.traslate_motive_rt)[0]
 			for item in self.scraps:
 				self.create_move(scraps_picking,type_rt,item.product_id,item.quantity)
 			self.transfer_picking(scraps_picking)
@@ -272,18 +265,7 @@ class GlassRequisition(models.Model):
 		# DEVOLUCION DE RETAZOS:
 		if len(self.return_scraps) > 0:
 			type_drt    = conf.picking_type_drt
-			scraps_return_picking = self.env['stock.picking'].create({
-					'picking_type_id': type_drt.id,
-					'partner_id': None,
-					'date': datetime.now().date(),
-					'fecha_kardex':datetime.now().date(),
-					'origin': self.name,
-					'location_dest_id': type_drt.default_location_dest_id.id,
-					'location_id': type_drt.default_location_src_id.id,
-					'company_id': self.env.user.company_id.id,
-					'einvoice_12': conf.traslate_motive_drt.id,
-				})
-
+			scraps_return_picking = self.get_picking(type_drt,conf.traslate_motive_drt)[0]
 			for item in self.return_scraps:
 				products = self.env['product.product'].search([('name','=',item.product_id.name),('retazo','=',True)])
 				product = products.filtered(lambda x: x.uom_id.ancho == item.width and x.uom_id.alto == item.height)
@@ -392,7 +374,6 @@ class GlassRequisition(models.Model):
 			'product_uom_qty': quantity,
 		})
 
-
 	@api.multi
 	def add_material(self):
 		# materiales permitidos		
@@ -475,7 +456,6 @@ class GlassRequisition(models.Model):
 			'view_type': 'form',
 			'target': 'new',
 		}
-
 
 class GlassRequisitionLineLot(models.Model):
 	_name = 'glass.requisition.line.lot'

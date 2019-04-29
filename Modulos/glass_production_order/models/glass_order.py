@@ -134,12 +134,12 @@ class GlassOrder(models.Model):
 
 	@api.multi
 	def remove_order(self):
-		form_view_ref = self.env.ref('glass_production_order.glass_remove_order_form_view', False)
 		module = __name__.split('addons.')[1].split('.')[0]
 		view = self.env.ref('%s.glass_remove_order_form_view' % module)
-		data = {
-			'name': _('Devolver Orden de Produccion'),
-			'context': self._context,
+		return {
+			'name': 'Devolver Orden de Produccion',
+			'context': {'active_id':self.id},
+			#'res_id':wizard.id,
 			'view_type': 'form',
 			'view_mode': 'form',
 			'res_model': 'glass.remove.order',
@@ -147,7 +147,6 @@ class GlassOrder(models.Model):
 			'type': 'ir.actions.act_window',
 			'target': 'new',
 		} 
-		return data
 
 	@api.one
 	def getwarehouse(self):
@@ -304,14 +303,14 @@ class GlassOrderLine(models.Model):
 	
 	stock_move_ids = fields.Many2many('stock.move','glass_order_line_stock_move_rel','glass_order_line_id','stock_move_id',string='Stock Moves')
 	descuadre = fields.Char("Descuadre",size=7,related="calc_line_id.descuadre",readonly=True)
-	pulido1 = fields.Many2one("sale.pulido.proforma","Pulido",related="calc_line_id.pulido1",readonly=True)
-	entalle = fields.Integer("Entalle",related="calc_line_id.entalle",readonly=True)
+	pulido1   = fields.Many2one("sale.pulido.proforma","Pulido",related="calc_line_id.pulido1",readonly=True)
+	entalle   = fields.Integer("Entalle",related="calc_line_id.entalle",readonly=True)
 	plantilla = fields.Boolean("Plantilla",related="calc_line_id.plantilla",readonly=True)
 	page_number = fields.Char(u"Nro. Pág.",related="calc_line_id.page_number",readonly=True)
 	embalado = fields.Boolean("Embalado",related="calc_line_id.embalado",readonly=True)
 	image = fields.Binary("Embalado",related="calc_line_id.image",readonly=True)
 	glass_break=fields.Boolean("Roto")
-	glass_repo=fields.Boolean("reposicioij")
+	glass_repo =fields.Boolean("reposicioij")
 	
 	search_code = fields.Char(u'Código de búsqueda',related="lot_line_id.search_code")
 	peso = fields.Float("Peso",digits=(20,4))
@@ -330,6 +329,7 @@ class GlassOrderLine(models.Model):
 	retired_date = fields.Date('Fecha de retiro')
 	reference_order  =  fields.Char('Referencia OP', related='order_id.reference_order')
 	canceled = fields.Boolean('Anulado')
+	in_packing_list = fields.Boolean('Packing List')
 
 	#locacion temporal como auxiliar para agregar un location a locations
 	location_tmp = fields.Many2one('custom.glass.location',string='Ubicacion') 

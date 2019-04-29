@@ -133,9 +133,7 @@ class GlassInProductionWizard(models.TransientModel):
 		if len(config_data)==0:
 			raise UserError(u'No se encontraron los valores de configuración de producción')		
 		config_data = self.env['glass.order.config'].search([])[0]
-		#Es necesario verificar el tipo de cambio y la moneda 
-		#para crear correctamente el picking y evitar crear stock moves erroneos,
-		#tambien verificar que todos los cristales tengan un orden de requisicion
+		
 		self.verify_constrains_for_process(self.date_in)
 		
 		grouped_lines = []
@@ -259,7 +257,7 @@ class GlassInProductionWizard(models.TransientModel):
 							msg += '-> '+item.crystal_number+' '+item.product_id.name+'\n'
 							raise exceptions.Warning('Las facturas de los siguientes cristales no fueron pagadas al '+str(conf[0].minimal)+' %.:\n'+msg)
 			else:
-				raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al Ingresar a APT')
+				raise UserError('No ha configurado las condiciones para el Plazo de pago al Ingresar a APT')
 
 		currency_obj = self.env['res.currency'].search([('name','=','USD')])
 		if len(currency_obj)>0:

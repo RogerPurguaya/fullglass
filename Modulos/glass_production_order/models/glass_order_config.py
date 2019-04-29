@@ -3,7 +3,6 @@
 from odoo import fields, models,api,exceptions, _
 from odoo.exceptions import UserError
 
-
 class GlassOrderConfig(models.Model):
 	_name = 'glass.order.config'
 	name = fields.Char(u'Parámetros',default=u"Parámetros")
@@ -44,16 +43,12 @@ class GlassOrderConfig(models.Model):
 	motive_event_send_email_ids = fields.One2many('motive.event.send.email','config_id',string='Motivos de Envio de Emails')
 
 	requisition_materials_ids = fields.One2many('requisition.material','config_id',string='Materiales de Requisicion')
+	
+	categ_uom_retazo = fields.Many2one('product.uom.categ')
 
 	path_glass_order_pdf = fields.Char(string='Ruta de GlassOrder Pdf')
 	path_glass_lines_pdf = fields.Char(string='Ruta de GlassOrderLine Pdf')
-	 
-	start_code_retazo = fields.Many2one('product.codigo.nativo')
-	prod_categ_retazo = fields.Many2one('product.category')
-	uom_po_retazo = fields.Many2one('product.uom')
-	categ_uom_retazo = fields.Many2one('product.uom.categ')
-	
-
+	 	
 	@api.constrains('nro_cristales_guia')
 	def _verify_nro_cristales(self):
 		for record in self:
@@ -65,7 +60,7 @@ class GlassOrderConfig(models.Model):
 		lines = self.env['glass.pdf.file'].search([('pdf_file','!=',False)])
 		from datetime import datetime
 		import base64
-		sub_items = [lines[i:i+100] for i in range(0,len(lines), 100)]
+		sub_items = [lines[i:i+100] for i in range(0,len(lines),100)]
 		for array in sub_items:
 			for item in array:
 				print('line in:', str(item.id))

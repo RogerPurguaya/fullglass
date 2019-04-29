@@ -81,9 +81,6 @@
                              </page>
                             <page string="Conf. Productos Retazos">
                             <group>
-                              <field name="start_code_retazo" string="Codigo de Retazo" required="1"/>
-                              <field name="prod_categ_retazo" string="Categoria de retazo" required="1"/>
-                              <field name="uom_po_retazo" string="Unidad Compra Retazo" required="1"/>
                               <field name="categ_uom_retazo" string="Categoria Unidad de Retazo" required="1"/>
                             </group>
                              </page>

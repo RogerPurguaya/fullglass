@@ -1,35 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- <record id="view_glass_croquis_form" model="ir.ui.view">
-        <field name="name">glass.croquis.form.view</field>
-        <field name="model">glass.order</field>
-        <field name="priority" eval="15"/>
-        <field name="arch" type="xml">
-            <form string="Croquis">                 
-                <group>
-                    <group>
-                        <field name="partner_id" readonly="1"/>
-                        <field name="sale_order_id" string = "Pedido de venta" readonly="1"/>
-                        <field name="name"/>
-                        <field name="editable_croquis" invisible="1"/>
-                    </group>
-                    <group>
-                    </group>
-
-                </group>
-                <notebook>
-                    <page name="croquis" string ="Croquis">
-                            <field name="sketch" widget="pdf_viewer" />
-                    </page>
-                </notebook>
-                <footer>
-                    <button string ="Guardar" name="savecroquis" type="object" attrs="{'invisible':[('editable_croquis','=',False)]}"/>
-                    <button string ="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
-                </footer>
-            </form>
-        </field>
-    </record> -->
     <record id="view_glass_order_form" model="ir.ui.view">
         <field name="name">glass.order.form.view</field>
         <field name="model">glass.order</field>
@@ -38,7 +8,6 @@
             <form string="Orden de producción">
                 <header>
                     <button string="Finalizar orden" name="endedop" type="object" groups="glass_production_order.group_glass_finish_op" states="confirmed,process,ended,delivered" confirm="Está seguro de finalizar esta orden de producción?"/>
-                    
                     <button string="Retirar orden" name="remove_order" type="object" states="confirmed,process,delivered" groups="glass_production_order.group_remove_op"/>
                     <field name="state" widget="statusbar" nolabel="1" />
                 </header>
@@ -122,24 +91,15 @@
                             <group>
                                 <button string="Ver Croquis" name="show_sketch" type="object" class="btn-primary"/>
                             </group>
-                            <!-- <group>
-                                <button string="Modificar Croquis" name="change_sketch" type="object" class="btn-primary"/>
-                            </group> -->
-                                <!-- <field name="file_name" invisible="0"/>
-                                <field name="sketch" widget="pdf_viewer" filename="file_name"/> -->
                          </page>
                         <page name="requisiciones" string ="Requisiciones">
                             <!-- <field name="file2" widget="pdf_viewer"/> ??-->
                         </page>
                     </notebook>
-                    
                 </sheet>
-
             </form>
-
         </field>
     </record>
-
 
     <record id="view_glass_order_tree" model="ir.ui.view">
         <field name="name">glass.order.tree.view</field>
@@ -231,9 +191,6 @@
         <field name="arch" type="xml">
             <form string="Imagen">
                 <field name="image" widget="image" height="300" width="400"/>
-                <footer>
-                   <button string="Regresar" name="cancel" special="cancel" class="btn-warning"/>
-                </footer>
             </form>
         </field>
     </record>
@@ -264,7 +221,6 @@
                     <group expand="0" string="Group By">
                         <filter string="Orden de producción" name="groupby_op" domain="[]" context="{'group_by':'order_id'}"/>
                         <filter string="Producto" name="groupby_product" domain="[]" context="{'group_by':'product_id'}"/>
-
                         <filter string="Estado" name="groupby_state"  domain="[]" context="{'group_by':'state'}"/>
                     </group>
                 </search>

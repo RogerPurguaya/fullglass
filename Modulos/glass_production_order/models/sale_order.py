@@ -106,18 +106,19 @@ class SaleOrder(models.Model):
 		if self.invoice_count==0:
 			raise UserError(u"No se puede generar OP cuando no se tiene una factura")
 		
+		# Habilitar este bloque cuando autorize Jorge, no borrar!!
 		# validando restricciones de terminos de pago:
-		if self.payment_term_id:
-			configs=self.env['config.payment.term'].search([('operation','=','generate_op')])
-			if len(configs) == 1: # solo puede estar en una conf
-				if self.payment_term_id.id in configs[0].payment_term_ids.ids:
-					invoice = self.invoice_ids[0]
-					payed = invoice.amount_total - invoice.residual
-					percentage = (payed/invoice.amount_total) * 100
-					if percentage < configs[0].minimal:
-						raise exceptions.Warning('No puede emitirse la Orden de Produccion\nEl porcentage minimo para el plazo de pago elegido es del '+str(configs[0].minimal)+' %.')
-			else:
-				raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al generar OP')
+		# if self.payment_term_id:
+		# 	configs=self.env['config.payment.term'].search([('operation','=','generate_op')])
+		# 	if len(configs) == 1: # solo puede estar en una conf
+		# 		if self.payment_term_id.id in configs[0].payment_term_ids.ids:
+		# 			invoice = self.invoice_ids[0]
+		# 			payed = invoice.amount_total - invoice.residual
+		# 			percentage = (payed/invoice.amount_total) * 100
+		# 			if percentage < configs[0].minimal:
+		# 				raise exceptions.Warning('No puede emitirse la Orden de Produccion\nEl porcentaje minimo para el plazo de pago elegido es del '+str(configs[0].minimal)+' %.')
+		# 	else:
+		# 		raise exceptions.Warning('No ha configurado las condiciones para el Plazo de pago al generar OP')
 
 		lsta=[]
 		generar = False
@@ -203,13 +204,11 @@ class SaleOrder(models.Model):
 				'date_production':dateprod,
 				'date_send':datesend,
 				'date_delivery':datedeli,
-				#'sketch':vals_wizard['selected_file'].pdf_file,
 				'file_name':vals_wizard['selected_file'].file_name,
 				'obra':vals_wizard['obra_text'],
 				'destinity_order':vals_wizard['destinity_order'],
 				'send2partner':vals_wizard['send2partner'],
 				'in_obra':vals_wizard['in_obra'],
-				#'sketch':vals_wizard['file_crokis'],
 				'croquis_path':vals_wizard['croquis_path'],
 				'comercial_area':vals_wizard['comercial_area'],
 				'reference_order': self.reference_order if self.reference_order else ''

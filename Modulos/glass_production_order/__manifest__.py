@@ -50,7 +50,7 @@
 		'views/requisition_material_view.xml',
 		'views/glass_send_emails_config.xml',
 		'views/requisition_workers.xml',
-		'views/add_sketch_file_view.xml',
+		'wizard/views_wizards/add_sketch_file_view.xml',
         ],
     'css': [
 		'static/src/css/sheet.css'

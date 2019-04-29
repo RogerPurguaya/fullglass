@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+
+    <!-- form para agregar un fichero pdf a la orden de venta -->
+        <record id="add_sketch_file_view_form" model="ir.ui.view">
+            <field name="name">add.sketch.file.view.form</field>
+            <field name="model">add.sketch.file</field>
+            <field name="arch" type="xml">
+                <form string="Agregar Archivo Croquis">
+                    <sheet>
+                        <notebook>
+                            <page string="Vista Previa" name="">
+                                <field name="file_name" invisible="1"/>
+                                <field name="sketch" widget="pdf_viewer" filename="file_name"/>
+                            </page>
+                        </notebook>
+                        <footer>
+                        <button string="Agregar Croquis" name="add_file" type="object" class="btn-primary"/>
+                        <button string="Vista Previa" name="preview" type="object" class="btn-primary"/>
+                        <button string="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    <!-- form para modificar el croquis en la orden de produccion-->
+        <record id="change_sketch_file_view_form" model="ir.ui.view">
+            <field name="name">add.sketch.file.view.form</field>
+            <field name="model">add.sketch.file</field>
+            <field name="arch" type="xml">
+                <form string="Archivo Croquis">
+                    <group attrs="{'invisible':[('message','=',False)]}">
+                        <field name="message" style="color:Red;" string=" " readonly="1"/>
+                    </group>
+                    <sheet>
+                        <notebook>
+                            <page string="Vista Previa" name="">
+                                <field name="file_name" invisible="1"/>
+                                <field name="sketch" widget="pdf_viewer" filename="file_name"/>
+                            </page>
+                        </notebook>
+                        <footer>
+                        <button string="Modificar Croquis" name="change_file" type="object" class="btn-primary" confirm="Esta operación eliminará de forma permanente el croquis anterior. ¿Desea Continuar?" groups="glass_production_order.modify_op_sketch"/>
+                        <button string="Cancelar" name="cancel" special="cancel" class="oe_link oe_inline"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

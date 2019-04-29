@@ -7,9 +7,13 @@ class StockReturnPicking(models.TransientModel):
 	@api.multi
 	def create_returns(self):
 		t = super(StockReturnPicking,self).create_returns()
+		print('inter')
 		if self._context.get('lines_to_return'):
+			print('ctx',self._context.get('lines_to_return'))
 			for item in self._context['lines_to_return']:
+				print('lol',item['line'])
 				line = self.env['glass.order.line'].browse(item['line'])
+				print('lol 2: ',line)
 				data = {
 					'user_id':self.env.uid,
 					'date':datetime.now(),

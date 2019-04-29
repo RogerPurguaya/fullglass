@@ -40,7 +40,7 @@ class GlassFurnaceOut(models.Model):
 		idsact = []
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		if self.search_code:
 			if not self._origin.id:
@@ -131,7 +131,7 @@ class GlassFurnaceOut(models.Model):
 		self.nro_crystal=len(self.line_ids)
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		farea = config_data.furnace_area
 		if area>0:
@@ -149,7 +149,7 @@ class GlassFurnaceOut(models.Model):
 		vals.update({'date_ingreso':datetime.now()})
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		farea = config_data.furnace_area
 		if area>0:
@@ -166,7 +166,7 @@ class GlassFurnaceOut(models.Model):
 		vals.update({'nro_crystal':len(self.line_ids)})
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		farea = config_data.furnace_area
 		if area>0:
@@ -204,7 +204,7 @@ class GlassFurnaceOut(models.Model):
 			raise exceptions.Warning('Los siguientes cristales no pueden procesarse:\n'+msg+'Haga click en el boton Limpiar para quitar estos cristales y seguir el proceso.')
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		newname = config_data.seq_furnace.next_by_id()
 		
@@ -224,7 +224,7 @@ class GlassFurnaceOut(models.Model):
 	def furnace_out(self):
 		config_data = self.env['glass.order.config'].search([])
 		if len(config_data)==0:
-			raise UserError(u'No se encontraron los valores de configuración de producción')		
+			raise UserError(u'No se encontraron los valores de configuracion de produccion')		
 		config_data = self.env['glass.order.config'].search([])[0]
 		if self.name=='/':
 			newname = config_data.seq_furnace_out.next_by_id()

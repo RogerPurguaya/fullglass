@@ -14,13 +14,13 @@ class GlassRemoveOrder(models.TransientModel):
 	@api.model
 	def default_get(self, default_fields):
 		res = super(GlassRemoveOrder, self).default_get(default_fields)
-		order = self.env['glass.order'].browse(self._context['active_id'])
+		order = self.env['glass.order'].browse(self._context.get('active_id'))
 		res.update({'order_name': order.name})
 		return res
 		
 	@api.one
 	def remove_order(self):
-		active_obj = self.env['glass.order'].browse(self._context['active_id'])
+		active_obj = self.env['glass.order'].browse(self._context.get('active_id'))
 		used_lines = active_obj.line_ids.filtered(lambda x: x.is_used or x.lot_line_id)
 		if len(used_lines) > 0:
 			raise UserError(u'No se puede retirar la OP.\nUno o varios elementos de esta orden de producción ya se encuentran en los lotes de producción.')		
