@@ -9,7 +9,7 @@ from sys import exc_info
 from traceback import format_exception
 
 from odoo import models, fields, api, _
-from odoo.exceptions import Warning
+from odoo.exceptions import Warning,UserError
 
 import logging
 _logger = logging.getLogger(__name__)
